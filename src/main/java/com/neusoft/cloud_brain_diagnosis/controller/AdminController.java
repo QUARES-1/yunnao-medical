@@ -71,4 +71,16 @@ public class AdminController {
     public Result<Map<String, Object>> getOverviewStatistics() {
         return Result.success(adminService.getOverviewStatistics());
     }
+
+    /**
+     * 管理员注册
+     */
+    @PostMapping("/register")
+    @Operation(summary = "管理员注册", description = "管理员账号注册")
+    public Result<String> register(
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam(required = false) String name) {
+        return Result.success(adminService.register(username, password, name));
+    }
 }

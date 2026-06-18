@@ -46,6 +46,19 @@ public class DoctorController {
     }
 
     /**
+     * 医生自助注册
+     * 注册成功后直接返回JWT token
+     */
+    @PostMapping("/register")
+    @Operation(summary = "医生注册", description = "公开接口，注册医生账号，返回token")
+    public Result<String> register(
+            @RequestParam String username,
+            @RequestParam String password,
+            @RequestParam(required = false) String name) {
+        return Result.success(doctorService.register(username, password, name));
+    }
+
+    /**
      * 医生列表（公开）
      * 支持按科室筛选
      */

@@ -1,16 +1,19 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
-import cn.hutool.crypto.digest.BCrypt;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
+import com.neusoft.cloud_brain_diagnosis.entity.Registration;
 import com.neusoft.cloud_brain_diagnosis.repository.DoctorRepository;
+import com.neusoft.cloud_brain_diagnosis.repository.RegistrationRepository;
 import com.neusoft.cloud_brain_diagnosis.service.DoctorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,14 +25,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
     private final DoctorRepository doctorRepository;
+    private final RegistrationRepository registrationRepository;
     private final JwtUtil jwtUtil;
 
     @Override
     public String login(String username, String password) {
         Doctor doctor = doctorRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("账号不存在"));
-        if (!BCrypt.checkpw(password, doctor.getPassword())) {
-            throw new RuntimeException("密码错误");
+                .orElseThrow(() -> new BusinessException("账号不存在"));
+        // 明文比较密码
+        if (!password.equals(doctor.getPassword())) {
+            throw new BusinessException("密码错误");
         }
         return jwtUtil.generateToken(doctor.getId(), RoleEnum.DOCTOR.getCode());
     }
@@ -49,7 +54,7 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public Doctor getDoctorDetail(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
         doctor.setPassword(null);
         return doctor;
     }
@@ -57,26 +62,28 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public Doctor getDoctorInfo(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
         doctor.setPassword(null);
         return doctor;
     }
 
     @Override
+    @Transactional
     public String addDoctor(Doctor doctor) {
         if (doctorRepository.existsByUsername(doctor.getUsername())) {
-            throw new RuntimeException("该账号已存在");
+            throw new BusinessException("该账号已存在");
         }
         String defaultPassword = doctor.getPassword() != null ? doctor.getPassword() : "123456";
-        doctor.setPassword(BCrypt.hashpw(defaultPassword, BCrypt.gensalt()));
+        doctor.setPassword(defaultPassword); // 明文存储
         doctorRepository.save(doctor);
         return "医生添加成功，默认密码：123456";
     }
 
     @Override
+    @Transactional
     public String updateDoctorInfo(Doctor doctor) {
         Doctor exist = doctorRepository.findById(doctor.getId())
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
         if (doctor.getName() != null) exist.setName(doctor.getName());
         if (doctor.getPhone() != null) exist.setPhone(doctor.getPhone());
         if (doctor.getTitle() != null) exist.setTitle(doctor.getTitle());
@@ -98,18 +105,63 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     public String resetPassword(Long id) {
         Doctor doctor = doctorRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
-        doctor.setPassword(BCrypt.hashpw("123456", BCrypt.gensalt()));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
+        doctor.setPassword("123456"); // 明文存储
         doctorRepository.save(doctor);
         return "密码重置成功，新密码：123456";
     }
 
     @Override
+    @Transactional
     public String deleteDoctor(Long id) {
+        Doctor doctor = doctorRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("医生不存在"));
+
+        // 检查是否有未完成的挂号
+        boolean hasActiveRegistrations = false;
+        List<Registration> registrations = registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(id, LocalDate.now());
+        for (Registration reg : registrations) {
+            if (!"已就诊".equals(reg.getStatus()) && !"已取消".equals(reg.getStatus())) {
+                hasActiveRegistrations = true;
+                break;
+            }
+        }
+        if (hasActiveRegistrations) {
+            throw new BusinessException("该医生还有未完成的挂号记录，无法删除");
+        }
+
         doctorRepository.deleteById(id);
         return "医生删除成功";
+    }
+
+    @Override
+    @Transactional
+    public String register(String username, String password, String name) {
+        // 1. 检查用户名是否已存在
+        if (doctorRepository.existsByUsername(username)) {
+            throw new BusinessException("用户名已存在");
+        }
+
+        // 2. 校验参数
+        if (username == null || username.length() < 3) {
+            throw new BusinessException("用户名至少3位");
+        }
+        if (password == null || password.length() < 6) {
+            throw new BusinessException("密码至少6位");
+        }
+
+        // 3. 创建医生账号
+        Doctor doctor = new Doctor();
+        doctor.setUsername(username);
+        doctor.setPassword(password); // 明文存储
+        doctor.setName(name != null ? name : username);
+        doctorRepository.save(doctor);
+
+        // 4. 直接返回token，免去注册后再登录
+        return jwtUtil.generateToken(doctor.getId(), RoleEnum.DOCTOR.getCode());
     }
 
     @Override

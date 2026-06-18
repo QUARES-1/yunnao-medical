@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
 import com.neusoft.cloud_brain_diagnosis.entity.Patient;
 import com.neusoft.cloud_brain_diagnosis.entity.Registration;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -32,30 +34,43 @@ public class RegistrationServiceImpl implements RegistrationService {
      * 创建挂号
      */
     @Override
+    @Transactional
     public Registration createRegistration(Registration registration) {
         // 1. 验证患者是否存在
         Patient patient = patientRepository.findById(registration.getPatientId())
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
 
         // 2. 验证医生是否存在
         Doctor doctor = doctorRepository.findById(registration.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
 
         // 3. 验证挂号日期和时间段
         if (registration.getRegistrationDate() == null) {
-            throw new RuntimeException("请选择挂号日期");
+            throw new BusinessException("请选择挂号日期");
         }
         if (registration.getTimeSlot() == null || registration.getTimeSlot().isEmpty()) {
-            throw new RuntimeException("请选择时间段");
+            throw new BusinessException("请选择时间段");
         }
 
         // 4. 验证日期不能早于今天
         if (registration.getRegistrationDate().isBefore(LocalDate.now())) {
-            throw new RuntimeException("不能预约过去的日期");
+            throw new BusinessException("不能预约过去的日期");
         }
 
-        // 5. 检查该医生该时段是否已经挂号过（防止重复挂号）
-        // 这里可以加业务逻辑，比如同一个患者同一天不能挂同一个医生两次
+        // 5. 防止重复挂号：同一天同一患者不能挂同一个医生同一时段
+        long count = registrationRepository.countByDoctorIdAndRegistrationDateAndTimeSlot(
+                registration.getDoctorId(), registration.getRegistrationDate(), registration.getTimeSlot());
+        // 检查该患者是否已在该时段挂过该医生
+        // 使用更精确的查找方式
+        List<Registration> existingRegs = registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(
+                registration.getDoctorId(), registration.getRegistrationDate());
+        for (Registration reg : existingRegs) {
+            if (reg.getPatientId().equals(registration.getPatientId())
+                    && reg.getTimeSlot().equals(registration.getTimeSlot())
+                    && !"已取消".equals(reg.getStatus())) {
+                throw new BusinessException("您已在该时段挂过该医生，请勿重复挂号");
+            }
+        }
 
         // 6. 填充冗余字段
         registration.setPatientName(patient.getName());
@@ -88,26 +103,27 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public Registration getDetail(Long id) {
         return registrationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
     }
 
     /**
      * 患者-取消挂号
      */
     @Override
+    @Transactional
     public String cancelRegistration(Long id, Long patientId) {
         // 1. 查找挂号记录
         Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
 
         // 2. 验证是否是本人的挂号
         if (!registration.getPatientId().equals(patientId)) {
-            throw new RuntimeException("无权操作他人的挂号记录");
+            throw new BusinessException("无权操作他人的挂号记录");
         }
 
         // 3. 验证状态：只有待就诊状态才能取消
         if (!"待就诊".equals(registration.getStatus())) {
-            throw new RuntimeException("只有待就诊状态的挂号才能取消");
+            throw new BusinessException("只有待就诊状态的挂号才能取消");
         }
 
         // 4. 更新状态
@@ -143,19 +159,20 @@ public class RegistrationServiceImpl implements RegistrationService {
      * 医生-开始看诊
      */
     @Override
+    @Transactional
     public String startConsultation(Long id, Long doctorId) {
         // 1. 查找挂号记录
         Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
 
         // 2. 验证是否是该医生的患者
         if (!registration.getDoctorId().equals(doctorId)) {
-            throw new RuntimeException("无权操作其他医生的患者");
+            throw new BusinessException("无权操作其他医生的患者");
         }
 
         // 3. 验证状态：只能从待就诊开始
         if (!"待就诊".equals(registration.getStatus())) {
-            throw new RuntimeException("当前状态不能开始看诊，当前状态：" + registration.getStatus());
+            throw new BusinessException("当前状态不能开始看诊，当前状态：" + registration.getStatus());
         }
 
         // 4. 更新状态为就诊中
@@ -169,19 +186,20 @@ public class RegistrationServiceImpl implements RegistrationService {
      * 医生-完成看诊
      */
     @Override
+    @Transactional
     public String completeConsultation(Long id, Long doctorId) {
         // 1. 查找挂号记录
         Registration registration = registrationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
 
         // 2. 验证是否是该医生的患者
         if (!registration.getDoctorId().equals(doctorId)) {
-            throw new RuntimeException("无权操作其他医生的患者");
+            throw new BusinessException("无权操作其他医生的患者");
         }
 
         // 3. 验证状态：只能从就诊中完成
         if (!"就诊中".equals(registration.getStatus())) {
-            throw new RuntimeException("当前状态不能完成看诊，当前状态：" + registration.getStatus());
+            throw new BusinessException("当前状态不能完成看诊，当前状态：" + registration.getStatus());
         }
 
         // 4. 更新状态为已就诊

@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
 import com.neusoft.cloud_brain_diagnosis.entity.MedicalRecord;
 import com.neusoft.cloud_brain_diagnosis.entity.Patient;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -30,11 +32,12 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
      * - 如果没有ID，就是新增，需要从挂号记录获取患者、医生信息
      */
     @Override
+    @Transactional
     public MedicalRecord saveRecord(MedicalRecord record) {
         // ========== 修改病历 ==========
         if (record.getId() != null) {
             MedicalRecord exist = medicalRecordRepository.findById(record.getId())
-                    .orElseThrow(() -> new RuntimeException("病历不存在"));
+                    .orElseThrow(() -> new BusinessException("病历不存在"));
 
             // 只更新非空字段
             if (record.getChiefComplaint() != null) {
@@ -62,16 +65,16 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         // ========== 新增病历 ==========
         // 1. 验证挂号记录是否存在
         if (record.getRegistrationId() == null) {
-            throw new RuntimeException("挂号ID不能为空");
+            throw new BusinessException("挂号ID不能为空");
         }
         Registration registration = registrationRepository.findById(record.getRegistrationId())
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
 
         // 2. 验证患者和医生
         Patient patient = patientRepository.findById(registration.getPatientId())
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
         Doctor doctor = doctorRepository.findById(registration.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
 
         // 3. 检查该挂号是否已经有病历了（一个挂号对应一份病历）
         MedicalRecord existRecord = medicalRecordRepository.findByRegistrationId(record.getRegistrationId()).orElse(null);
@@ -103,7 +106,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     public MedicalRecord getDetail(Long id) {
         return medicalRecordRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("病历不存在"));
+                .orElseThrow(() -> new BusinessException("病历不存在"));
     }
 
     /**

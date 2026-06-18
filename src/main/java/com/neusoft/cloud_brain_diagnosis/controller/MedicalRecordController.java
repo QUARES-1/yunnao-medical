@@ -31,18 +31,20 @@ public class MedicalRecordController {
     }
 
     /**
-     * 病历详情
+     * 病历详情（需要登录，患者和医生可以查看）
      */
     @GetMapping("/detail/{id}")
+    @RequireLogin
     @Operation(summary = "病历详情", description = "患者和医生都可以查看")
     public Result<MedicalRecord> getDetail(@PathVariable Long id) {
         return Result.success(medicalRecordService.getDetail(id));
     }
 
     /**
-     * 根据挂号ID查询病历
+     * 根据挂号ID查询病历（需要登录）
      */
     @GetMapping("/registration/{regId}")
+    @RequireLogin
     @Operation(summary = "根据挂号ID查询病历", description = "一个挂号对应一份病历")
     public Result<MedicalRecord> getByRegistrationId(@PathVariable Long regId) {
         return Result.success(medicalRecordService.getByRegistrationId(regId));

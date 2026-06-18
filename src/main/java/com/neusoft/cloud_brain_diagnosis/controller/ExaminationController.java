@@ -34,9 +34,10 @@ public class ExaminationController {
     }
 
     /**
-     * 检查详情
+     * 检查详情（需要登录，患者/医生/检验科均可查看）
      */
     @GetMapping("/detail/{id}")
+    @RequireLogin
     @Operation(summary = "检查详情", description = "患者、医生、检验科都可以查看")
     public Result<Examination> getDetail(@PathVariable Long id) {
         return Result.success(examinationService.getDetail(id));

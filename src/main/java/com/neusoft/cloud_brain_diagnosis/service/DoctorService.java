@@ -16,4 +16,8 @@ public interface DoctorService {
     String resetPassword(Long id);
     String deleteDoctor(Long id);
     Map<String, Object> getSchedule(Long doctorId);
+    /**
+     * 医生自助注册
+     */
+    String register(String username, String password, String name);
 }

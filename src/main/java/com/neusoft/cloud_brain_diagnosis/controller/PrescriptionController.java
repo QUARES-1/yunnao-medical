@@ -31,9 +31,10 @@ public class PrescriptionController {
     }
 
     /**
-     * 处方详情
+     * 处方详情（需要登录）
      */
     @GetMapping("/detail/{id}")
+    @RequireLogin
     @Operation(summary = "处方详情", description = "患者、医生、药房都可以查看")
     public Result<Prescription> getDetail(@PathVariable Long id) {
         return Result.success(prescriptionService.getDetail(id));

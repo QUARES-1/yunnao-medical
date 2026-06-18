@@ -59,9 +59,10 @@ public class RegistrationController {
     }
 
     /**
-     * 挂号详情
+     * 挂号详情（需要登录）
      */
     @GetMapping("/detail/{id}")
+    @RequireLogin
     @Operation(summary = "挂号详情", description = "患者和医生都可以查看")
     public Result<Registration> getDetail(@PathVariable Long id) {
         return Result.success(registrationService.getDetail(id));

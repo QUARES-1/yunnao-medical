@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
 import com.neusoft.cloud_brain_diagnosis.entity.Patient;
 import com.neusoft.cloud_brain_diagnosis.entity.Prescription;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,23 +33,24 @@ public class PrescriptionServiceImpl implements PrescriptionService {
      * 医生-开具处方
      */
     @Override
+    @Transactional
     public Prescription createPrescription(Prescription prescription) {
         // 1. 验证挂号记录
         if (prescription.getRegistrationId() == null) {
-            throw new RuntimeException("挂号ID不能为空");
+            throw new BusinessException("挂号ID不能为空");
         }
         Registration registration = registrationRepository.findById(prescription.getRegistrationId())
-                .orElseThrow(() -> new RuntimeException("挂号记录不存在"));
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
 
         // 2. 验证患者和医生
         Patient patient = patientRepository.findById(registration.getPatientId())
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
         Doctor doctor = doctorRepository.findById(registration.getDoctorId())
-                .orElseThrow(() -> new RuntimeException("医生不存在"));
+                .orElseThrow(() -> new BusinessException("医生不存在"));
 
         // 3. 验证药品列表不能为空
         if (prescription.getDrugs() == null || prescription.getDrugs().isEmpty()) {
-            throw new RuntimeException("请添加药品");
+            throw new BusinessException("请添加药品");
         }
 
         // 4. 如果总金额为空，设置为0
@@ -73,7 +76,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     @Override
     public Prescription getDetail(Long id) {
         return prescriptionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("处方不存在"));
+                .orElseThrow(() -> new BusinessException("处方不存在"));
     }
 
     /**
@@ -107,14 +110,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
      * 药房-发药
      */
     @Override
+    @Transactional
     public String dispense(Long id) {
         // 1. 查找处方
         Prescription prescription = prescriptionRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("处方不存在"));
+                .orElseThrow(() -> new BusinessException("处方不存在"));
 
         // 2. 验证状态
         if (!"待发药".equals(prescription.getStatus())) {
-            throw new RuntimeException("当前状态不能发药，当前状态：" + prescription.getStatus());
+            throw new BusinessException("当前状态不能发药，当前状态：" + prescription.getStatus());
         }
 
         // 3. 更新状态和发药时间

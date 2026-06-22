@@ -5,6 +5,7 @@ import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
 import com.neusoft.cloud_brain_diagnosis.entity.Patient;
 import com.neusoft.cloud_brain_diagnosis.entity.Registration;
 import com.neusoft.cloud_brain_diagnosis.repository.DoctorRepository;
+import com.neusoft.cloud_brain_diagnosis.repository.MedicalRecordRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.PatientRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.RegistrationRepository;
 import com.neusoft.cloud_brain_diagnosis.service.RegistrationService;
@@ -25,6 +26,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
 
     // ========================================
     // 患者端方法
@@ -101,9 +103,25 @@ public class RegistrationServiceImpl implements RegistrationService {
      * 挂号详情
      */
     @Override
-    public Registration getDetail(Long id) {
-        return registrationRepository.findById(id)
+    public Registration getDetail(Long id, Long userId, String role) {
+        Registration registration = registrationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+        if ("doctor".equals(role) && !registration.getDoctorId().equals(userId)) {
+            throw new BusinessException("该患者未挂号给当前医生，无权查看");
+        }
+        if ("patient".equals(role) && !registration.getPatientId().equals(userId)) {
+            throw new BusinessException("无权查看其他患者的挂号记录");
+        }
+        if (!"doctor".equals(role) && !"patient".equals(role) && !"admin".equals(role)) {
+            throw new BusinessException("当前角色无权查看挂号详情");
+        }
+        Patient patient = patientRepository.findById(registration.getPatientId())
+                .orElseThrow(() -> new BusinessException("患者不存在"));
+        registration.setPatientGender(patient.getGender());
+        registration.setPatientAge(patient.getAge());
+        registration.setPatientPhone(patient.getPhone());
+        registration.setPatientAllergyHistory(patient.getAllergyHistory());
+        return registration;
     }
 
     /**
@@ -150,9 +168,9 @@ public class RegistrationServiceImpl implements RegistrationService {
      * 医生-历史挂号列表（分页）
      */
     @Override
-    public Page<Registration> getDoctorList(Long doctorId, Integer page, Integer size) {
+    public Page<Registration> getDoctorList(Long doctorId, String keyword, String status, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
-        return registrationRepository.findByDoctorIdOrderByCreateTimeDesc(doctorId, pageRequest);
+        return registrationRepository.searchDoctorHistory(doctorId, keyword, status, pageRequest);
     }
 
     /**
@@ -202,10 +220,22 @@ public class RegistrationServiceImpl implements RegistrationService {
             throw new BusinessException("当前状态不能完成看诊，当前状态：" + registration.getStatus());
         }
 
+        var medicalRecord = medicalRecordRepository.findByRegistrationId(id)
+                .orElseThrow(() -> new BusinessException("请先保存病历，再完成看诊"));
+        if (isBlank(medicalRecord.getChiefComplaint())
+                || isBlank(medicalRecord.getDiagnosis())
+                || isBlank(medicalRecord.getTreatment())) {
+            throw new BusinessException("病历未填写完整，请补充主诉、诊断结果和治疗意见");
+        }
+
         // 4. 更新状态为已就诊
         registration.setStatus("已就诊");
         registrationRepository.save(registration);
 
         return "看诊完成";
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

@@ -33,11 +33,15 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
      */
     @Override
     @Transactional
-    public MedicalRecord saveRecord(MedicalRecord record) {
+    public MedicalRecord saveRecord(MedicalRecord record, Long doctorId) {
         // ========== 修改病历 ==========
         if (record.getId() != null) {
             MedicalRecord exist = medicalRecordRepository.findById(record.getId())
                     .orElseThrow(() -> new BusinessException("病历不存在"));
+
+            Registration registration = registrationRepository.findById(exist.getRegistrationId())
+                    .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+            validateDoctorCanOperate(registration, doctorId);
 
             // 只更新非空字段
             if (record.getChiefComplaint() != null) {
@@ -69,6 +73,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         }
         Registration registration = registrationRepository.findById(record.getRegistrationId())
                 .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+        validateDoctorCanOperate(registration, doctorId);
 
         // 2. 验证患者和医生
         Patient patient = patientRepository.findById(registration.getPatientId())
@@ -100,21 +105,47 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         return medicalRecordRepository.save(record);
     }
 
+    private void validateDoctorCanOperate(Registration registration, Long doctorId) {
+        if (!registration.getDoctorId().equals(doctorId)) {
+            throw new BusinessException("无权操作其他医生的患者");
+        }
+        if (!"就诊中".equals(registration.getStatus())) {
+            throw new BusinessException("请先开始看诊，只有就诊中的挂号可以编辑病历");
+        }
+    }
+
     /**
      * 根据ID查询病历详情
      */
     @Override
-    public MedicalRecord getDetail(Long id) {
-        return medicalRecordRepository.findById(id)
+    public MedicalRecord getDetail(Long id, Long userId, String role) {
+        MedicalRecord record = medicalRecordRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("病历不存在"));
+        validateReadAccess(record.getRegistrationId(), userId, role);
+        return record;
     }
 
     /**
      * 根据挂号ID查询病历
      */
     @Override
-    public MedicalRecord getByRegistrationId(Long registrationId) {
+    public MedicalRecord getByRegistrationId(Long registrationId, Long userId, String role) {
+        validateReadAccess(registrationId, userId, role);
         return medicalRecordRepository.findByRegistrationId(registrationId).orElse(null);
+    }
+
+    private void validateReadAccess(Long registrationId, Long userId, String role) {
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+        if ("doctor".equals(role) && !registration.getDoctorId().equals(userId)) {
+            throw new BusinessException("该患者不属于当前医生，无权查看病历");
+        }
+        if ("patient".equals(role) && !registration.getPatientId().equals(userId)) {
+            throw new BusinessException("无权查看其他患者的病历");
+        }
+        if (!"doctor".equals(role) && !"patient".equals(role) && !"admin".equals(role)) {
+            throw new BusinessException("当前角色无权查看病历");
+        }
     }
 
     /**

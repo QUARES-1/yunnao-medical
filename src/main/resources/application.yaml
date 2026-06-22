@@ -6,7 +6,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/cloud_brain_diagnosis?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: ${DB_PASSWORD:ROOT}
+    password: "gaosihan2006"
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA配置
@@ -31,8 +31,8 @@ jwt:
 
 # 微信小程序配置（生产环境请通过环境变量覆盖）
 wechat:
-  appid: ${WECHAT_APPID:wx1234567890abcdef}
-  secret: ${WECHAT_SECRET:your_secret_here}
+  appid: wx64e4374dc4f3c242
+  secret: ${WECHAT_APP_SECRET:}
 
 # 文件上传路径
 file:

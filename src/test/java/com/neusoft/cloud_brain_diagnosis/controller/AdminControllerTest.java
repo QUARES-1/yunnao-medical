@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.Admin;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Map;
@@ -26,12 +28,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AdminControllerTest {
 
     @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
     @MockBean private AdminService adminService;
     @MockBean private JwtUtil jwtUtil;
 
     @BeforeEach
     void setUp() {
-        // JwtInterceptor will call these methods; mock them so requests pass through
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(1L);
     }
@@ -41,8 +43,8 @@ class AdminControllerTest {
         when(adminService.login("admin", "123456")).thenReturn("mock-token");
 
         mockMvc.perform(post("/api/admin/login")
-                        .param("username", "admin")
-                        .param("password", "123456"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"admin\",\"password\":\"123456\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data").value("mock-token"));
@@ -54,9 +56,8 @@ class AdminControllerTest {
                 .thenReturn("注册成功");
 
         mockMvc.perform(post("/api/admin/register")
-                        .param("username", "newadmin")
-                        .param("password", "123456")
-                        .param("name", "管理员"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"username\":\"newadmin\",\"password\":\"123456\",\"name\":\"管理员\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("注册成功"));
     }
@@ -89,5 +90,52 @@ class AdminControllerTest {
                         .header("Authorization", "Bearer mock-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.patientCount").value(10));
+    }
+
+    @Test
+    void changePassword_ShouldSucceed() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.ADMIN.getCode());
+
+        when(adminService.changePassword(1L, "old123", "new123"))
+                .thenReturn("密码修改成功");
+
+        mockMvc.perform(put("/api/admin/change-pwd")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"oldPassword\":\"old123\",\"newPassword\":\"new123\"}")
+                        .header("Authorization", "Bearer mock-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value("密码修改成功"));
+    }
+
+    @Test
+    void changePassword_ShouldReturn500_WhenOldPasswordIsWrong() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.ADMIN.getCode());
+
+        when(adminService.changePassword(1L, "wrong", "new123"))
+                .thenThrow(new com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException("原密码错误"));
+
+        mockMvc.perform(put("/api/admin/change-pwd")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"oldPassword\":\"wrong\",\"newPassword\":\"new123\"}")
+                        .header("Authorization", "Bearer mock-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("原密码错误"));
+    }
+
+    @Test
+    void changePassword_ShouldReturn500_WhenOldPasswordIsNull() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.ADMIN.getCode());
+
+        // adminId 为空时 service 抛出异常
+        when(adminService.changePassword(eq(1L), isNull(), anyString()))
+                .thenThrow(new com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException("管理员不存在"));
+
+        mockMvc.perform(put("/api/admin/change-pwd")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"oldPassword\":null,\"newPassword\":\"new123\"}")
+                        .header("Authorization", "Bearer mock-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
     }
 }

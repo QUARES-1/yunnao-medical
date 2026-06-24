@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### JaCoCo ###
+jacoco.exec
+src/test/resources/

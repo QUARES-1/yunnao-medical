@@ -132,6 +132,39 @@ class MedicineServiceTest {
     }
 
     @Test
+    void updateMedicine_ShouldUpdateAllFields() {
+        Medicine existing = new Medicine();
+        existing.setId(1L);
+        existing.setName("旧名");
+        existing.setStock(100);
+        existing.setManufacturer("旧厂商");
+
+        Medicine update = new Medicine();
+        update.setId(1L);
+        update.setCategoryId(5L);
+        update.setCategoryName("抗生素");
+        update.setSpecification("0.5g*12片");
+        update.setUnit("盒");
+        update.setPrice(new BigDecimal("35.00"));
+        update.setStock(200);
+        update.setManufacturer("新厂商");
+        update.setDescription("效果更好");
+
+        when(medicineRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(medicineRepository.save(any())).thenReturn(existing);
+
+        medicineService.updateMedicine(update);
+        assertEquals(5L, existing.getCategoryId());
+        assertEquals("抗生素", existing.getCategoryName());
+        assertEquals("0.5g*12片", existing.getSpecification());
+        assertEquals("盒", existing.getUnit());
+        assertEquals(new BigDecimal("35.00"), existing.getPrice());
+        assertEquals(Integer.valueOf(200), existing.getStock());
+        assertEquals("新厂商", existing.getManufacturer());
+        assertEquals("效果更好", existing.getDescription());
+    }
+
+    @Test
     void deleteMedicine_ShouldSucceed() {
         when(medicineRepository.existsById(1L)).thenReturn(true);
         String result = medicineService.deleteMedicine(1L);
@@ -179,6 +212,12 @@ class MedicineServiceTest {
 
         when(medicineRepository.findById(1L)).thenReturn(Optional.of(med));
         assertThrows(BusinessException.class, () -> medicineService.updateStock(1L, -10));
+    }
+
+    @Test
+    void updateStock_ShouldThrow_WhenNotFound() {
+        when(medicineRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(BusinessException.class, () -> medicineService.updateStock(99L, 10));
     }
 
     @Test

@@ -45,7 +45,7 @@ public class DoctorController {
     }
 
     /**
-     * 医生自助注册（JSON格式）
+     * 医生自助注册
      * 注册成功后直接返回JWT token
      */
     @PostMapping("/register")

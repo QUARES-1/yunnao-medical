@@ -26,7 +26,7 @@ public class FileUploadController {
     private String uploadPath;
 
     @PostMapping("/upload")
-    @RequireLogin(RoleEnum.DOCTOR)
+    @RequireLogin({RoleEnum.DOCTOR, RoleEnum.PATIENT, RoleEnum.ADMIN, RoleEnum.PHARMACY, RoleEnum.LAB})
     @Operation(summary = "文件上传", description = "上传头像、图片等，返回文件访问URL")
     public Result<String> upload(MultipartFile file) {
         if (file == null || file.isEmpty()) {

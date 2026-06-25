@@ -1,23 +1,12 @@
-# 云脑诊疗平台药房端
+# 云脑诊疗平台检验科端
 
-独立的药房 Web 工作端，采用 Vue 3、TypeScript、Vite、Element Plus、Axios、Vue Router 和 Pinia。
+基于 Vue 3、TypeScript、Vite、Element Plus、Axios、Vue Router 和 Pinia 开发。
 
-## 功能
-
-- 药房人员 JWT 登录与路由权限控制
-- 药房数据总览和优先发药队列
-- 处方详情、四项核对、确认发药
-- 已发药记录追溯
-- 药品库存查询、低库存提示和入库登记
-- 个人中心与密码修改
-
-## 运行
+功能包括检验人员 JWT 登录、检验总览、待检查队列、结果录入、报告图片上传、已完成报告查询、检查项目目录、个人中心与密码修改。
 
 ```bash
 npm install
 npm run dev
 ```
 
-访问 `http://localhost:5175`，后端需运行在 `http://localhost:8080`。
-
-测试账号：`pharmacy01` / `123456`
+访问 `http://localhost:5176`。测试账号：`lab01` / `123456`。

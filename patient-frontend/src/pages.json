@@ -1,0 +1,20 @@
+{
+  "pages": [
+    { "path": "pages/auth/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/index/index", "style": { "navigationStyle": "custom" } },
+    { "path": "pages/departments/list", "style": { "navigationBarTitleText": "全部科室" } },
+    { "path": "pages/doctors/list", "style": { "navigationBarTitleText": "选择医生" } },
+    { "path": "pages/doctors/detail", "style": { "navigationBarTitleText": "医生主页" } },
+    { "path": "pages/booking/confirm", "style": { "navigationBarTitleText": "确认预约" } },
+    { "path": "pages/registrations/list", "style": { "navigationBarTitleText": "挂号记录" } },
+    { "path": "pages/registrations/detail", "style": { "navigationBarTitleText": "挂号详情" } },
+    { "path": "pages/profile/index", "style": { "navigationBarTitleText": "个人中心" } },
+    { "path": "pages/profile/edit", "style": { "navigationBarTitleText": "编辑个人资料" } }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "云脑诊疗",
+    "navigationBarBackgroundColor": "#ffffff",
+    "backgroundColor": "#f4f8fb"
+  }
+}

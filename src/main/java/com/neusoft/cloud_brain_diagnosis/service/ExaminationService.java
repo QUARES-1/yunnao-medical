@@ -10,12 +10,16 @@ public interface ExaminationService {
     /**
      * 医生-开立检查
      */
-    Examination createExamination(Examination examination);
+    Examination createExamination(Examination examination, Long doctorId);
+
+    String cancelExamination(Long id, Long doctorId);
+
+    List<Examination> getByRegistrationId(Long registrationId, Long doctorId);
 
     /**
      * 检查详情
      */
-    Examination getDetail(Long id);
+    Examination getDetail(Long id, Long userId, String role);
 
     /**
      * 患者-我的检查报告列表（分页）
@@ -30,7 +34,7 @@ public interface ExaminationService {
     /**
      * 检验科-待检查列表（分页）
      */
-    Page<Examination> getLabList(Integer page, Integer size);
+    Page<Examination> getLabList(String status, Integer page, Integer size);
 
     /**
      * 检验科-填写检查结果

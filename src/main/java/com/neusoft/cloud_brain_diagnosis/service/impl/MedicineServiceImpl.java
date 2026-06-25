@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.Medicine;
 import com.neusoft.cloud_brain_diagnosis.entity.MedicineCategory;
 import com.neusoft.cloud_brain_diagnosis.repository.MedicineCategoryRepository;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,17 +38,18 @@ public class MedicineServiceImpl implements MedicineService {
     @Override
     public Medicine getDetail(Long id) {
         return medicineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("药品不存在"));
+                .orElseThrow(() -> new BusinessException("药品不存在"));
     }
 
     /**
      * 添加药品
      */
     @Override
+    @Transactional
     public String addMedicine(Medicine medicine) {
         // 1. 验证药品名称
         if (medicine.getName() == null || medicine.getName().isEmpty()) {
-            throw new RuntimeException("药品名称不能为空");
+            throw new BusinessException("药品名称不能为空");
         }
 
         // 2. 设置默认值
@@ -66,10 +69,11 @@ public class MedicineServiceImpl implements MedicineService {
      * 修改药品
      */
     @Override
+    @Transactional
     public String updateMedicine(Medicine medicine) {
         // 1. 查找药品
         Medicine exist = medicineRepository.findById(medicine.getId())
-                .orElseThrow(() -> new RuntimeException("药品不存在"));
+                .orElseThrow(() -> new BusinessException("药品不存在"));
 
         // 2. 更新非空字段
         if (medicine.getName() != null) exist.setName(medicine.getName());
@@ -91,9 +95,10 @@ public class MedicineServiceImpl implements MedicineService {
      * 删除药品
      */
     @Override
+    @Transactional
     public String deleteMedicine(Long id) {
         if (!medicineRepository.existsById(id)) {
-            throw new RuntimeException("药品不存在");
+            throw new BusinessException("药品不存在");
         }
         medicineRepository.deleteById(id);
         return "药品删除成功";
@@ -105,15 +110,16 @@ public class MedicineServiceImpl implements MedicineService {
      * - quantity < 0：减少库存
      */
     @Override
+    @Transactional
     public String updateStock(Long id, Integer quantity) {
         // 1. 查找药品
         Medicine medicine = medicineRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("药品不存在"));
+                .orElseThrow(() -> new BusinessException("药品不存在"));
 
         // 2. 计算新库存
         int newStock = medicine.getStock() + quantity;
         if (newStock < 0) {
-            throw new RuntimeException("库存不足，当前库存：" + medicine.getStock());
+            throw new BusinessException("库存不足，当前库存：" + medicine.getStock());
         }
 
         // 3. 更新

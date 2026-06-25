@@ -1,9 +1,7 @@
 package com.neusoft.cloud_brain_diagnosis.service.impl;
 
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.config.WechatConfig;
 import com.neusoft.cloud_brain_diagnosis.entity.Patient;
@@ -32,14 +30,16 @@ public class PatientServiceImpl implements PatientService {
             params.put("secret", wechatConfig.getSecret());
             params.put("js_code", code);
             params.put("grant_type", "authorization_code");
-            String result = HttpUtil.get(url, params);
-            JSONObject json = JSONUtil.parseObj(result);
+            String result = cn.hutool.http.HttpUtil.get(url, params);
+            cn.hutool.json.JSONObject json = cn.hutool.json.JSONUtil.parseObj(result);
             if (json.getStr("errcode") != null) {
-                throw new RuntimeException("微信授权失败");
+                throw new BusinessException("微信授权失败：" + json.getStr("errmsg"));
             }
             openid = json.getStr("openid");
+        } catch (BusinessException e) {
+            throw e;
         } catch (Exception e) {
-            openid = "test_" + code;
+            throw new BusinessException("微信登录失败，请稍后重试");
         }
 
         Patient patient = patientRepository.findByOpenid(openid).orElse(null);
@@ -62,13 +62,13 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public Patient getPatientInfo(Long id) {
         return patientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
     }
 
     @Override
     public String updatePatientInfo(Patient updatePatient) {
         Patient patient = patientRepository.findById(updatePatient.getId())
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
         if (updatePatient.getName() != null) patient.setName(updatePatient.getName());
         if (updatePatient.getGender() != null) patient.setGender(updatePatient.getGender());
         if (updatePatient.getAge() != null) patient.setAge(updatePatient.getAge());
@@ -82,10 +82,10 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public String bindPhone(Long patientId, String phone) {
         if (patientRepository.existsByPhone(phone)) {
-            throw new RuntimeException("该手机号已被绑定");
+            throw new BusinessException("该手机号已被绑定");
         }
         Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new RuntimeException("患者不存在"));
+                .orElseThrow(() -> new BusinessException("患者不存在"));
         patient.setPhone(phone);
         patientRepository.save(patient);
         return "手机号绑定成功";

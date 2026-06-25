@@ -8,4 +8,8 @@ public interface AdminService {
     Admin getAdminInfo(Long id);
     String changePassword(Long id, String oldPassword, String newPassword);
     Map<String, Object> getOverviewStatistics();
+    /**
+     * 管理员注册
+     */
+    String register(String username, String password, String name);
 }

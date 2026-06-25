@@ -12,8 +12,13 @@ public interface DoctorService {
     Doctor getDoctorInfo(Long id);
     String addDoctor(Doctor doctor);
     String updateDoctorInfo(Doctor doctor);
+    String changePassword(Long doctorId, String oldPassword, String newPassword);
     Page<Doctor> getDoctorPage(Integer page, Integer size);
     String resetPassword(Long id);
     String deleteDoctor(Long id);
     Map<String, Object> getSchedule(Long doctorId);
+    /**
+     * 医生自助注册
+     */
+    String register(String username, String password, String name);
 }

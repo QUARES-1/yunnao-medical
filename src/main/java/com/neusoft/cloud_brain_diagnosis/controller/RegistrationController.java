@@ -59,12 +59,13 @@ public class RegistrationController {
     }
 
     /**
-     * 挂号详情
+     * 挂号详情（需要登录）
      */
     @GetMapping("/detail/{id}")
+    @RequireLogin
     @Operation(summary = "挂号详情", description = "患者和医生都可以查看")
     public Result<Registration> getDetail(@PathVariable Long id) {
-        return Result.success(registrationService.getDetail(id));
+        return Result.success(registrationService.getDetail(id, UserContext.getUserId(), UserContext.getRole()));
     }
 
     /**
@@ -103,10 +104,12 @@ public class RegistrationController {
     @RequireLogin(RoleEnum.DOCTOR)
     @Operation(summary = "历史挂号列表", description = "医生查看历史就诊记录，分页")
     public Result<Page<Registration>> getDoctorList(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         Long doctorId = UserContext.getUserId();
-        return Result.success(registrationService.getDoctorList(doctorId, page, size));
+        return Result.success(registrationService.getDoctorList(doctorId, keyword, status, page, size));
     }
 
     /**

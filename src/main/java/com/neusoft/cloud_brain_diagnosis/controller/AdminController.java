@@ -31,10 +31,8 @@ public class AdminController {
      */
     @PostMapping("/login")
     @Operation(summary = "管理员登录", description = "公开接口，账号密码登录，返回token")
-    public Result<String> login(
-            @RequestParam String username,
-            @RequestParam String password) {
-        return Result.success(adminService.login(username, password));
+    public Result<String> login(@RequestBody Map<String, String> body) {
+        return Result.success(adminService.login(body.get("username"), body.get("password")));
     }
 
     /**
@@ -54,11 +52,12 @@ public class AdminController {
     @PutMapping("/change-pwd")
     @RequireLogin(RoleEnum.ADMIN)
     @Operation(summary = "修改密码", description = "管理员修改自己的密码")
-    public Result<String> changePassword(
-            @RequestParam String oldPassword,
-            @RequestParam String newPassword) {
+    public Result<String> changePassword(@RequestBody Map<String, String> body) {
         Long adminId = UserContext.getUserId();
-        return Result.success(adminService.changePassword(adminId, oldPassword, newPassword));
+        return Result.success(adminService.changePassword(
+                adminId,
+                body.get("oldPassword"),
+                body.get("newPassword")));
     }
 
     /**
@@ -70,5 +69,17 @@ public class AdminController {
     @Operation(summary = "首页统计概览", description = "管理员首页统计数据")
     public Result<Map<String, Object>> getOverviewStatistics() {
         return Result.success(adminService.getOverviewStatistics());
+    }
+
+    /**
+     * 管理员注册
+     */
+    @PostMapping("/register")
+    @Operation(summary = "管理员注册", description = "管理员账号注册")
+    public Result<String> register(@RequestBody Map<String, String> body) {
+        return Result.success(adminService.register(
+                body.get("username"),
+                body.get("password"),
+                body.get("name")));
     }
 }

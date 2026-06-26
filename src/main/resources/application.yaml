@@ -2,11 +2,11 @@ server:
   port: 8080
 
 spring:
-  # 数据源配置
   datasource:
-    url: jdbc:mysql://localhost:3306/cloud_brain_diagnosis?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: ${DB_PASSWORD:ROOT}
+    # 把下面的外网地址换成你自己的
+    url: jdbc:mysql://rm-cn-eh54ubjz5000196o.rwlb.rds.aliyuncs.com:3306/cloud_brain_diagnosis?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: lrm2       # 你创建的账号
+    password: 123456Ab!c          # 你设的密码
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA配置
@@ -46,6 +46,14 @@ knife4j:
     title: 云脑诊疗平台API文档
     description: 传统业务后端接口
     version: 1.0.0
+
+# AI大模型配置（开发环境使用mock模式，无需真实API）
+ai:
+  provider: deepseek              # 模型提供商：mock/doubao/通义千问
+  api-key: sk-f08ff0429a5f41328a8d95bcf80d8362       # API密钥（mock模式不需要）
+  model: deepseek-chat           # 模型名称
+  base-url: https://api.deepseek.com/v1  # API地址
+  timeout: 30000              # 超时时间（毫秒）
 
 # 日志配置
 logging:

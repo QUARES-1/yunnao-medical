@@ -6,7 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "coverage:server": "node ../scripts/coverage-preview-server.mjs coverage 5179 Doctor-frontend"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
@@ -16,7 +20,12 @@
     "vue-router": "^4.6.4"
   },
   "devDependencies": {
+    "@testing-library/vue": "^8.1.0",
     "@vitejs/plugin-vue": "^6.0.6",
-    "vite": "^8.0.12"
+    "@vitest/coverage-v8": "^4.1.9",
+    "@vue/test-utils": "^2.4.11",
+    "happy-dom": "^20.10.6",
+    "vite": "^8.0.12",
+    "vitest": "^4.1.9"
   }
 }

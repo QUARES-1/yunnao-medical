@@ -35,3 +35,9 @@ build/
 ### JaCoCo ###
 jacoco.exec
 src/test/resources/
+
+### Node ###
+node_modules/
+
+### Coverage ###
+*/coverage/

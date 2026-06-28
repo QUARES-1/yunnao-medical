@@ -30,6 +30,9 @@ public class Patient {
 
     private String address;
 
+    @Column(length = 500)
+    private String allergyHistory;
+
     @Column(updatable = false)
     private LocalDateTime createTime;
 

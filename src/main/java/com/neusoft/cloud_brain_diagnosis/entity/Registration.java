@@ -28,6 +28,18 @@ public class Registration {
 
     private String status;
 
+    @Transient
+    private String patientGender;
+
+    @Transient
+    private Integer patientAge;
+
+    @Transient
+    private String patientPhone;
+
+    @Transient
+    private String patientAllergyHistory;
+
     @Column(updatable = false)
     private LocalDateTime createTime;
 

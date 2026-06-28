@@ -7,17 +7,17 @@ public interface MedicalRecordService {
     /**
      * 保存病历（新增或修改）
      */
-    MedicalRecord saveRecord(MedicalRecord record);
+    MedicalRecord saveRecord(MedicalRecord record, Long doctorId);
 
     /**
      * 根据ID查询病历详情
      */
-    MedicalRecord getDetail(Long id);
+    MedicalRecord getDetail(Long id, Long userId, String role);
 
     /**
      * 根据挂号ID查询病历
      */
-    MedicalRecord getByRegistrationId(Long registrationId);
+    MedicalRecord getByRegistrationId(Long registrationId, Long userId, String role);
 
     /**
      * 患者-我的病历列表（分页）

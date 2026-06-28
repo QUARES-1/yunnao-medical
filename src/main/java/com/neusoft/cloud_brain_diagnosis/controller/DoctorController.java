@@ -40,9 +40,8 @@ public class DoctorController {
     @PostMapping("/login")
     @Operation(summary = "医生登录", description = "公开接口，账号密码登录，返回token")
     public Result<String> login(
-            @RequestParam String username,
-            @RequestParam String password) {
-        return Result.success(doctorService.login(username, password));
+            @RequestBody Map<String, String> body) {
+        return Result.success(doctorService.login(body.get("username"), body.get("password")));
     }
 
     /**
@@ -52,10 +51,8 @@ public class DoctorController {
     @PostMapping("/register")
     @Operation(summary = "医生注册", description = "公开接口，注册医生账号，返回token")
     public Result<String> register(
-            @RequestParam String username,
-            @RequestParam String password,
-            @RequestParam(required = false) String name) {
-        return Result.success(doctorService.register(username, password, name));
+            @RequestBody Map<String, String> body) {
+        return Result.success(doctorService.register(body.get("username"), body.get("password"), body.get("name")));
     }
 
     /**
@@ -113,6 +110,13 @@ public class DoctorController {
     public Result<String> updateDoctorInfo(@RequestBody Doctor doctor) {
         doctor.setId(UserContext.getUserId());
         return Result.success(doctorService.updateDoctorInfo(doctor));
+    }
+
+    @PutMapping("/change-password")
+    @RequireLogin(RoleEnum.DOCTOR)
+    public Result<String> changePassword(@RequestBody Map<String, String> body) {
+        return Result.success(doctorService.changePassword(
+                UserContext.getUserId(), body.get("oldPassword"), body.get("newPassword")));
     }
 
     // ========================================

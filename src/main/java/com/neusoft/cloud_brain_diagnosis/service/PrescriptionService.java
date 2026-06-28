@@ -3,16 +3,22 @@ package com.neusoft.cloud_brain_diagnosis.service;
 import com.neusoft.cloud_brain_diagnosis.entity.Prescription;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface PrescriptionService {
     /**
      * 医生-开具处方
      */
-    Prescription createPrescription(Prescription prescription);
+    Prescription createPrescription(Prescription prescription, Long doctorId);
+
+    String cancelPrescription(Long id, Long doctorId);
+
+    List<Prescription> getByRegistrationId(Long registrationId, Long doctorId);
 
     /**
      * 处方详情
      */
-    Prescription getDetail(Long id);
+    Prescription getDetail(Long id, Long userId, String role);
 
     /**
      * 患者-我的处方列表（分页）
@@ -27,7 +33,7 @@ public interface PrescriptionService {
     /**
      * 药房-待发药处方列表（分页）
      */
-    Page<Prescription> getPharmacyList(Integer page, Integer size);
+    Page<Prescription> getPharmacyList(String status, Integer page, Integer size);
 
     /**
      * 药房-发药

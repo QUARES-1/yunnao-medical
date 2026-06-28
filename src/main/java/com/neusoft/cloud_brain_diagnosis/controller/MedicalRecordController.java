@@ -27,7 +27,7 @@ public class MedicalRecordController {
     @RequireLogin(RoleEnum.DOCTOR)
     @Operation(summary = "医生-保存病历", description = "新增或修改病历，一个挂号对应一份病历")
     public Result<MedicalRecord> saveRecord(@RequestBody MedicalRecord record) {
-        return Result.success(medicalRecordService.saveRecord(record));
+        return Result.success(medicalRecordService.saveRecord(record, UserContext.getUserId()));
     }
 
     /**
@@ -37,7 +37,7 @@ public class MedicalRecordController {
     @RequireLogin
     @Operation(summary = "病历详情", description = "患者和医生都可以查看")
     public Result<MedicalRecord> getDetail(@PathVariable Long id) {
-        return Result.success(medicalRecordService.getDetail(id));
+        return Result.success(medicalRecordService.getDetail(id, UserContext.getUserId(), UserContext.getRole()));
     }
 
     /**
@@ -47,7 +47,7 @@ public class MedicalRecordController {
     @RequireLogin
     @Operation(summary = "根据挂号ID查询病历", description = "一个挂号对应一份病历")
     public Result<MedicalRecord> getByRegistrationId(@PathVariable Long regId) {
-        return Result.success(medicalRecordService.getByRegistrationId(regId));
+        return Result.success(medicalRecordService.getByRegistrationId(regId, UserContext.getUserId(), UserContext.getRole()));
     }
 
     /**

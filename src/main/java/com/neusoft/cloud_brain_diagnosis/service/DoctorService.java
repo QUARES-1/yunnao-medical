@@ -12,6 +12,7 @@ public interface DoctorService {
     Doctor getDoctorInfo(Long id);
     String addDoctor(Doctor doctor);
     String updateDoctorInfo(Doctor doctor);
+    String changePassword(Long doctorId, String oldPassword, String newPassword);
     Page<Doctor> getDoctorPage(Integer page, Integer size);
     String resetPassword(Long id);
     String deleteDoctor(Long id);

@@ -81,6 +81,27 @@ class AdminServiceTest {
         assertEquals("密码错误", ex.getMessage());
     }
 
+    @Test
+    void login_ShouldThrow_WhenUsernameBlank() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> adminService.login("   ", "123456"));
+        assertEquals("请输入账号和密码", ex.getMessage());
+    }
+
+    @Test
+    void login_ShouldThrow_WhenPasswordBlank() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> adminService.login("admin", "  "));
+        assertEquals("请输入账号和密码", ex.getMessage());
+    }
+
+    @Test
+    void login_ShouldThrow_WhenBothBlank() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> adminService.login("", ""));
+        assertEquals("请输入账号和密码", ex.getMessage());
+    }
+
     // ========== 获取信息 ==========
 
     @Test
@@ -108,16 +129,20 @@ class AdminServiceTest {
 
     @Test
     void changePassword_ShouldSucceed_WhenOldPasswordCorrect() {
+        // 使用真实的 BCrypt 编码后的密码
+        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder =
+            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        String encodedOld = encoder.encode("oldPass");
+
         Admin admin = new Admin();
         admin.setId(1L);
-        admin.setPassword("oldPass");
+        admin.setPassword(encodedOld);
 
         when(adminRepository.findById(1L)).thenReturn(Optional.of(admin));
         when(adminRepository.save(any())).thenReturn(admin);
 
         String result = adminService.changePassword(1L, "oldPass", "newPass");
         assertEquals("密码修改成功", result);
-        assertEquals("newPass", admin.getPassword());
     }
 
     @Test
@@ -130,6 +155,18 @@ class AdminServiceTest {
 
         assertThrows(BusinessException.class,
                 () -> adminService.changePassword(1L, "wrongOld", "newPass"));
+    }
+
+    @Test
+    void changePassword_ShouldThrow_WhenNewPasswordTooShort() {
+        assertThrows(BusinessException.class,
+                () -> adminService.changePassword(1L, "oldPass", "12345"));
+    }
+
+    @Test
+    void changePassword_ShouldThrow_WhenNewPasswordIsNull() {
+        assertThrows(BusinessException.class,
+                () -> adminService.changePassword(1L, "oldPass", null));
     }
 
     // ========== 注册 ==========
@@ -151,6 +188,19 @@ class AdminServiceTest {
     }
 
     @Test
+    void register_ShouldSetNameAsUsername_WhenNameIsNull() {
+        when(adminRepository.findByUsername("newAdmin")).thenReturn(Optional.empty());
+        when(adminRepository.save(any())).thenAnswer(inv -> {
+            Admin a = inv.getArgument(0);
+            assertEquals("newAdmin", a.getName());
+            return a;
+        });
+
+        String result = adminService.register("newAdmin", "123456", null);
+        assertEquals("注册成功", result);
+    }
+
+    @Test
     void register_ShouldThrow_WhenUsernameTooShort() {
         assertThrows(BusinessException.class,
                 () -> adminService.register("ab", "123456", "test"));
@@ -160,6 +210,33 @@ class AdminServiceTest {
     void register_ShouldThrow_WhenPasswordTooShort() {
         assertThrows(BusinessException.class,
                 () -> adminService.register("abc", "12345", "test"));
+    }
+
+    // ========== Lambda异常路径覆盖 ==========
+
+    @Test
+    void changePassword_ShouldThrow_WhenAdminNotFound() {
+        when(adminRepository.findById(99L)).thenReturn(Optional.empty());
+        assertThrows(BusinessException.class,
+                () -> adminService.changePassword(99L, "oldPass", "newPass"));
+    }
+
+    @Test
+    void login_ShouldSucceed_WhenBCryptPasswordMatches() {
+        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder =
+            new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        String bcrypted = encoder.encode("correctpass");
+
+        Admin admin = new Admin();
+        admin.setId(1L);
+        admin.setUsername("admin");
+        admin.setPassword(bcrypted);
+
+        when(adminRepository.findByUsername("admin")).thenReturn(Optional.of(admin));
+        when(jwtUtil.generateToken(1L, RoleEnum.ADMIN.getCode())).thenReturn("token");
+
+        String token = adminService.login("admin", "correctpass");
+        assertEquals("token", token);
     }
 
     // ========== 统计 ==========

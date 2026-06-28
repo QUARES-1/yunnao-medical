@@ -7,7 +7,9 @@ import com.neusoft.cloud_brain_diagnosis.entity.Admin;
 import com.neusoft.cloud_brain_diagnosis.repository.*;
 import com.neusoft.cloud_brain_diagnosis.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.time.LocalDateTime;
 @Service
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
     private final AdminRepository adminRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
@@ -24,12 +27,25 @@ public class AdminServiceImpl implements AdminService {
     private final JwtUtil jwtUtil;
 
     @Override
+    @Transactional
     public String login(String username, String password) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            throw new BusinessException("请输入账号和密码");
+        }
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException("账号不存在"));
-        // 明文比较
-        if (!password.equals(admin.getPassword())) {
+        String storedPassword = admin.getPassword();
+        boolean encoded = storedPassword != null && storedPassword.startsWith("$2");
+        boolean matches = encoded
+                ? PASSWORD_ENCODER.matches(password, storedPassword)
+                : password.equals(storedPassword);
+        if (!matches) {
             throw new BusinessException("密码错误");
+        }
+        // 兼容旧测试数据：首次成功登录时自动把明文密码升级为 BCrypt。
+        if (!encoded) {
+            admin.setPassword(PASSWORD_ENCODER.encode(password));
+            adminRepository.save(admin);
         }
         return jwtUtil.generateToken(admin.getId(), RoleEnum.ADMIN.getCode());
     }
@@ -43,14 +59,22 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public String changePassword(Long id, String oldPassword, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BusinessException("新密码至少6位");
+        }
         Admin admin = adminRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("管理员不存在"));
-        // 明文比较
-        if (!oldPassword.equals(admin.getPassword())) {
+        String storedPassword = admin.getPassword();
+        boolean encoded = storedPassword != null && storedPassword.startsWith("$2");
+        boolean matches = encoded
+                ? PASSWORD_ENCODER.matches(oldPassword, storedPassword)
+                : oldPassword != null && oldPassword.equals(storedPassword);
+        if (!matches) {
             throw new BusinessException("原密码错误");
         }
-        admin.setPassword(newPassword); // 明文存储
+        admin.setPassword(PASSWORD_ENCODER.encode(newPassword));
         adminRepository.save(admin);
         return "密码修改成功";
     }
@@ -80,10 +104,10 @@ public class AdminServiceImpl implements AdminService {
             throw new BusinessException("密码至少6位");
         }
 
-        // 3. 创建管理员，密码直接存明文
+        // 3. 创建管理员，密码使用 BCrypt 单向加密保存
         Admin admin = new Admin();
         admin.setUsername(username);
-        admin.setPassword(password); // 明文存储
+        admin.setPassword(PASSWORD_ENCODER.encode(password));
         admin.setName(name != null ? name : username);
         admin.setCreateTime(LocalDateTime.now());
 

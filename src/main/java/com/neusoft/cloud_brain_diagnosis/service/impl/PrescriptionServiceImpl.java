@@ -22,11 +22,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -45,14 +42,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
      */
     @Override
     @Transactional
-    public Prescription createPrescription(Prescription prescription, Long doctorId) {
+    public Prescription createPrescription(Prescription prescription) {
         // 1. 验证挂号记录
         if (prescription.getRegistrationId() == null) {
             throw new BusinessException("挂号ID不能为空");
         }
         Registration registration = registrationRepository.findById(prescription.getRegistrationId())
                 .orElseThrow(() -> new BusinessException("挂号记录不存在"));
-        validateDoctorCanOperate(registration, doctorId);
 
         // 2. 验证患者和医生
         Patient patient = patientRepository.findById(registration.getPatientId())
@@ -65,48 +61,10 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             throw new BusinessException("请添加药品");
         }
 
-        // 价格、库存和药品信息必须以后端数据库为准，不能信任前端传值。
-        List<Map<String, Object>> safeDrugs = new ArrayList<>();
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        try {
-            JsonNode drugs = objectMapper.readTree(prescription.getDrugs());
-            if (!drugs.isArray() || drugs.isEmpty()) {
-                throw new BusinessException("请添加药品");
-            }
-            for (JsonNode drug : drugs) {
-                Long medicineId = drug.path("medicineId").isNumber() ? drug.path("medicineId").asLong() : null;
-                int quantity = drug.path("quantity").asInt(0);
-                String dosage = drug.path("dosage").asText("").trim();
-                if (medicineId == null || quantity <= 0 || dosage.isEmpty()) {
-                    throw new BusinessException("药品、数量和用法用量不能为空");
-                }
-
-                Medicine medicine = medicineRepository.findById(medicineId)
-                        .orElseThrow(() -> new BusinessException("药品不存在或已下架"));
-                if (medicine.getStock() == null || medicine.getStock() < quantity) {
-                    throw new BusinessException(medicine.getName() + "库存不足，当前库存：" + medicine.getStock());
-                }
-
-                medicine.setStock(medicine.getStock() - quantity);
-                medicineRepository.save(medicine);
-                totalAmount = totalAmount.add(medicine.getPrice().multiply(BigDecimal.valueOf(quantity)));
-
-                Map<String, Object> safeDrug = new LinkedHashMap<>();
-                safeDrug.put("medicineId", medicine.getId());
-                safeDrug.put("medicineName", medicine.getName());
-                safeDrug.put("specification", medicine.getSpecification());
-                safeDrug.put("quantity", quantity);
-                safeDrug.put("unit", medicine.getUnit());
-                safeDrug.put("dosage", dosage);
-                safeDrugs.add(safeDrug);
-            }
-            prescription.setDrugs(objectMapper.writeValueAsString(safeDrugs));
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("处方药品数据格式不正确");
+        // 4. 如果总金额为空，设置为0
+        if (prescription.getTotalAmount() == null) {
+            prescription.setTotalAmount(BigDecimal.ZERO);
         }
-        prescription.setTotalAmount(totalAmount.setScale(2, RoundingMode.HALF_UP));
 
         // 5. 填充冗余字段
         prescription.setPatientId(registration.getPatientId());
@@ -120,74 +78,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         return prescriptionRepository.save(prescription);
     }
 
-    @Override
-    @Transactional
-    public String cancelPrescription(Long id, Long doctorId) {
-        Prescription prescription = prescriptionRepository.findById(id)
-                .orElseThrow(() -> new BusinessException("处方不存在"));
-        if (!prescription.getDoctorId().equals(doctorId)) {
-            throw new BusinessException("无权撤销其他医生开具的处方");
-        }
-        if (!"待发药".equals(prescription.getStatus())) {
-            throw new BusinessException("只有待发药处方可以撤销");
-        }
-        try {
-            JsonNode drugs = objectMapper.readTree(prescription.getDrugs());
-            for (JsonNode drug : drugs) {
-                Long medicineId = drug.path("medicineId").asLong();
-                int quantity = drug.path("quantity").asInt();
-                Medicine medicine = medicineRepository.findById(medicineId)
-                        .orElseThrow(() -> new BusinessException("处方中的药品不存在"));
-                medicine.setStock((medicine.getStock() == null ? 0 : medicine.getStock()) + quantity);
-                medicineRepository.save(medicine);
-            }
-        } catch (BusinessException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new BusinessException("处方库存返还失败，请联系管理员");
-        }
-        prescription.setStatus("已撤销");
-        prescriptionRepository.save(prescription);
-        return "处方已撤销，药品库存已返还";
-    }
-
-    @Override
-    public List<Prescription> getByRegistrationId(Long registrationId, Long doctorId) {
-        Registration registration = registrationRepository.findById(registrationId)
-                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
-        if (!registration.getDoctorId().equals(doctorId)) {
-            throw new BusinessException("无权查看其他医生的处方记录");
-        }
-        return prescriptionRepository.findByRegistrationIdAndStatusNotOrderByCreateTimeDesc(registrationId, "已撤销");
-    }
-
-    private void validateDoctorCanOperate(Registration registration, Long doctorId) {
-        if (!registration.getDoctorId().equals(doctorId)) {
-            throw new BusinessException("无权操作其他医生的患者");
-        }
-        if (!"就诊中".equals(registration.getStatus())) {
-            throw new BusinessException("请先开始看诊，只有就诊中的挂号可以开具处方");
-        }
-    }
-
     /**
      * 处方详情
      */
     @Override
-    public Prescription getDetail(Long id, Long userId, String role) {
-        Prescription prescription = prescriptionRepository.findById(id)
+    public Prescription getDetail(Long id) {
+        return prescriptionRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("处方不存在"));
-        if ("doctor".equals(role) && !prescription.getDoctorId().equals(userId)) {
-            throw new BusinessException("无权查看其他医生患者的处方");
-        }
-        if ("patient".equals(role) && !prescription.getPatientId().equals(userId)) {
-            throw new BusinessException("无权查看其他患者的处方");
-        }
-        if (!"doctor".equals(role) && !"patient".equals(role)
-                && !"pharmacy".equals(role) && !"admin".equals(role)) {
-            throw new BusinessException("当前角色无权查看处方");
-        }
-        return prescription;
     }
 
     /**
@@ -209,18 +106,15 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     /**
-     * 药房-待发药处方列表（分页）
+     * 药房-处方列表（分页，可按状态筛选）
      */
     @Override
     public Page<Prescription> getPharmacyList(String status, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
-        if (status == null || status.isBlank() || "全部".equals(status)) {
-            return prescriptionRepository.findAllByOrderByCreateTimeDesc(pageRequest);
+        if (status == null || status.trim().isEmpty() || "全部".equals(status.trim())) {
+            return prescriptionRepository.findAll(pageRequest);
         }
-        if (!"待发药".equals(status) && !"已发药".equals(status)) {
-            throw new BusinessException("处方状态参数不正确");
-        }
-        return prescriptionRepository.findByStatusOrderByCreateTimeDesc(status, pageRequest);
+        return prescriptionRepository.findByStatusOrderByCreateTimeDesc(status.trim(), pageRequest);
     }
 
     /**
@@ -238,11 +132,66 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             throw new BusinessException("当前状态不能发药，当前状态：" + prescription.getStatus());
         }
 
-        // 3. 更新状态和发药时间
+        // 3. 根据处方药品清单扣减库存。这里必须先全部校验，再统一扣减；
+        //    否则某一种药库存不足时，可能出现前几种药已经扣了但处方没有发出的脏数据。
+        Map<Long, Integer> medicineQuantities = parseMedicineQuantities(prescription.getDrugs());
+        if (medicineQuantities.isEmpty()) {
+            throw new BusinessException("处方药品明细为空，不能发药");
+        }
+
+        for (Map.Entry<Long, Integer> entry : medicineQuantities.entrySet()) {
+            Medicine medicine = medicineRepository.findById(entry.getKey())
+                    .orElseThrow(() -> new BusinessException("药品不存在，药品ID：" + entry.getKey()));
+            int currentStock = medicine.getStock() == null ? 0 : medicine.getStock();
+            int needQuantity = entry.getValue();
+            if (currentStock < needQuantity) {
+                throw new BusinessException("药品库存不足：" + medicine.getName()
+                        + "，当前库存 " + currentStock + medicine.getUnit()
+                        + "，需要 " + needQuantity + medicine.getUnit());
+            }
+        }
+
+        for (Map.Entry<Long, Integer> entry : medicineQuantities.entrySet()) {
+            Medicine medicine = medicineRepository.findById(entry.getKey())
+                    .orElseThrow(() -> new BusinessException("药品不存在，药品ID：" + entry.getKey()));
+            medicine.setStock((medicine.getStock() == null ? 0 : medicine.getStock()) - entry.getValue());
+            medicineRepository.save(medicine);
+        }
+
+        // 4. 更新状态和发药时间
         prescription.setStatus("已发药");
         prescription.setDispenseTime(LocalDateTime.now());
         prescriptionRepository.save(prescription);
 
         return "发药成功";
+    }
+
+    private Map<Long, Integer> parseMedicineQuantities(String drugsJson) {
+        try {
+            JsonNode root = objectMapper.readTree(drugsJson == null ? "[]" : drugsJson);
+            if (!root.isArray()) {
+                throw new BusinessException("处方药品明细格式错误");
+            }
+
+            Map<Long, Integer> result = new LinkedHashMap<>();
+            for (JsonNode drug : root) {
+                long medicineId = drug.hasNonNull("medicineId")
+                        ? drug.get("medicineId").asLong()
+                        : drug.path("id").asLong(0);
+                int quantity = drug.path("quantity").asInt(0);
+                if (medicineId <= 0) {
+                    throw new BusinessException("处方药品缺少药品ID");
+                }
+                if (quantity <= 0) {
+                    throw new BusinessException("处方药品数量必须大于0，药品ID：" + medicineId);
+                }
+                result.merge(medicineId, quantity, Integer::sum);
+            }
+            return result;
+        } catch (BusinessException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new BusinessException("处方药品明细解析失败");
+        }
     }
 }

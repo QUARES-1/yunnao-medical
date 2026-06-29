@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -25,28 +24,19 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
-    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+    private static final int SLOT_CAPACITY = 20;
+
     private final DoctorRepository doctorRepository;
     private final RegistrationRepository registrationRepository;
     private final JwtUtil jwtUtil;
 
     @Override
-    @Transactional
     public String login(String username, String password) {
         Doctor doctor = doctorRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException("账号不存在"));
-        String storedPassword = doctor.getPassword();
-        boolean encoded = storedPassword != null && storedPassword.startsWith("$2");
-        boolean matched = encoded
-                ? PASSWORD_ENCODER.matches(password, storedPassword)
-                : password != null && password.equals(storedPassword);
-        if (!matched) {
+        // 明文比较密码
+        if (!password.equals(doctor.getPassword())) {
             throw new BusinessException("密码错误");
-        }
-        // 兼容旧演示数据：首次成功登录后自动升级为 BCrypt。
-        if (!encoded) {
-            doctor.setPassword(PASSWORD_ENCODER.encode(password));
-            doctorRepository.save(doctor);
         }
         return jwtUtil.generateToken(doctor.getId(), RoleEnum.DOCTOR.getCode());
     }
@@ -86,7 +76,7 @@ public class DoctorServiceImpl implements DoctorService {
             throw new BusinessException("该账号已存在");
         }
         String defaultPassword = doctor.getPassword() != null ? doctor.getPassword() : "123456";
-        doctor.setPassword(PASSWORD_ENCODER.encode(defaultPassword));
+        doctor.setPassword(defaultPassword); // 明文存储
         doctorRepository.save(doctor);
         return "医生添加成功，默认密码：123456";
     }
@@ -109,32 +99,6 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    @Transactional
-    public String changePassword(Long doctorId, String oldPassword, String newPassword) {
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new BusinessException("医生不存在"));
-        if (!matchesPassword(oldPassword, doctor.getPassword())) {
-            throw new BusinessException("原密码不正确");
-        }
-        if (newPassword == null || newPassword.length() < 6) {
-            throw new BusinessException("新密码至少6位");
-        }
-        if (matchesPassword(newPassword, doctor.getPassword())) {
-            throw new BusinessException("新密码不能与原密码相同");
-        }
-        doctor.setPassword(PASSWORD_ENCODER.encode(newPassword));
-        doctorRepository.save(doctor);
-        return "密码修改成功";
-    }
-
-    private boolean matchesPassword(String rawPassword, String storedPassword) {
-        if (rawPassword == null || storedPassword == null) return false;
-        return storedPassword.startsWith("$2")
-                ? PASSWORD_ENCODER.matches(rawPassword, storedPassword)
-                : rawPassword.equals(storedPassword);
-    }
-
-    @Override
     public Page<Doctor> getDoctorPage(Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
         Page<Doctor> doctorPage = doctorRepository.findAll(pageRequest);
@@ -147,7 +111,7 @@ public class DoctorServiceImpl implements DoctorService {
     public String resetPassword(Long id) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("医生不存在"));
-        doctor.setPassword(PASSWORD_ENCODER.encode("123456"));
+        doctor.setPassword("123456"); // 明文存储
         doctorRepository.save(doctor);
         return "密码重置成功，新密码：123456";
     }
@@ -194,7 +158,7 @@ public class DoctorServiceImpl implements DoctorService {
         // 3. 创建医生账号
         Doctor doctor = new Doctor();
         doctor.setUsername(username);
-        doctor.setPassword(PASSWORD_ENCODER.encode(password));
+        doctor.setPassword(password); // 明文存储
         doctor.setName(name != null ? name : username);
         doctorRepository.save(doctor);
 
@@ -204,6 +168,9 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Map<String, Object> getSchedule(Long doctorId) {
+        doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new BusinessException("医生不存在"));
+
         Map<String, Object> result = new HashMap<>();
         List<LocalDate> dates = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -215,21 +182,20 @@ public class DoctorServiceImpl implements DoctorService {
         timeSlots.add("下午");
         result.put("timeSlots", timeSlots);
 
-        // 当前阶段没有独立排班表，使用稳定的每日基础号源并扣除已有预约。
-        // 同一医生、日期、时段每次查询得到相同容量，便于前端展示真实余号。
         List<Map<String, Object>> availability = new ArrayList<>();
         for (LocalDate date : dates) {
             for (String timeSlot : timeSlots) {
-                int capacity = 12 + Math.floorMod(
-                        doctorId.intValue() + date.getDayOfMonth() + timeSlot.hashCode(), 7);
-                long booked = registrationRepository.countByDoctorIdAndRegistrationDateAndTimeSlot(
-                        doctorId, date, timeSlot);
-                Map<String, Object> slot = new HashMap<>();
-                slot.put("date", date);
-                slot.put("timeSlot", timeSlot);
-                slot.put("capacity", capacity);
-                slot.put("remaining", Math.max(0, capacity - booked));
-                availability.add(slot);
+                long occupied = registrationRepository
+                        .countByDoctorIdAndRegistrationDateAndTimeSlotAndStatusNot(
+                                doctorId, date, timeSlot, "已取消");
+                int remaining = Math.max(0, SLOT_CAPACITY - Math.toIntExact(occupied));
+
+                Map<String, Object> item = new HashMap<>();
+                item.put("date", date);
+                item.put("timeSlot", timeSlot);
+                item.put("capacity", SLOT_CAPACITY);
+                item.put("remaining", remaining);
+                availability.add(item);
             }
         }
         result.put("availability", availability);

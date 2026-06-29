@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/prescription")
 @RequiredArgsConstructor
@@ -29,19 +27,7 @@ public class PrescriptionController {
     @RequireLogin(RoleEnum.DOCTOR)
     @Operation(summary = "医生-开具处方", description = "医生给患者开处方")
     public Result<Prescription> createPrescription(@RequestBody Prescription prescription) {
-        return Result.success(prescriptionService.createPrescription(prescription, UserContext.getUserId()));
-    }
-
-    @PutMapping("/cancel/{id}")
-    @RequireLogin(RoleEnum.DOCTOR)
-    public Result<String> cancelPrescription(@PathVariable Long id) {
-        return Result.success(prescriptionService.cancelPrescription(id, UserContext.getUserId()));
-    }
-
-    @GetMapping("/registration/{regId}")
-    @RequireLogin(RoleEnum.DOCTOR)
-    public Result<List<Prescription>> getByRegistrationId(@PathVariable Long regId) {
-        return Result.success(prescriptionService.getByRegistrationId(regId, UserContext.getUserId()));
+        return Result.success(prescriptionService.createPrescription(prescription));
     }
 
     /**
@@ -51,7 +37,7 @@ public class PrescriptionController {
     @RequireLogin
     @Operation(summary = "处方详情", description = "患者、医生、药房都可以查看")
     public Result<Prescription> getDetail(@PathVariable Long id) {
-        return Result.success(prescriptionService.getDetail(id, UserContext.getUserId(), UserContext.getRole()));
+        return Result.success(prescriptionService.getDetail(id));
     }
 
     /**
@@ -81,13 +67,13 @@ public class PrescriptionController {
     }
 
     /**
-     * 药房-待发药处方列表
+     * 药房-处方列表
      */
     @GetMapping("/pharmacy/list")
     @RequireLogin(RoleEnum.PHARMACY)
-    @Operation(summary = "药房-待发药处方列表", description = "分页查询所有待发药的处方")
+    @Operation(summary = "药房-处方列表", description = "分页查询药房处方，可按状态筛选：待发药/已发药")
     public Result<Page<Prescription>> getPharmacyList(
-            @RequestParam(defaultValue = "待发药") String status,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return Result.success(prescriptionService.getPharmacyList(status, page, size));

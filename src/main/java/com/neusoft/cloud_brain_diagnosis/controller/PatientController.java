@@ -36,6 +36,12 @@ public class PatientController {
         return Result.success(patientService.wxLogin(code));
     }
 
+    @PostMapping("/test-login")
+    @Operation(summary = "患者测试账号登录", description = "实训联调专用，使用账号密码进入已绑定的患者档案")
+    public Result<Map<String, Object>> testLogin(@RequestBody Map<String, String> body) {
+        return Result.success(patientService.testLogin(body.get("account"), body.get("password")));
+    }
+
     /**
      * 获取当前登录患者信息
      */

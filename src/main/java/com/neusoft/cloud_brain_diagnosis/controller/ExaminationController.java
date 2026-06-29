@@ -30,19 +30,7 @@ public class ExaminationController {
     @RequireLogin(RoleEnum.DOCTOR)
     @Operation(summary = "医生-开立检查", description = "医生给患者开检查检验申请")
     public Result<Examination> createExamination(@RequestBody Examination examination) {
-        return Result.success(examinationService.createExamination(examination, UserContext.getUserId()));
-    }
-
-    @PutMapping("/cancel/{id}")
-    @RequireLogin(RoleEnum.DOCTOR)
-    public Result<String> cancelExamination(@PathVariable Long id) {
-        return Result.success(examinationService.cancelExamination(id, UserContext.getUserId()));
-    }
-
-    @GetMapping("/registration/{regId}")
-    @RequireLogin(RoleEnum.DOCTOR)
-    public Result<List<Examination>> getByRegistrationId(@PathVariable Long regId) {
-        return Result.success(examinationService.getByRegistrationId(regId, UserContext.getUserId()));
+        return Result.success(examinationService.createExamination(examination));
     }
 
     /**
@@ -52,7 +40,7 @@ public class ExaminationController {
     @RequireLogin
     @Operation(summary = "检查详情", description = "患者、医生、检验科都可以查看")
     public Result<Examination> getDetail(@PathVariable Long id) {
-        return Result.success(examinationService.getDetail(id, UserContext.getUserId(), UserContext.getRole()));
+        return Result.success(examinationService.getDetail(id));
     }
 
     /**
@@ -82,13 +70,13 @@ public class ExaminationController {
     }
 
     /**
-     * 检验科-待检查列表
+     * 检验科-检查检验列表
      */
     @GetMapping("/lab/list")
     @RequireLogin(RoleEnum.LAB)
-    @Operation(summary = "检验科-待检查列表", description = "分页查询所有待检查的项目")
+    @Operation(summary = "检验科-检查检验列表", description = "分页查询检验科项目，可按状态筛选：待检查/已完成")
     public Result<Page<Examination>> getLabList(
-            @RequestParam(defaultValue = "待检查") String status,
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return Result.success(examinationService.getLabList(status, page, size));
@@ -100,10 +88,10 @@ public class ExaminationController {
     @PutMapping("/update-result")
     @RequireLogin(RoleEnum.LAB)
     @Operation(summary = "检验科-填写检查结果", description = "提交检查结果，状态改为已完成")
-    public Result<String> updateResult(@RequestBody java.util.Map<String, Object> body) {
-        Long id = body.get("id") instanceof Number number ? number.longValue() : Long.valueOf(String.valueOf(body.get("id")));
-        String result = body.get("result") == null ? null : String.valueOf(body.get("result"));
-        String resultImages = body.get("resultImages") == null ? null : String.valueOf(body.get("resultImages"));
+    public Result<String> updateResult(
+            @RequestParam Long id,
+            @RequestParam String result,
+            @RequestParam(required = false) String resultImages) {
         return Result.success(examinationService.updateResult(id, result, resultImages));
     }
 

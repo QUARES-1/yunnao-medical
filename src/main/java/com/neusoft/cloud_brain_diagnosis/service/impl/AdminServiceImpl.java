@@ -28,6 +28,9 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     public String login(String username, String password) {
+        if (username == null || username.isBlank() || password == null || password.isBlank()) {
+            throw new BusinessException("请输入账号和密码");
+        }
         Admin admin = adminRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException("账号不存在"));
         if (!passwordMatches(password, admin.getPassword())) {

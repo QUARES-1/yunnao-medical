@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/examination")
@@ -30,7 +31,27 @@ public class ExaminationController {
     @RequireLogin(RoleEnum.DOCTOR)
     @Operation(summary = "医生-开立检查", description = "医生给患者开检查检验申请")
     public Result<Examination> createExamination(@RequestBody Examination examination) {
-        return Result.success(examinationService.createExamination(examination));
+        return Result.success(examinationService.createExamination(examination, UserContext.getUserId()));
+    }
+
+    /**
+     * 医生-撤销检查
+     */
+    @PutMapping("/cancel/{id}")
+    @RequireLogin(RoleEnum.DOCTOR)
+    @Operation(summary = "医生-撤销检查", description = "医生撤销本人开具且未检查的项目")
+    public Result<String> cancelExamination(@PathVariable Long id) {
+        return Result.success(examinationService.cancelExamination(id, UserContext.getUserId()));
+    }
+
+    /**
+     * 医生-按挂号查询检查
+     */
+    @GetMapping("/registration/{registrationId}")
+    @RequireLogin(RoleEnum.DOCTOR)
+    @Operation(summary = "医生-按挂号查询检查", description = "查询当前医生某次挂号下的检查项目")
+    public Result<List<Examination>> getByRegistrationId(@PathVariable Long registrationId) {
+        return Result.success(examinationService.getByRegistrationId(registrationId, UserContext.getUserId()));
     }
 
     /**
@@ -40,7 +61,7 @@ public class ExaminationController {
     @RequireLogin
     @Operation(summary = "检查详情", description = "患者、医生、检验科都可以查看")
     public Result<Examination> getDetail(@PathVariable Long id) {
-        return Result.success(examinationService.getDetail(id));
+        return Result.success(examinationService.getDetail(id, UserContext.getUserId(), UserContext.getRole()));
     }
 
     /**
@@ -76,7 +97,7 @@ public class ExaminationController {
     @RequireLogin(RoleEnum.LAB)
     @Operation(summary = "检验科-检查检验列表", description = "分页查询检验科项目，可按状态筛选：待检查/已完成")
     public Result<Page<Examination>> getLabList(
-            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "待检查") String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return Result.success(examinationService.getLabList(status, page, size));
@@ -92,6 +113,16 @@ public class ExaminationController {
             @RequestParam Long id,
             @RequestParam String result,
             @RequestParam(required = false) String resultImages) {
+        return Result.success(examinationService.updateResult(id, result, resultImages));
+    }
+
+    @PutMapping(value = "/update-result", consumes = "application/json")
+    @RequireLogin(RoleEnum.LAB)
+    @Operation(summary = "检验科-填写检查结果", description = "提交检查结果，状态改为已完成")
+    public Result<String> updateResult(@RequestBody Map<String, Object> body) {
+        Long id = Long.valueOf(String.valueOf(body.get("id")));
+        String result = body.get("result") == null ? null : String.valueOf(body.get("result"));
+        String resultImages = body.get("resultImages") == null ? null : String.valueOf(body.get("resultImages"));
         return Result.success(examinationService.updateResult(id, result, resultImages));
     }
 

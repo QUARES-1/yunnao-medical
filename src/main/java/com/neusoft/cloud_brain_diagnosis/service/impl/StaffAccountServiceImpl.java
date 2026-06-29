@@ -62,8 +62,8 @@ public class StaffAccountServiceImpl implements StaffAccountService {
     @Transactional
     public StaffAccount create(StaffAccount account) {
         if (account.getUsername() == null || account.getUsername().trim().length() < 3) throw new BusinessException("用户名长度不能少于3位");
-        if (account.getPassword() == null || account.getPassword().length() < 6) throw new BusinessException("密码长度不能少于6位");
         if (staffAccountRepository.existsByUsername(account.getUsername().trim())) throw new BusinessException("用户名已存在");
+        if (account.getPassword() == null || account.getPassword().length() < 6) throw new BusinessException("密码长度不能少于6位");
         if (!ROLES.contains(account.getRole())) throw new BusinessException("角色不合法");
         account.setUsername(account.getUsername().trim());
         account.setPassword(encoder.encode(account.getPassword()));

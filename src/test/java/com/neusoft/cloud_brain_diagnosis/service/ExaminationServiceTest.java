@@ -3,6 +3,7 @@ package com.neusoft.cloud_brain_diagnosis.service;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.*;
 import com.neusoft.cloud_brain_diagnosis.repository.*;
+import com.neusoft.cloud_brain_diagnosis.service.ai.AiExaminationService;
 import com.neusoft.cloud_brain_diagnosis.service.impl.ExaminationServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,7 @@ class ExaminationServiceTest {
     @Mock private RegistrationRepository registrationRepository;
     @Mock private PatientRepository patientRepository;
     @Mock private DoctorRepository doctorRepository;
+    @Mock private AiExaminationService aiExaminationService;
 
     private ExaminationServiceImpl examinationService;
 
@@ -39,7 +41,7 @@ class ExaminationServiceTest {
     void setUp() {
         examinationService = new ExaminationServiceImpl(
                 examinationRepository, examinationItemRepository,
-                registrationRepository, patientRepository, doctorRepository);
+                registrationRepository, patientRepository, doctorRepository, aiExaminationService);
     }
 
     // ========== 开立检查 ==========

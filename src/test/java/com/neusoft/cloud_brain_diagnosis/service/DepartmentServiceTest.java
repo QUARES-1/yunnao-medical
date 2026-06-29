@@ -152,7 +152,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    void updateDepartment_ShouldUpdateSort() {
+    void updateDepartment_ShouldUpdateSortToLargeValue() {
         Department existing = new Department();
         existing.setId(1L);
         existing.setSort(1);

@@ -39,10 +39,13 @@ public class PatientServiceImpl implements PatientService {
                 throw new BusinessException("微信授权失败：" + json.getStr("errmsg"));
             }
             openid = json.getStr("openid");
+            if (openid == null || openid.isBlank()) {
+                throw new BusinessException("微信授权失败：未获取到openid");
+            }
         } catch (BusinessException e) {
-            openid = buildLocalDemoOpenid();
+            throw e;
         } catch (Exception e) {
-            openid = buildLocalDemoOpenid();
+            throw new BusinessException("微信登录失败");
         }
 
         Patient patient = patientRepository.findByOpenid(openid).orElse(null);

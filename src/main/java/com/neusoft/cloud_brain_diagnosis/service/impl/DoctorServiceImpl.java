@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
     private static final int SLOT_CAPACITY = 20;
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     private final DoctorRepository doctorRepository;
     private final RegistrationRepository registrationRepository;
@@ -34,9 +36,12 @@ public class DoctorServiceImpl implements DoctorService {
     public String login(String username, String password) {
         Doctor doctor = doctorRepository.findByUsername(username)
                 .orElseThrow(() -> new BusinessException("账号不存在"));
-        // 明文比较密码
-        if (!password.equals(doctor.getPassword())) {
+        if (!matchesPassword(password, doctor.getPassword())) {
             throw new BusinessException("密码错误");
+        }
+        if (!isBcrypt(doctor.getPassword())) {
+            doctor.setPassword(PASSWORD_ENCODER.encode(password));
+            doctorRepository.save(doctor);
         }
         return jwtUtil.generateToken(doctor.getId(), RoleEnum.DOCTOR.getCode());
     }
@@ -76,7 +81,7 @@ public class DoctorServiceImpl implements DoctorService {
             throw new BusinessException("该账号已存在");
         }
         String defaultPassword = doctor.getPassword() != null ? doctor.getPassword() : "123456";
-        doctor.setPassword(defaultPassword); // 明文存储
+        doctor.setPassword(PASSWORD_ENCODER.encode(defaultPassword));
         doctorRepository.save(doctor);
         return "医生添加成功，默认密码：123456";
     }
@@ -111,9 +116,28 @@ public class DoctorServiceImpl implements DoctorService {
     public String resetPassword(Long id) {
         Doctor doctor = doctorRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("医生不存在"));
-        doctor.setPassword("123456"); // 明文存储
+        doctor.setPassword(PASSWORD_ENCODER.encode("123456"));
         doctorRepository.save(doctor);
         return "密码重置成功，新密码：123456";
+    }
+
+    @Override
+    @Transactional
+    public String changePassword(Long doctorId, String oldPassword, String newPassword) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new BusinessException("医生不存在"));
+        if (!matchesPassword(oldPassword, doctor.getPassword())) {
+            throw new BusinessException("原密码不正确");
+        }
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new BusinessException("新密码至少6位");
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new BusinessException("新密码不能与原密码相同");
+        }
+        doctor.setPassword(PASSWORD_ENCODER.encode(newPassword));
+        doctorRepository.save(doctor);
+        return "密码修改成功";
     }
 
     @Override
@@ -158,7 +182,7 @@ public class DoctorServiceImpl implements DoctorService {
         // 3. 创建医生账号
         Doctor doctor = new Doctor();
         doctor.setUsername(username);
-        doctor.setPassword(password); // 明文存储
+        doctor.setPassword(PASSWORD_ENCODER.encode(password));
         doctor.setName(name != null ? name : username);
         doctorRepository.save(doctor);
 
@@ -168,9 +192,6 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Map<String, Object> getSchedule(Long doctorId) {
-        doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new BusinessException("医生不存在"));
-
         Map<String, Object> result = new HashMap<>();
         List<LocalDate> dates = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -200,5 +221,19 @@ public class DoctorServiceImpl implements DoctorService {
         }
         result.put("availability", availability);
         return result;
+    }
+
+    private boolean matchesPassword(String rawPassword, String storedPassword) {
+        if (storedPassword == null) {
+            return false;
+        }
+        if (isBcrypt(storedPassword)) {
+            return PASSWORD_ENCODER.matches(rawPassword, storedPassword);
+        }
+        return storedPassword.equals(rawPassword);
+    }
+
+    private boolean isBcrypt(String password) {
+        return password != null && password.startsWith("$2");
     }
 }

@@ -31,13 +31,14 @@ public class ExaminationServiceImpl implements ExaminationService {
      */
     @Override
     @Transactional
-    public Examination createExamination(Examination examination) {
+    public Examination createExamination(Examination examination, Long doctorId) {
         // 1. 验证挂号记录
         if (examination.getRegistrationId() == null) {
             throw new BusinessException("挂号ID不能为空");
         }
         Registration registration = registrationRepository.findById(examination.getRegistrationId())
                 .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+        validateDoctorCanOperate(registration, doctorId);
 
         // 2. 验证检查项目
         if (examination.getItemId() == null) {
@@ -45,6 +46,10 @@ public class ExaminationServiceImpl implements ExaminationService {
         }
         ExaminationItem item = examinationItemRepository.findById(examination.getItemId())
                 .orElseThrow(() -> new BusinessException("检查项目不存在"));
+        if (examinationRepository.existsByRegistrationIdAndItemIdAndStatus(
+                examination.getRegistrationId(), examination.getItemId(), "待检查")) {
+            throw new BusinessException("该检查项目已开立");
+        }
 
         // 3. 验证患者和医生
         Patient patient = patientRepository.findById(registration.getPatientId())
@@ -70,9 +75,46 @@ public class ExaminationServiceImpl implements ExaminationService {
      * 检查详情
      */
     @Override
-    public Examination getDetail(Long id) {
-        return examinationRepository.findById(id)
+    public Examination getDetail(Long id, Long userId, String role) {
+        Examination examination = examinationRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("检查记录不存在"));
+        if ("patient".equals(role) && !examination.getPatientId().equals(userId)) {
+            throw new BusinessException("无权查看其他患者的检查");
+        }
+        if ("doctor".equals(role) && !examination.getDoctorId().equals(userId)) {
+            throw new BusinessException("无权查看其他医生患者的检查");
+        }
+        if (!"patient".equals(role) && !"doctor".equals(role)
+                && !"admin".equals(role) && !"lab".equals(role)) {
+            throw new BusinessException("当前角色无权查看检查详情");
+        }
+        return examination;
+    }
+
+    @Override
+    @Transactional
+    public String cancelExamination(Long id, Long doctorId) {
+        Examination examination = examinationRepository.findById(id)
+                .orElseThrow(() -> new BusinessException("检查记录不存在"));
+        if (!examination.getDoctorId().equals(doctorId)) {
+            throw new BusinessException("无权撤销其他医生的检查");
+        }
+        if (!"待检查".equals(examination.getStatus())) {
+            throw new BusinessException("只有待检查项目可以撤销");
+        }
+        examination.setStatus("已撤销");
+        examinationRepository.save(examination);
+        return "检查项目已撤销";
+    }
+
+    @Override
+    public List<Examination> getByRegistrationId(Long registrationId, Long doctorId) {
+        Registration registration = registrationRepository.findById(registrationId)
+                .orElseThrow(() -> new BusinessException("挂号记录不存在"));
+        if (!registration.getDoctorId().equals(doctorId)) {
+            throw new BusinessException("无权查看其他医生患者的检查");
+        }
+        return examinationRepository.findByRegistrationIdOrderByCreateTimeDesc(registrationId);
     }
 
     /**
@@ -100,9 +142,13 @@ public class ExaminationServiceImpl implements ExaminationService {
     public Page<Examination> getLabList(String status, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
         if (status == null || status.trim().isEmpty() || "全部".equals(status.trim())) {
-            return examinationRepository.findAll(pageRequest);
+            return examinationRepository.findAllByOrderByCreateTimeDesc(pageRequest);
         }
-        return examinationRepository.findByStatusOrderByCreateTimeDesc(status.trim(), pageRequest);
+        String trimmedStatus = status.trim();
+        if (!"待检查".equals(trimmedStatus) && !"已完成".equals(trimmedStatus) && !"已撤销".equals(trimmedStatus)) {
+            throw new BusinessException("状态参数不正确");
+        }
+        return examinationRepository.findByStatusOrderByCreateTimeDesc(trimmedStatus, pageRequest);
     }
 
     /**
@@ -121,7 +167,7 @@ public class ExaminationServiceImpl implements ExaminationService {
         }
 
         // 3. 验证结果内容
-        if (result == null || result.isEmpty()) {
+        if (result == null || result.trim().isEmpty()) {
             throw new BusinessException("检查结果不能为空");
         }
 
@@ -145,5 +191,14 @@ public class ExaminationServiceImpl implements ExaminationService {
             return examinationItemRepository.findByType(type);
         }
         return examinationItemRepository.findAll();
+    }
+
+    private void validateDoctorCanOperate(Registration registration, Long doctorId) {
+        if (!registration.getDoctorId().equals(doctorId)) {
+            throw new BusinessException("无权操作其他医生的患者");
+        }
+        if (!"就诊中".equals(registration.getStatus())) {
+            throw new BusinessException("请先开始看诊");
+        }
     }
 }

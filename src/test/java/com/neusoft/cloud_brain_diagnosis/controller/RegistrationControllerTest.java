@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /**
  * RegistrationController Web层测试
- * 覆盖：患者创建/取消挂号、医生接诊流程
+ * 覆盖：患者创建/取消挂号、医生接诊流程、历史挂号列表
  */
 @WebMvcTest(RegistrationController.class)
 class RegistrationControllerTest {
@@ -86,7 +86,7 @@ class RegistrationControllerTest {
 
         Registration reg = new Registration();
         reg.setId(100L);
-        when(registrationService.getDetail(100L)).thenReturn(reg);
+        when(registrationService.getDetail(eq(100L), eq(1L), eq("patient"))).thenReturn(reg);
 
         mockMvc.perform(get("/api/registration/detail/100")
                         .header("Authorization", "Bearer patient-token"))
@@ -97,6 +97,7 @@ class RegistrationControllerTest {
     @Test
     void getDoctorTodayList_ShouldReturnList() throws Exception {
         when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
 
         when(registrationService.getDoctorTodayList(10L)).thenReturn(List.of(new Registration()));
 
@@ -130,5 +131,52 @@ class RegistrationControllerTest {
                         .header("Authorization", "Bearer doctor-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data").value("看诊完成"));
+    }
+
+    // ========== 医生-历史挂号列表 ==========
+
+    @Test
+    void getDoctorList_ShouldReturnPage() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+
+        when(registrationService.getDoctorList(eq(10L), isNull(), isNull(), eq(1), eq(10)))
+                .thenReturn(new PageImpl<>(List.of(new Registration())));
+
+        mockMvc.perform(get("/api/registration/doctor/list")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    @Test
+    void getDoctorList_ShouldFilterByKeywordAndStatus() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+
+        when(registrationService.getDoctorList(eq(10L), eq("张三"), eq("待就诊"), eq(1), eq(10)))
+                .thenReturn(new PageImpl<>(List.of(new Registration())));
+
+        mockMvc.perform(get("/api/registration/doctor/list")
+                        .param("keyword", "张三")
+                        .param("status", "待就诊")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    @Test
+    void getDoctorList_ShouldReturnEmptyPage() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+
+        when(registrationService.getDoctorList(eq(10L), isNull(), isNull(), eq(2), eq(10)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/api/registration/doctor/list")
+                        .param("page", "2")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isEmpty());
     }
 }

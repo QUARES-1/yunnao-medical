@@ -24,6 +24,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class DoctorServiceImpl implements DoctorService {
+    private static final int SLOT_CAPACITY = 20;
+
     private final DoctorRepository doctorRepository;
     private final RegistrationRepository registrationRepository;
     private final JwtUtil jwtUtil;
@@ -166,6 +168,9 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Map<String, Object> getSchedule(Long doctorId) {
+        doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new BusinessException("医生不存在"));
+
         Map<String, Object> result = new HashMap<>();
         List<LocalDate> dates = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -176,6 +181,24 @@ public class DoctorServiceImpl implements DoctorService {
         timeSlots.add("上午");
         timeSlots.add("下午");
         result.put("timeSlots", timeSlots);
+
+        List<Map<String, Object>> availability = new ArrayList<>();
+        for (LocalDate date : dates) {
+            for (String timeSlot : timeSlots) {
+                long occupied = registrationRepository
+                        .countByDoctorIdAndRegistrationDateAndTimeSlotAndStatusNot(
+                                doctorId, date, timeSlot, "已取消");
+                int remaining = Math.max(0, SLOT_CAPACITY - Math.toIntExact(occupied));
+
+                Map<String, Object> item = new HashMap<>();
+                item.put("date", date);
+                item.put("timeSlot", timeSlot);
+                item.put("capacity", SLOT_CAPACITY);
+                item.put("remaining", remaining);
+                availability.add(item);
+            }
+        }
+        result.put("availability", availability);
         return result;
     }
 }

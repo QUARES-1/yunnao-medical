@@ -23,7 +23,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+			<jacoco.outputDirectory>${project.build.directory}</jacoco.outputDirectory>
+</properties>
 
 	<!-- 依赖 -->
 	<dependencies>
@@ -74,6 +75,12 @@
 			<version>5.8.29</version>
 		</dependency>
 
+		<!-- BCrypt密码校验：兼容阿里云数据库中的管理员加密密码 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
+		</dependency>
+
 		<!-- ========== API文档 ========== -->
 
 		<!-- Knife4j (SpringDoc 3.x) -->
@@ -113,12 +120,54 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<!-- Mockito-inline：支持 mock 静态方法和私有方法 -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-inline</artifactId>
+			<version>4.11.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- H2内存数据库（测试用） -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<!-- 构建配置 -->
 	<build>
 		<plugins>
+						<!-- JaCoCo 代码覆盖率插件 -->
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<configuration>
+					<dataFile>${user.home}/.jacoco.exec</dataFile>
+				</configuration>
+				<executions>
+					<execution>
+						<id>report</id>
+						<goals>
+							<goal>report</goal>
+						</goals>
+						<phase>test</phase>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Surefire 插件配置 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.2.5</version>
+				<configuration>
+					<argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=${user.home}/.jacoco.exec</argLine>
+				</configuration>
+			</plugin>
+<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>

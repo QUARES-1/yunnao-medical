@@ -67,15 +67,16 @@ public class PrescriptionController {
     }
 
     /**
-     * 药房-待发药处方列表
+     * 药房-处方列表
      */
     @GetMapping("/pharmacy/list")
     @RequireLogin(RoleEnum.PHARMACY)
-    @Operation(summary = "药房-待发药处方列表", description = "分页查询所有待发药的处方")
+    @Operation(summary = "药房-处方列表", description = "分页查询药房处方，可按状态筛选：待发药/已发药")
     public Result<Page<Prescription>> getPharmacyList(
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(prescriptionService.getPharmacyList(page, size));
+        return Result.success(prescriptionService.getPharmacyList(status, page, size));
     }
 
     /**

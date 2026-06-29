@@ -21,6 +21,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class RegistrationServiceImpl implements RegistrationService {
+    private static final int SLOT_CAPACITY = 20;
 
     private final RegistrationRepository registrationRepository;
     private final PatientRepository patientRepository;
@@ -58,8 +59,15 @@ public class RegistrationServiceImpl implements RegistrationService {
         }
 
         // 5. 防止重复挂号：同一天同一患者不能挂同一个医生同一时段
-        long count = registrationRepository.countByDoctorIdAndRegistrationDateAndTimeSlot(
-                registration.getDoctorId(), registration.getRegistrationDate(), registration.getTimeSlot());
+        long count = registrationRepository
+                .countByDoctorIdAndRegistrationDateAndTimeSlotAndStatusNot(
+                        registration.getDoctorId(),
+                        registration.getRegistrationDate(),
+                        registration.getTimeSlot(),
+                        "已取消");
+        if (count >= SLOT_CAPACITY) {
+            throw new BusinessException("该时段号源已约满，请选择其他日期或时段");
+        }
         // 检查该患者是否已在该时段挂过该医生
         // 使用更精确的查找方式
         List<Registration> existingRegs = registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(

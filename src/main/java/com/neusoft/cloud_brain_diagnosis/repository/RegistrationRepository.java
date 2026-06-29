@@ -15,4 +15,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     List<Registration> findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(Long doctorId, LocalDate date);
     Page<Registration> findByDoctorIdOrderByCreateTimeDesc(Long doctorId, Pageable pageable);
     long countByDoctorIdAndRegistrationDateAndTimeSlot(Long doctorId, LocalDate date, String timeSlot);
+    long countByDoctorIdAndRegistrationDateAndTimeSlotAndStatusNot(
+            Long doctorId, LocalDate date, String timeSlot, String status);
 }

@@ -70,15 +70,16 @@ public class ExaminationController {
     }
 
     /**
-     * 检验科-待检查列表
+     * 检验科-检查检验列表
      */
     @GetMapping("/lab/list")
     @RequireLogin(RoleEnum.LAB)
-    @Operation(summary = "检验科-待检查列表", description = "分页查询所有待检查的项目")
+    @Operation(summary = "检验科-检查检验列表", description = "分页查询检验科项目，可按状态筛选：待检查/已完成")
     public Result<Page<Examination>> getLabList(
+            @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(examinationService.getLabList(page, size));
+        return Result.success(examinationService.getLabList(status, page, size));
     }
 
     /**

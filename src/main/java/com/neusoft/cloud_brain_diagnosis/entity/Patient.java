@@ -2,6 +2,7 @@ package com.neusoft.cloud_brain_diagnosis.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,6 +15,13 @@ public class Patient {
 
     @Column(unique = true, length = 50)
     private String openid;
+
+    @Column(name = "login_account", unique = true, length = 50)
+    private String loginAccount;
+
+    @JsonIgnore
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
 
     private String name;
 
@@ -29,6 +37,9 @@ public class Patient {
     private String avatar;
 
     private String address;
+
+    @Column(length = 500)
+    private String allergyHistory;
 
     @Column(updatable = false)
     private LocalDateTime createTime;

@@ -4,6 +4,7 @@ import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.entity.*;
 import com.neusoft.cloud_brain_diagnosis.repository.*;
 import com.neusoft.cloud_brain_diagnosis.service.ExaminationService;
+import com.neusoft.cloud_brain_diagnosis.service.ai.AiExaminationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,6 +24,7 @@ public class ExaminationServiceImpl implements ExaminationService {
     private final RegistrationRepository registrationRepository;
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
+    private final AiExaminationService aiExaminationService;
 
     /**
      * 医生-开立检查
@@ -95,9 +97,12 @@ public class ExaminationServiceImpl implements ExaminationService {
      * 检验科-待检查列表（分页）
      */
     @Override
-    public Page<Examination> getLabList(Integer page, Integer size) {
+    public Page<Examination> getLabList(String status, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
-        return examinationRepository.findByStatusOrderByCreateTimeDesc("待检查", pageRequest);
+        if (status == null || status.trim().isEmpty() || "全部".equals(status.trim())) {
+            return examinationRepository.findAll(pageRequest);
+        }
+        return examinationRepository.findByStatusOrderByCreateTimeDesc(status.trim(), pageRequest);
     }
 
     /**
@@ -126,6 +131,7 @@ public class ExaminationServiceImpl implements ExaminationService {
         examination.setStatus("已完成");
         examination.setCompleteTime(LocalDateTime.now());
         examinationRepository.save(examination);
+        aiExaminationService.detectCriticalValue(id);
 
         return "结果提交成功";
     }

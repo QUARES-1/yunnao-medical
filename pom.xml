@@ -23,8 +23,8 @@
 	<properties>
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<jacoco.outputDirectory>${project.build.directory}</jacoco.outputDirectory>
-	</properties>
+			<jacoco.outputDirectory>${project.build.directory}</jacoco.outputDirectory>
+</properties>
 
 	<!-- 依赖 -->
 	<dependencies>
@@ -47,11 +47,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
 		<!-- ========== 数据库 ========== -->
@@ -78,6 +73,12 @@
 			<groupId>cn.hutool</groupId>
 			<artifactId>hutool-all</artifactId>
 			<version>5.8.29</version>
+		</dependency>
+
+		<!-- BCrypt密码校验：兼容阿里云数据库中的管理员加密密码 -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
 		<!-- ========== API文档 ========== -->
@@ -119,7 +120,6 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<!-- Mockito-inline：支持 mock 静态方法和私有方法 -->
 		<dependency>
 			<groupId>org.mockito</groupId>
@@ -139,7 +139,7 @@
 	<!-- 构建配置 -->
 	<build>
 		<plugins>
-			<!-- JaCoCo 代码覆盖率插件 -->
+						<!-- JaCoCo 代码覆盖率插件 -->
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -167,8 +167,7 @@
 					<argLine>-javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar=destfile=${user.home}/.jacoco.exec</argLine>
 				</configuration>
 			</plugin>
-
-			<plugin>
+<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
@@ -179,13 +178,6 @@
 						</exclude>
 					</excludes>
 				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>repackage</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

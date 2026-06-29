@@ -12,6 +12,9 @@ import java.util.List;
 public interface CriticalValueWarningRepository extends JpaRepository<CriticalValueWarning, Long> {
     Page<CriticalValueWarning> findByStatusOrderByCreateTimeDesc(String status, Pageable pageable);
     Page<CriticalValueWarning> findByOrderByCreateTimeDesc(Pageable pageable);
+    Page<CriticalValueWarning> findByDoctorIdOrderByCreateTimeDesc(Long doctorId, Pageable pageable);
+    Page<CriticalValueWarning> findByPatientIdOrderByCreateTimeDesc(Long patientId, Pageable pageable);
     List<CriticalValueWarning> findByDoctorIdAndStatus(Long doctorId, String status);
     List<CriticalValueWarning> findByStatus(String status);
+    boolean existsByExaminationId(Long examinationId);
 }

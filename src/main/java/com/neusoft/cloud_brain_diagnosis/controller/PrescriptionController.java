@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/prescription")
 @RequiredArgsConstructor
@@ -32,16 +30,24 @@ public class PrescriptionController {
         return Result.success(prescriptionService.createPrescription(prescription, UserContext.getUserId()));
     }
 
+    /**
+     * 医生-撤销处方
+     */
     @PutMapping("/cancel/{id}")
     @RequireLogin(RoleEnum.DOCTOR)
+    @Operation(summary = "医生-撤销处方", description = "医生撤销本人开具且未发药的处方")
     public Result<String> cancelPrescription(@PathVariable Long id) {
         return Result.success(prescriptionService.cancelPrescription(id, UserContext.getUserId()));
     }
 
-    @GetMapping("/registration/{regId}")
+    /**
+     * 医生-按挂号查询处方
+     */
+    @GetMapping("/registration/{registrationId}")
     @RequireLogin(RoleEnum.DOCTOR)
-    public Result<List<Prescription>> getByRegistrationId(@PathVariable Long regId) {
-        return Result.success(prescriptionService.getByRegistrationId(regId, UserContext.getUserId()));
+    @Operation(summary = "医生-按挂号查询处方", description = "查询当前医生某次挂号下的处方")
+    public Result<java.util.List<Prescription>> getByRegistrationId(@PathVariable Long registrationId) {
+        return Result.success(prescriptionService.getByRegistrationId(registrationId, UserContext.getUserId()));
     }
 
     /**
@@ -81,11 +87,11 @@ public class PrescriptionController {
     }
 
     /**
-     * 药房-待发药处方列表
+     * 药房-处方列表
      */
     @GetMapping("/pharmacy/list")
     @RequireLogin(RoleEnum.PHARMACY)
-    @Operation(summary = "药房-待发药处方列表", description = "分页查询所有待发药的处方")
+    @Operation(summary = "药房-处方列表", description = "分页查询药房处方，可按状态筛选：待发药/已发药")
     public Result<Page<Prescription>> getPharmacyList(
             @RequestParam(defaultValue = "待发药") String status,
             @RequestParam(defaultValue = "1") Integer page,

@@ -152,7 +152,7 @@ class DepartmentServiceTest {
     }
 
     @Test
-    void updateDepartment_ShouldUpdateSort() {
+    void updateDepartment_ShouldUpdateSortToLargeValue() {
         Department existing = new Department();
         existing.setId(1L);
         existing.setSort(1);
@@ -187,6 +187,45 @@ class DepartmentServiceTest {
         assertEquals("内科", existing.getName());
         assertEquals("描述", existing.getDescription());
         assertEquals(1, existing.getSort());
+    }
+
+    @Test
+    void updateDepartment_ShouldUpdateSort() {
+        Department existing = new Department();
+        existing.setId(1L);
+        existing.setSort(1);
+
+        Department update = new Department();
+        update.setId(1L);
+        update.setSort(99);
+
+        when(departmentRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(departmentRepository.save(any())).thenReturn(existing);
+
+        departmentService.updateDepartment(update);
+        assertEquals(Integer.valueOf(99), existing.getSort());
+    }
+
+    @Test
+    void updateDepartment_ShouldUpdateAllFields() {
+        Department existing = new Department();
+        existing.setId(1L);
+        existing.setName("旧名");
+        existing.setDescription("旧描述");
+
+        Department update = new Department();
+        update.setId(1L);
+        update.setName("新名");
+        update.setDescription("新描述");
+        update.setSort(5);
+
+        when(departmentRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(departmentRepository.save(any())).thenReturn(existing);
+
+        departmentService.updateDepartment(update);
+        assertEquals("新名", existing.getName());
+        assertEquals("新描述", existing.getDescription());
+        assertEquals(Integer.valueOf(5), existing.getSort());
     }
 
     @Test

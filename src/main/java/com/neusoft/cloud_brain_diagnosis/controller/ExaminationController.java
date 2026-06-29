@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/examination")
@@ -33,16 +34,24 @@ public class ExaminationController {
         return Result.success(examinationService.createExamination(examination, UserContext.getUserId()));
     }
 
+    /**
+     * 医生-撤销检查
+     */
     @PutMapping("/cancel/{id}")
     @RequireLogin(RoleEnum.DOCTOR)
+    @Operation(summary = "医生-撤销检查", description = "医生撤销本人开具且未检查的项目")
     public Result<String> cancelExamination(@PathVariable Long id) {
         return Result.success(examinationService.cancelExamination(id, UserContext.getUserId()));
     }
 
-    @GetMapping("/registration/{regId}")
+    /**
+     * 医生-按挂号查询检查
+     */
+    @GetMapping("/registration/{registrationId}")
     @RequireLogin(RoleEnum.DOCTOR)
-    public Result<List<Examination>> getByRegistrationId(@PathVariable Long regId) {
-        return Result.success(examinationService.getByRegistrationId(regId, UserContext.getUserId()));
+    @Operation(summary = "医生-按挂号查询检查", description = "查询当前医生某次挂号下的检查项目")
+    public Result<List<Examination>> getByRegistrationId(@PathVariable Long registrationId) {
+        return Result.success(examinationService.getByRegistrationId(registrationId, UserContext.getUserId()));
     }
 
     /**
@@ -82,11 +91,11 @@ public class ExaminationController {
     }
 
     /**
-     * 检验科-待检查列表
+     * 检验科-检查检验列表
      */
     @GetMapping("/lab/list")
     @RequireLogin(RoleEnum.LAB)
-    @Operation(summary = "检验科-待检查列表", description = "分页查询所有待检查的项目")
+    @Operation(summary = "检验科-检查检验列表", description = "分页查询检验科项目，可按状态筛选：待检查/已完成")
     public Result<Page<Examination>> getLabList(
             @RequestParam(defaultValue = "待检查") String status,
             @RequestParam(defaultValue = "1") Integer page,
@@ -100,8 +109,18 @@ public class ExaminationController {
     @PutMapping("/update-result")
     @RequireLogin(RoleEnum.LAB)
     @Operation(summary = "检验科-填写检查结果", description = "提交检查结果，状态改为已完成")
-    public Result<String> updateResult(@RequestBody java.util.Map<String, Object> body) {
-        Long id = body.get("id") instanceof Number number ? number.longValue() : Long.valueOf(String.valueOf(body.get("id")));
+    public Result<String> updateResult(
+            @RequestParam Long id,
+            @RequestParam String result,
+            @RequestParam(required = false) String resultImages) {
+        return Result.success(examinationService.updateResult(id, result, resultImages));
+    }
+
+    @PutMapping(value = "/update-result", consumes = "application/json")
+    @RequireLogin(RoleEnum.LAB)
+    @Operation(summary = "检验科-填写检查结果", description = "提交检查结果，状态改为已完成")
+    public Result<String> updateResult(@RequestBody Map<String, Object> body) {
+        Long id = Long.valueOf(String.valueOf(body.get("id")));
         String result = body.get("result") == null ? null : String.valueOf(body.get("result"));
         String resultImages = body.get("resultImages") == null ? null : String.valueOf(body.get("resultImages"));
         return Result.success(examinationService.updateResult(id, result, resultImages));

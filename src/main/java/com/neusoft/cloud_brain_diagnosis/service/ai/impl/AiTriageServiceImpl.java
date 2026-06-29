@@ -58,6 +58,10 @@ public class AiTriageServiceImpl implements AiTriageService {
             analysis = aiResponse;
         }
 
+        DepartmentMatch normalizedDepartment = normalizeDepartment(chiefComplaint, recommendDepartment, recommendDepartmentId);
+        recommendDepartment = normalizedDepartment.name();
+        recommendDepartmentId = normalizedDepartment.id();
+
         // 4. 匹配推荐医生
         List<Map<String, Object>> recommendDoctors = new ArrayList<>();
         if (recommendDoctorIds != null && !recommendDoctorIds.isEmpty()) {
@@ -115,6 +119,60 @@ public class AiTriageServiceImpl implements AiTriageService {
         return result;
     }
 
+    private DepartmentMatch normalizeDepartment(String chiefComplaint, String aiDepartment, Long aiDepartmentId) {
+        String text = (chiefComplaint == null ? "" : chiefComplaint) + " " + (aiDepartment == null ? "" : aiDepartment);
+        if (containsAny(text, "牙", "口腔", "牙龈", "牙痛", "口腔溃疡", "咀嚼", "舌", "嘴")) {
+            return new DepartmentMatch("口腔科", 6L);
+        }
+        if (containsAny(text, "眼", "视力", "流泪", "红眼", "眼痛", "眼干", "白内障")) {
+            return new DepartmentMatch("眼科", 4L);
+        }
+        if (containsAny(text, "耳", "鼻", "喉", "咽", "嗓子", "鼻塞", "流鼻涕", "耳鸣", "听力")) {
+            return new DepartmentMatch("耳鼻喉科", 5L);
+        }
+        if (containsAny(text, "咳", "喘", "胸闷", "气短", "呼吸", "肺", "痰")) {
+            return new DepartmentMatch("呼吸内科", 10L);
+        }
+        if (containsAny(text, "胃", "腹", "肚子", "反酸", "恶心", "呕吐", "腹泻", "便秘", "消化")) {
+            return new DepartmentMatch("消化内科", 11L);
+        }
+        if (containsAny(text, "骨", "关节", "腰", "腿", "肩", "颈", "扭伤", "骨折", "疼痛", "运动")) {
+            return new DepartmentMatch("骨科", 12L);
+        }
+        if (containsAny(text, "皮肤", "皮疹", "瘙痒", "红斑", "痘", "过敏", "脱皮", "湿疹")) {
+            return new DepartmentMatch("皮肤科", 7L);
+        }
+        if (containsAny(text, "头痛", "头晕", "失眠", "麻木", "抽搐", "记忆", "神经")) {
+            return new DepartmentMatch("神经内科", 8L);
+        }
+        if (containsAny(text, "心", "心慌", "胸痛", "血压", "高血压", "心悸", "心率")) {
+            return new DepartmentMatch("心血管内科", 9L);
+        }
+        if (containsAny(text, "儿童", "孩子", "小孩", "宝宝", "婴儿", "幼儿")) {
+            return new DepartmentMatch("儿科", 2L);
+        }
+        if (containsAny(text, "发烧", "发热", "高热", "急", "昏迷", "大出血")) {
+            return new DepartmentMatch("急诊科", 14L);
+        }
+        if (aiDepartmentId != null && aiDepartmentId > 0) {
+            return new DepartmentMatch(aiDepartment == null || aiDepartment.isBlank() ? "内科" : aiDepartment, aiDepartmentId);
+        }
+        return new DepartmentMatch("内科", 20L);
+    }
+
+    private boolean containsAny(String text, String... keywords) {
+        if (text == null) {
+            return false;
+        }
+        for (String keyword : keywords) {
+            if (text.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private record DepartmentMatch(String name, Long id) {}
     @Override
     public Page<TriageRecord> getPatientList(Long patientId, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));

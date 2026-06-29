@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,27 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         plan.setPlanType((String) request.get("planType"));
         plan.setTotalTimes(request.get("totalTimes") != null ? ((Number) request.get("totalTimes")).intValue() : 3);
         plan.setStatus("ongoing");
-        return planRepository.save(plan);
+        plan = planRepository.save(plan);
+
+        int totalTimes = plan.getTotalTimes() == null ? 3 : plan.getTotalTimes();
+        int[] intervals = {1, 3, 7, 14, 30};
+        String questionnaire = "["
+                + "{\"key\":\"recovery\",\"label\":\"整体恢复情况\",\"type\":\"radio\",\"options\":[\"明显好转\",\"略有好转\",\"无明显变化\",\"症状加重\"]},"
+                + "{\"key\":\"temperature\",\"label\":\"当前体温（℃）\",\"type\":\"number\"},"
+                + "{\"key\":\"symptoms\",\"label\":\"目前仍有的不适或新症状\",\"type\":\"textarea\"},"
+                + "{\"key\":\"medicine\",\"label\":\"是否按医嘱服药\",\"type\":\"radio\",\"options\":[\"按时服药\",\"偶尔漏服\",\"已自行停药\"]},"
+                + "{\"key\":\"wound\",\"label\":\"伤口情况（如无伤口可填无）\",\"type\":\"textarea\"}"
+                + "]";
+        for (int i = 0; i < totalTimes; i++) {
+            FollowUpRecord record = new FollowUpRecord();
+            record.setPlanId(plan.getId());
+            record.setPatientId(plan.getPatientId());
+            record.setFollowUpTime(LocalDateTime.now().plusDays(intervals[Math.min(i, intervals.length - 1)]));
+            record.setQuestionnaireJson(questionnaire);
+            record.setStatus("pending");
+            recordRepository.save(record);
+        }
+        return plan;
     }
 
     @Override
@@ -58,6 +79,9 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
     public String submitRecord(Long id, String answerJson, Long patientId) {
         FollowUpRecord record = recordRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("随访记录不存在"));
+        if (!patientId.equals(record.getPatientId())) {
+            throw new BusinessException("无权提交他人的随访记录");
+        }
         record.setAnswerJson(answerJson);
         record.setStatus("completed");
 
@@ -71,13 +95,18 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         try {
             JSONObject json = JSONUtil.parseObj(aiResponse);
             record.setAiAnalysis(json.getStr("analysis", aiResponse));
-            boolean abnormal = json.getBool("abnormal", false);
+            boolean abnormal = json.getBool("abnormal", false) || containsDangerSignal(answerJson);
             record.setAbnormalFlag(abnormal ? 1 : 0);
             if (abnormal) {
                 record.setStatus("abnormal");
             }
         } catch (Exception e) {
             record.setAiAnalysis(aiResponse);
+            if (containsDangerSignal(answerJson)) {
+                record.setAbnormalFlag(1);
+                record.setStatus("abnormal");
+                record.setAiAnalysis("检测到异常恢复信号，建议尽快联系医生并安排复诊。");
+            }
         }
 
         recordRepository.save(record);
@@ -93,6 +122,14 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         }
 
         return "提交成功";
+    }
+
+    private boolean containsDangerSignal(String text) {
+        String value = Optional.ofNullable(text).orElse("").toLowerCase();
+        String[] keywords = {"症状加重", "持续高热", "高热", "胸痛", "胸闷", "呼吸困难",
+                "意识不清", "大量出血", "伤口红肿", "伤口流脓", "剧烈疼痛", "反复呕吐",
+                "自行停药", "39℃", "40℃"};
+        return Arrays.stream(keywords).anyMatch(value::contains);
     }
 
     @Override

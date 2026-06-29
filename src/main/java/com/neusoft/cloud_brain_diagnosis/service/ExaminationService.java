@@ -32,7 +32,7 @@ public interface ExaminationService {
     Page<Examination> getDoctorList(Long doctorId, Integer page, Integer size);
 
     /**
-     * 检验科-待检查列表（分页）
+     * 检验科-检查检验列表（分页，可按状态筛选）
      */
     Page<Examination> getLabList(String status, Integer page, Integer size);
 

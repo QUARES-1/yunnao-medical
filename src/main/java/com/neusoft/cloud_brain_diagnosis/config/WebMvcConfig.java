@@ -23,6 +23,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns(
                         "/api/patient/wx-login",
+                        "/api/patient/test-login",
+                        "/api/staff/login",
                         "/api/doctor/login",
                         "/api/doctor/register",
                         "/api/admin/login",
@@ -38,7 +40,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/triage/consult",
                         "/api/triage/detail/**",
                         "/api/ai/chat",
-                        "/api/medication/guide/**",
                         "/api/examination/ai/interpret-patient/**",
                         "/api/follow-up/detail/**",
                         "/doc.html",

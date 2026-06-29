@@ -31,7 +31,7 @@ public interface PrescriptionService {
     Page<Prescription> getDoctorList(Long doctorId, Integer page, Integer size);
 
     /**
-     * 药房-待发药处方列表（分页）
+     * 药房-处方列表（分页，可按状态筛选）
      */
     Page<Prescription> getPharmacyList(String status, Integer page, Integer size);
 

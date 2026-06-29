@@ -1,7 +1,5 @@
 package com.neusoft.cloud_brain_diagnosis.service.ai;
 
-import com.neusoft.cloud_brain_diagnosis.entity.MedicationGuide;
-
 import java.util.Map;
 
 public interface AiMedicationService {
@@ -13,7 +11,7 @@ public interface AiMedicationService {
     /**
      * 查看用药指导
      */
-    MedicationGuide getGuide(Long prescriptionId);
+    Map<String, Object> getGuide(Long prescriptionId);
 
     /**
      * 标记已打印

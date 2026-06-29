@@ -33,27 +33,17 @@ public class AiChatServiceImpl implements AiChatService {
         String answer;
         String source;
 
-        // 1. 优先匹配知识库
-        List<AiKnowledgeBase> kbList = knowledgeBaseRepository.findByStatus(1);
-        boolean matched = false;
-        for (AiKnowledgeBase kb : kbList) {
-            if (kb.getKeywords() != null) {
-                String[] keywords = kb.getKeywords().split(",");
-                for (String keyword : keywords) {
-                    if (question.contains(keyword.trim())) {
-                        answer = kb.getAnswer();
-                        source = "knowledge";
-                        matched = true;
-                        // 保存记录
-                        saveChatRecord(question, answer, source, sessionId, userId, userType);
-                        Map<String, Object> result = new HashMap<>();
-                        result.put("answer", answer);
-                        result.put("source", source);
-                        result.put("relatedQuestions", findRelatedQuestions(kb.getCategory()));
-                        return result;
-                    }
-                }
-            }
+        // 1. 优先匹配知识库：不是“碰到第一个关键词就返回”，而是选择最精确的一条知识
+        AiKnowledgeBase matchedKnowledge = findBestKnowledge(question);
+        if (matchedKnowledge != null) {
+            answer = matchedKnowledge.getAnswer();
+            source = "knowledge";
+            saveChatRecord(question, answer, source, sessionId, userId, userType);
+            Map<String, Object> result = new HashMap<>();
+            result.put("answer", answer);
+            result.put("source", source);
+            result.put("relatedQuestions", findRelatedQuestions(matchedKnowledge.getCategory(), matchedKnowledge.getId()));
+            return result;
         }
 
         // 2. 未匹配则调用AI
@@ -91,12 +81,125 @@ public class AiChatServiceImpl implements AiChatService {
         chatRecordRepository.save(record);
     }
 
-    private List<String> findRelatedQuestions(String category) {
+    private AiKnowledgeBase findBestKnowledge(String question) {
+        if (question == null || question.trim().isEmpty()) {
+            return null;
+        }
+        String normalizedQuestion = normalize(question);
+        List<AiKnowledgeBase> kbList = knowledgeBaseRepository.findByStatus(1);
+        AiKnowledgeBase best = null;
+        int bestScore = 0;
+
+        for (AiKnowledgeBase kb : kbList) {
+            int score = scoreKnowledge(normalizedQuestion, kb);
+            if (score > bestScore || (score == bestScore && best != null && compareKnowledge(kb, best) < 0)) {
+                bestScore = score;
+                best = kb;
+            }
+        }
+        return bestScore >= 12 ? best : null;
+    }
+
+    private int scoreKnowledge(String normalizedQuestion, AiKnowledgeBase kb) {
+        int score = 0;
+        String questionText = normalize(kb.getQuestion());
+        String keywordsText = normalize(kb.getKeywords());
+
+        if (!questionText.isEmpty() && normalizedQuestion.contains(questionText)) {
+            score += 60;
+        }
+
+        String[] keywords = Optional.ofNullable(kb.getKeywords()).orElse("").split("[,，、;；\\s]+");
+        Set<String> matchedKeywords = new HashSet<>();
+        for (String rawKeyword : keywords) {
+            String keyword = normalize(rawKeyword);
+            if (keyword.isEmpty()) continue;
+            if (normalizedQuestion.contains(keyword)) {
+                matchedKeywords.add(keyword);
+                score += keyword.length() >= 2 ? 12 + keyword.length() : 4;
+            }
+        }
+
+        if (!questionText.isEmpty()) {
+            for (String token : splitTokens(questionText)) {
+                if (normalizedQuestion.contains(token)) {
+                    score += Math.min(10, token.length() + 3);
+                }
+            }
+        }
+
+        // 短问题只问“彩超”时，避免命中“彩超和CT分别在哪儿”这种混合知识
+        if (mentionsOnlyOneOf(normalizedQuestion, "彩超", "ct") && containsBoth(questionText + keywordsText, "彩超", "ct")) {
+            score -= 18;
+        }
+
+        // 用户明确问楼层/位置，导诊类知识稍微加分
+        if (containsAny(normalizedQuestion, "在哪", "哪里", "几楼", "楼", "位置", "怎么走")
+                && containsAny(questionText + keywordsText, "在哪", "哪里", "几楼", "楼", "位置", "导诊")) {
+            score += 8;
+        }
+
+        return score;
+    }
+
+    private int compareKnowledge(AiKnowledgeBase left, AiKnowledgeBase right) {
+        int leftSort = Optional.ofNullable(left.getSort()).orElse(0);
+        int rightSort = Optional.ofNullable(right.getSort()).orElse(0);
+        if (leftSort != rightSort) return Integer.compare(rightSort, leftSort);
+
+        int leftKeywordCount = Optional.ofNullable(left.getKeywords()).orElse("").split("[,，、;；\\s]+").length;
+        int rightKeywordCount = Optional.ofNullable(right.getKeywords()).orElse("").split("[,，、;；\\s]+").length;
+        if (leftKeywordCount != rightKeywordCount) return Integer.compare(leftKeywordCount, rightKeywordCount);
+
+        return Long.compare(Optional.ofNullable(left.getId()).orElse(Long.MAX_VALUE),
+                Optional.ofNullable(right.getId()).orElse(Long.MAX_VALUE));
+    }
+
+    private String normalize(String text) {
+        if (text == null) return "";
+        return text.toLowerCase(Locale.ROOT)
+                .replace("ＣＴ", "ct")
+                .replace("ｃｔ", "ct")
+                .replaceAll("[\\p{Punct}\\s，。！？、；：,.!?;:（）()【】\\[\\]《》<>“”\"']", "");
+    }
+
+    private List<String> splitTokens(String text) {
+        if (text == null || text.isEmpty()) return Collections.emptyList();
+        List<String> tokens = new ArrayList<>();
+        String[] parts = text.split("[,，、;；\\s]+");
+        for (String part : parts) {
+            String token = normalize(part);
+            if (token.length() >= 2) tokens.add(token);
+        }
+        return tokens;
+    }
+
+    private boolean containsAny(String text, String... words) {
+        for (String word : words) {
+            if (text.contains(normalize(word))) return true;
+        }
+        return false;
+    }
+
+    private boolean containsBoth(String text, String first, String second) {
+        return text.contains(normalize(first)) && text.contains(normalize(second));
+    }
+
+    private boolean mentionsOnlyOneOf(String text, String first, String second) {
+        boolean hasFirst = text.contains(normalize(first));
+        boolean hasSecond = text.contains(normalize(second));
+        return hasFirst ^ hasSecond;
+    }
+
+    private List<String> findRelatedQuestions(String category, Long currentKnowledgeId) {
         List<String> related = new ArrayList<>();
         if (category != null) {
             List<AiKnowledgeBase> list = knowledgeBaseRepository.findByCategory(category, Pageable.unpaged()).getContent();
             // 随机选2个相关问题
             for (AiKnowledgeBase kb : list) {
+                if (Objects.equals(kb.getId(), currentKnowledgeId)) {
+                    continue;
+                }
                 if (related.size() < 2) {
                     related.add(kb.getQuestion());
                 }

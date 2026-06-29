@@ -61,12 +61,13 @@ public class ExaminationAiController {
      * 待处理预警列表
      */
     @GetMapping("/critical-list")
-    @RequireLogin({RoleEnum.DOCTOR, RoleEnum.LAB})
+    @RequireLogin({RoleEnum.DOCTOR, RoleEnum.LAB, RoleEnum.PATIENT})
     @Operation(summary = "待处理预警", description = "查看待处理的危急值预警")
     public Result<Page<CriticalValueWarning>> getCriticalList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(examinationService.getCriticalList(page, size));
+        return Result.success(examinationService.getCriticalList(
+                UserContext.getUserId(), UserContext.getRole(), page, size));
     }
 
     /**
@@ -126,6 +127,19 @@ public class ExaminationAiController {
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
         return Result.success(examinationService.getManualList(page, size));
+    }
+
+    /**
+     * 审核记录列表
+     */
+    @GetMapping("/review-list")
+    @RequireLogin(RoleEnum.LAB)
+    @Operation(summary = "审核记录列表", description = "查询AI审核记录，可按结论筛选：pass/manual/reject")
+    public Result<Page<ExaminationAiReview>> getReviewList(
+            @RequestParam(required = false) String reviewResult,
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        return Result.success(examinationService.getReviewList(reviewResult, page, size));
     }
 
     /**

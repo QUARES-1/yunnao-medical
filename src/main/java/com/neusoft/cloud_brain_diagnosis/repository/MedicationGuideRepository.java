@@ -4,9 +4,10 @@ import com.neusoft.cloud_brain_diagnosis.entity.MedicationGuide;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface MedicationGuideRepository extends JpaRepository<MedicationGuide, Long> {
-    Optional<MedicationGuide> findByPrescriptionId(Long prescriptionId);
+    List<MedicationGuide> findAllByPrescriptionIdOrderByIdDesc(Long prescriptionId);
+    void deleteByPrescriptionId(Long prescriptionId);
 }

@@ -29,7 +29,12 @@ public interface AiExaminationService {
     /**
      * 待处理预警列表
      */
-    Page<CriticalValueWarning> getCriticalList(Integer page, Integer size);
+    Page<CriticalValueWarning> getCriticalList(Long userId, String role, Integer page, Integer size);
+
+    /**
+     * 检验结果发布后自动识别并生成危急值预警
+     */
+    CriticalValueWarning detectCriticalValue(Long examinationId);
 
     /**
      * 确认预警
@@ -56,6 +61,11 @@ public interface AiExaminationService {
      * 需要人工复核列表
      */
     Page<ExaminationAiReview> getManualList(Integer page, Integer size);
+
+    /**
+     * AI审核记录列表
+     */
+    Page<ExaminationAiReview> getReviewList(String reviewResult, Integer page, Integer size);
 
     /**
      * 审核详情

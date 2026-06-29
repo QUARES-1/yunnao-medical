@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class AiExaminationServiceImpl implements AiExaminationService {
     private final CriticalValueWarningRepository criticalValueRepository;
     private final ExaminationAiReviewRepository reviewRepository;
     private final ExaminationRepository examinationRepository;
+    private final PatientRepository patientRepository;
     private final AiApiUtil aiApiUtil;
 
     // ========== 检验报告解读 ==========
@@ -95,9 +98,62 @@ public class AiExaminationServiceImpl implements AiExaminationService {
     // ========== 危急值预警 ==========
 
     @Override
-    public Page<CriticalValueWarning> getCriticalList(Integer page, Integer size) {
+    public Page<CriticalValueWarning> getCriticalList(Long userId, String role, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
+        if ("doctor".equals(role)) {
+            return criticalValueRepository.findByDoctorIdOrderByCreateTimeDesc(userId, pageRequest);
+        }
+        if ("patient".equals(role)) {
+            return criticalValueRepository.findByPatientIdOrderByCreateTimeDesc(userId, pageRequest);
+        }
         return criticalValueRepository.findByStatusOrderByCreateTimeDesc("pending", pageRequest);
+    }
+
+    @Override
+    @Transactional
+    public CriticalValueWarning detectCriticalValue(Long examinationId) {
+        Examination exam = examinationRepository.findById(examinationId)
+                .orElseThrow(() -> new BusinessException("检查记录不存在"));
+        if (criticalValueRepository.existsByExaminationId(examinationId)) {
+            return null;
+        }
+        String result = Optional.ofNullable(exam.getResult()).orElse("");
+        List<String> hits = new ArrayList<>();
+        detect(result, hits, "(?:血红蛋白|HGB)[^0-9]{0,12}([0-9.]+)", 60, false, "血红蛋白严重偏低，存在重度贫血风险");
+        detect(result, hits, "(?:血糖|GLU|FPG)[^0-9]{0,12}([0-9.]+)", 16.7, true, "血糖严重偏高，存在高血糖急症风险");
+        detect(result, hits, "(?:血糖|GLU|FPG)[^0-9]{0,12}([0-9.]+)", 2.8, false, "血糖严重偏低，存在低血糖风险");
+        detect(result, hits, "(?:血钾|K\\+?)[^0-9]{0,12}([0-9.]+)", 2.8, false, "血钾严重偏低，存在心律失常风险");
+        detect(result, hits, "(?:血钾|K\\+?)[^0-9]{0,12}([0-9.]+)", 6.2, true, "血钾严重偏高，存在心律失常风险");
+        detect(result, hits, "(?:肌钙蛋白|cTnI|TnI)[^0-9]{0,12}([0-9.]+)", 0.5, true, "肌钙蛋白显著升高，警惕急性心肌损伤");
+        if (hits.isEmpty()) return null;
+
+        Patient patient = patientRepository.findById(exam.getPatientId()).orElse(null);
+        CriticalValueWarning warning = new CriticalValueWarning();
+        warning.setExaminationId(exam.getId());
+        warning.setPatientId(exam.getPatientId());
+        warning.setPatientName(exam.getPatientName());
+        warning.setPatientPhone(patient == null ? null : patient.getPhone());
+        warning.setDoctorId(exam.getDoctorId());
+        warning.setDoctorName(exam.getDoctorName());
+        warning.setCriticalItems(String.join("；", hits));
+        warning.setWarningLevel("critical");
+        warning.setStatus("pending");
+        warning.setLabRemark("AI已标记加急，请优先复核并电话通知开单医生");
+        warning.setSmsSent(0);
+        return criticalValueRepository.save(warning);
+    }
+
+    private void detect(String text, List<String> hits, String regex, double threshold,
+                        boolean greater, String message) {
+        Matcher matcher = Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text);
+        if (!matcher.find()) return;
+        try {
+            double value = Double.parseDouble(matcher.group(1));
+            if ((greater && value >= threshold) || (!greater && value <= threshold)) {
+                hits.add(message + "（检测值：" + value + "）");
+            }
+        } catch (NumberFormatException ignored) {
+        }
     }
 
     @Override
@@ -154,7 +210,8 @@ public class AiExaminationServiceImpl implements AiExaminationService {
         Map<String, Object> result = new HashMap<>();
         try {
             JSONObject json = JSONUtil.parseObj(aiResponse);
-            ExaminationAiReview review = new ExaminationAiReview();
+            ExaminationAiReview review = reviewRepository.findByExaminationId(examinationId)
+                    .orElseGet(ExaminationAiReview::new);
             review.setExaminationId(examinationId);
             review.setPatientId(exam.getPatientId());
             review.setLabStaffId(labStaffId);
@@ -191,6 +248,15 @@ public class AiExaminationServiceImpl implements AiExaminationService {
     public Page<ExaminationAiReview> getManualList(Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "reviewTime"));
         return reviewRepository.findByReviewResultOrderByReviewTimeDesc("manual", pageRequest);
+    }
+
+    @Override
+    public Page<ExaminationAiReview> getReviewList(String reviewResult, Integer page, Integer size) {
+        PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "reviewTime"));
+        if (reviewResult == null || reviewResult.trim().isEmpty() || "全部".equals(reviewResult.trim())) {
+            return reviewRepository.findByOrderByReviewTimeDesc(pageRequest);
+        }
+        return reviewRepository.findByReviewResultOrderByReviewTimeDesc(reviewResult.trim(), pageRequest);
     }
 
     @Override

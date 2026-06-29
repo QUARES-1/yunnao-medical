@@ -1,12 +1,20 @@
 package com.neusoft.cloud_brain_diagnosis.common.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -75,7 +83,7 @@ public class AiApiUtil {
     private String mockCall(String prompt, String systemPrompt) {
         // 根据systemPrompt关键词返回不同mock数据
         if (systemPrompt.contains("分诊") || systemPrompt.contains("triage")) {
-            return mockTriage();
+            return mockTriage(prompt);
         }
         if (systemPrompt.contains("处方审核") || systemPrompt.contains("prescription")) {
             return mockPrescriptionReview();
@@ -114,8 +122,84 @@ public class AiApiUtil {
         return mockGeneralChat(prompt);
     }
 
-    private String mockTriage() {
-        return "{\"recommendDepartment\":\"内科\",\"recommendDepartmentId\":1,\"recommendDoctorIds\":\"1,2\",\"analysis\":\"根据您描述的症状，初步判断为内科相关疾病，建议前往内科就诊。\",\"confidence\":85}";
+    private String mockTriage(String prompt) {
+        String symptom = prompt == null ? "" : prompt;
+        String department = "内科";
+        long departmentId = 20L;
+        String analysis = "根据您描述的症状，建议先到内科进行综合评估，由医生结合体征和检查结果进一步判断。";
+        int confidence = 78;
+
+        if (containsAny(symptom, "牙", "口腔", "牙龈", "牙痛", "口腔溃疡", "咀嚼", "舌", "嘴")) {
+            department = "口腔科";
+            departmentId = 6L;
+            analysis = "症状集中在牙齿、牙龈或口腔黏膜区域，更符合口腔科常见问题，建议到口腔科进一步检查。";
+            confidence = 92;
+        } else if (containsAny(symptom, "眼", "视力", "流泪", "红眼", "眼痛", "眼干", "白内障")) {
+            department = "眼科";
+            departmentId = 4L;
+            analysis = "症状主要涉及眼部或视力变化，建议优先选择眼科就诊。";
+            confidence = 90;
+        } else if (containsAny(symptom, "耳", "鼻", "喉", "咽", "嗓子", "鼻塞", "流鼻涕", "耳鸣", "听力")) {
+            department = "耳鼻喉科";
+            departmentId = 5L;
+            analysis = "症状多与耳、鼻、咽喉相关，建议到耳鼻喉科评估。";
+            confidence = 88;
+        } else if (containsAny(symptom, "咳", "喘", "胸闷", "气短", "呼吸", "肺", "痰")) {
+            department = "呼吸内科";
+            departmentId = 10L;
+            analysis = "症状涉及咳嗽、喘息、胸闷或呼吸不适，更符合呼吸系统问题，建议到呼吸内科就诊。";
+            confidence = 89;
+        } else if (containsAny(symptom, "胃", "腹", "肚子", "反酸", "恶心", "呕吐", "腹泻", "便秘", "消化")) {
+            department = "消化内科";
+            departmentId = 11L;
+            analysis = "症状集中在胃肠道或消化功能方面，建议到消化内科就诊。";
+            confidence = 90;
+        } else if (containsAny(symptom, "骨", "关节", "腰", "腿", "肩", "颈", "扭伤", "骨折", "疼痛", "运动")) {
+            department = "骨科";
+            departmentId = 12L;
+            analysis = "症状与骨骼、关节、肌肉或运动损伤相关，建议到骨科就诊。";
+            confidence = 87;
+        } else if (containsAny(symptom, "皮肤", "皮疹", "瘙痒", "红斑", "痘", "过敏", "脱皮", "湿疹")) {
+            department = "皮肤科";
+            departmentId = 7L;
+            analysis = "症状表现为皮肤改变或过敏瘙痒，建议到皮肤科就诊。";
+            confidence = 91;
+        } else if (containsAny(symptom, "头痛", "头晕", "失眠", "麻木", "抽搐", "记忆", "神经")) {
+            department = "神经内科";
+            departmentId = 8L;
+            analysis = "症状可能涉及神经系统，如头痛、头晕、麻木或睡眠异常，建议到神经内科评估。";
+            confidence = 84;
+        } else if (containsAny(symptom, "心", "心慌", "胸痛", "血压", "高血压", "心悸", "心率")) {
+            department = "心血管内科";
+            departmentId = 9L;
+            analysis = "症状可能与心血管系统相关，建议到心血管内科进一步检查。若胸痛明显或持续，请及时急诊。";
+            confidence = 86;
+        } else if (containsAny(symptom, "儿童", "孩子", "小孩", "宝宝", "婴儿", "幼儿")) {
+            department = "儿科";
+            departmentId = 2L;
+            analysis = "患者为儿童或症状描述涉及儿童，建议优先到儿科就诊。";
+            confidence = 88;
+        } else if (containsAny(symptom, "发烧", "发热", "高热", "急", "昏迷", "大出血")) {
+            department = "急诊科";
+            departmentId = 14L;
+            analysis = "症状存在急性或较重表现，建议根据严重程度选择急诊科或尽快线下就医。";
+            confidence = 82;
+        }
+
+        return String.format("{\"recommendDepartment\":\"%s\",\"recommendDepartmentId\":%d,\"recommendDoctorIds\":\"\",\"analysis\":\"%s\",\"confidence\":%d}",
+                department, departmentId, analysis, confidence);
+    }
+
+    private boolean containsAny(String text, String... keywords) {
+        if (text == null) {
+            return false;
+        }
+        for (String keyword : keywords) {
+            if (text.contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String mockPrescriptionReview() {
@@ -169,13 +253,82 @@ public class AiApiUtil {
     // ==================== 真实调用预留 ====================
 
     private String realCall(String prompt, String systemPrompt) {
-        // TODO: 集成真实AI API（通义千问/豆包等）
-        // 1. 构建HTTP请求
-        // 2. 设置header（api-key等）
-        // 3. 发送请求
-        // 4. 解析返回结果
-        // 5. 重试机制（3次）
-        log.warn("真实AI调用尚未集成，当前使用mock模式。请配置 ai.provider 切换。");
+        if (apiKey == null || apiKey.isBlank() || apiKey.startsWith("your_")) {
+            log.warn("AI API Key 未配置，自动降级为 mock 模式。");
+            return mockCall(prompt, systemPrompt);
+        }
+
+        String endpoint = buildChatCompletionsUrl();
+        Exception lastException = null;
+        for (int attempt = 1; attempt <= 3; attempt++) {
+            try {
+                Map<String, Object> body = Map.of(
+                        "model", model,
+                        "messages", List.of(
+                                Map.of("role", "system", "content", systemPrompt),
+                                Map.of("role", "user", "content", prompt)
+                        ),
+                        "temperature", 0.2,
+                        "response_format", Map.of("type", "json_object")
+                );
+
+                String requestBody = objectMapper.writeValueAsString(body);
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(endpoint))
+                        .timeout(Duration.ofMillis(timeout))
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", "Bearer " + apiKey)
+                        .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                        .build();
+
+                HttpClient client = HttpClient.newBuilder()
+                        .connectTimeout(Duration.ofMillis(timeout))
+                        .build();
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                    throw new RuntimeException("AI接口返回异常，状态码=" + response.statusCode() + "，响应=" + response.body());
+                }
+
+                JsonNode root = objectMapper.readTree(response.body());
+                JsonNode contentNode = root.path("choices").path(0).path("message").path("content");
+                String content = contentNode.asText("");
+                if (content.isBlank()) {
+                    throw new RuntimeException("AI接口响应中没有 content 字段：" + response.body());
+                }
+                return normalizeJsonContent(content);
+            } catch (Exception e) {
+                lastException = e;
+                log.warn("AI真实调用第{}次失败：{}", attempt, e.getMessage());
+            }
+        }
+
+        log.warn("AI真实调用失败，自动降级为 mock 模式。最后一次错误：{}", lastException == null ? "未知" : lastException.getMessage());
         return mockCall(prompt, systemPrompt);
     }
+
+    private String buildChatCompletionsUrl() {
+        String url = baseUrl == null || baseUrl.isBlank() ? "https://api.deepseek.com/v1" : baseUrl.trim();
+        while (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        if (url.endsWith("/chat/completions")) {
+            return url;
+        }
+        return url + "/chat/completions";
+    }
+
+    private String normalizeJsonContent(String content) {
+        String cleaned = content == null ? "" : content.trim();
+        if (cleaned.startsWith("```")) {
+            cleaned = cleaned.replaceFirst("^```[a-zA-Z]*", "").replaceFirst("```$", "").trim();
+        }
+        int start = cleaned.indexOf('{');
+        int end = cleaned.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+            return cleaned.substring(start, end + 1);
+        }
+        return cleaned;
+    }
 }
+

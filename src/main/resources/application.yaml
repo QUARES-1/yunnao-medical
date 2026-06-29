@@ -1,4 +1,4 @@
-server:
+﻿server:
   port: 8080
 
 spring:
@@ -31,8 +31,8 @@ jwt:
 
 # 微信小程序配置（生产环境请通过环境变量覆盖）
 wechat:
-  appid: ${WECHAT_APPID:wx1234567890abcdef}
-  secret: ${WECHAT_SECRET:your_secret_here}
+  appid: ${WECHAT_APPID:wx64e4374dc4f3c242}
+  secret: ${WECHAT_SECRET:216716b85a1d593ba5b59d8887523c2a}
 
 # 文件上传路径
 file:
@@ -60,3 +60,4 @@ logging:
   level:
     com.neusoft.cloud_brain_diagnosis: debug
     org.hibernate.SQL: debug
+

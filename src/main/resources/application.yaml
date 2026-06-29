@@ -3,11 +3,11 @@
 
 spring:
   datasource:
-    # 把下面的外网地址换成你自己的
-    url: jdbc:mysql://rm-cn-eh54ubjz5000196o.rwlb.rds.aliyuncs.com:3306/cloud_brain_diagnosis?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: lrm2       # 你创建的账号
-    password: 123456Ab!c          # 你设的密码
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 金仓数据库配置
+    url: jdbc:kingbase8://localhost:54321/cloud_brain_diagnosis?characterEncoding=UTF-8
+    username: system
+    password: 123456
+    driver-class-name: com.kingbase8.Driver
 
   # JPA配置
   jpa:
@@ -17,7 +17,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQLDialect
+        dialect: org.hibernate.dialect.Kingbase8MysqlDialect
 
   # 文件上传配置
   servlet:

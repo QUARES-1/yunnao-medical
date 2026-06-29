@@ -51,11 +51,22 @@
 
 		<!-- ========== 数据库 ========== -->
 
-		<!-- MySQL驱动 -->
+		<!-- 金仓数据库驱动（KingbaseES）- 引用本地安装目录的驱动 -->
 		<dependency>
-			<groupId>com.mysql</groupId>
-			<artifactId>mysql-connector-j</artifactId>
-			<scope>runtime</scope>
+			<groupId>com.kingbase8</groupId>
+			<artifactId>kingbase8-jdbc</artifactId>
+			<version>9.0.0</version>
+			<scope>system</scope>
+			<systemPath>D:\kingbase\KESRealPro\V009R001C010\Interface\jdbc\kingbase8-9.0.0.jar</systemPath>
+		</dependency>
+
+		<!-- 金仓 Hibernate 6 方言包 -->
+		<dependency>
+			<groupId>com.kingbase8</groupId>
+			<artifactId>hibernate-dialect</artifactId>
+			<version>6.2</version>
+			<scope>system</scope>
+			<systemPath>D:\kingbase\KESRealPro\V009R001C010\Interface\hibernate\hibernate-6.2.dialect.jar</systemPath>
 		</dependency>
 
 		<!-- ========== 工具类 ========== -->

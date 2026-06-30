@@ -21,23 +21,42 @@
 
 	<!-- 属性配置 -->
 	<properties>
-		<java.version>17</java.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-			<jacoco.outputDirectory>${project.build.directory}</jacoco.outputDirectory>
+	 <java.version>17</java.version>
+	 <spring-cloud.version>2023.0.1</spring-cloud.version>
+	 <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	  <jacoco.outputDirectory>${project.build.directory}</jacoco.outputDirectory>
 </properties>
 
-	<!-- 依赖 -->
+<dependencyManagement>
+ <dependencies>
+  <dependency>
+   <groupId>org.springframework.cloud</groupId>
+   <artifactId>spring-cloud-dependencies</artifactId>
+   <version>${spring-cloud.version}</version>
+   <type>pom</type>
+   <scope>import</scope>
+  </dependency>
+ </dependencies>
+</dependencyManagement>
+
+ <!-- 依赖 -->
 	<dependencies>
 
-		<!-- ========== Spring Boot 核心依赖 ========== -->
+	 <!-- ========== Spring Boot 核心依赖 ========== -->
 
-		<!-- Web -->
-		<dependency>
-		 <groupId>org.springframework.boot</groupId>
-		 <artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+	 <!-- Web -->
+	 <dependency>
+	  <groupId>org.springframework.boot</groupId>
+	  <artifactId>spring-boot-starter-web</artifactId>
+	 </dependency>
 
-		<!-- WebSocket -->
+	 <!-- Spring Cloud OpenFeign -->
+	 <dependency>
+	  <groupId>org.springframework.cloud</groupId>
+	  <artifactId>spring-cloud-starter-openfeign</artifactId>
+	 </dependency>
+
+	 <!-- WebSocket -->
 		<dependency>
 		 <groupId>org.springframework.boot</groupId>
 		 <artifactId>spring-boot-starter-websocket</artifactId>

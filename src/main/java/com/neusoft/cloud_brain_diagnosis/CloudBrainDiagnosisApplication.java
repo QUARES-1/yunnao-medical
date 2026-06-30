@@ -2,6 +2,7 @@ package com.neusoft.cloud_brain_diagnosis;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * 云脑诊疗平台启动类
@@ -10,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 不能放在任何子包里面，否则扫描不到其他类
  */
 @SpringBootApplication
+@EnableFeignClients
 public class CloudBrainDiagnosisApplication {
 
 	public static void main(String[] args) {

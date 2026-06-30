@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 /**
- * AI API 调用工具 — 支持 mock / deepseek / doubao / 通义千问
+ * AI API 调用工具 — 支持 mock / deepseek / doubao / 通义千问 / dify
  */
 @Slf4j
 @Component
@@ -42,6 +42,9 @@ public class AiApiUtil {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired(required = false)
+    private DifyClient difyClient;
+
     private final HttpClient httpClient = HttpClient.newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build();
@@ -51,7 +54,54 @@ public class AiApiUtil {
             log.info("[AiApiUtil Mock] systemPrompt={}, prompt={}", systemPrompt, prompt);
             return mockCall(prompt, systemPrompt);
         }
+        if ("dify".equalsIgnoreCase(provider)) {
+            return callViaDify(prompt, systemPrompt);
+        }
         return realCall(prompt, systemPrompt);
+    }
+
+    /**
+     * 通过 Dify 平台调用 AI
+     * ChatFlow 用于对话类（智能客服/健康咨询/分诊）
+     * Workflow 用于流程类（病历生成/处方审核/库存预测/质检/运营报告）
+     */
+    private String callViaDify(String prompt, String systemPrompt) {
+        if (difyClient == null) {
+            log.warn("DifyClient 未注入，回退 mock 模式");
+            return mockCall(prompt, systemPrompt);
+        }
+        String appKey = difyClient.resolveAppKey(systemPrompt);
+        if (appKey == null || appKey.isBlank()) {
+            log.warn("Dify appKey 未配置，回退 mock 模式");
+            return mockCall(prompt, systemPrompt);
+        }
+
+        // ChatFlow 类应用：systemPrompt 不含复杂结构化要求时走 ChatFlow
+        if (isChatFlowApp(systemPrompt)) {
+            String query = prompt;
+            // 把 systemPrompt 信息拼入 query，让 Dify 侧的 system prompt 生效
+            return difyClient.callChatFlow(appKey, query, "system");
+        }
+
+        // Workflow 类应用：将 prompt 和 systemPrompt 作为输入参数传给 Workflow
+        Map<String, Object> inputs = Map.of(
+                "inputText", prompt,
+                "systemPrompt", systemPrompt
+        );
+        return difyClient.runWorkflow(appKey, inputs, "system");
+    }
+
+    /**
+     * 判断是否使用 ChatFlow（对话型）而非 Workflow（工作流型）
+     */
+    private boolean isChatFlowApp(String systemPrompt) {
+        if (systemPrompt == null) return true;
+        String sp = systemPrompt.toLowerCase();
+        // ChatFlow 类关键词
+        if (sp.contains("分诊") || sp.contains("triage")) return true;
+        if (sp.contains("健康顾问") || sp.contains("健康建议") || sp.contains("health")) return true;
+        // 其余走 Workflow
+        return false;
     }
 
     public <T> T callAiJson(String prompt, String systemPrompt, Class<T> clazz) {

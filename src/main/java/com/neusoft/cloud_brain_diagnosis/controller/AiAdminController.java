@@ -1,4 +1,4 @@
-﻿package com.neusoft.cloud_brain_diagnosis.controller;
+package com.neusoft.cloud_brain_diagnosis.controller;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;

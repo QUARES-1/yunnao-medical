@@ -29,9 +29,22 @@ spring:
 jwt:
   secret: ${JWT_SECRET:cloud-brain-diagnosis-secret-key-2026-abcdefghijklmnopqrstuvwxyz}
 
-# AI大模型配置
+# Dify 在线版配置（provider 设为 dify 时生效）
+dify:
+  base-url: https://api.dify.ai/v1
+  apps:
+    chat:              app-qpZtTwfEsuHAMXJLKKavbaVA      # 智能客服 ChatFlow
+    health-consult:    app-zOX9gFPKRs6tMknFZOcJcNtc      # 健康咨询 ChatFlow
+    triage:            app-xC1mftT1IMsAgQayPjj18Cso      # AI分诊 ChatFlow
+    medical-record:    app-YUOMtTs9MhkB4n4h5gsl0wRY      # 病历生成 Workflow
+    prescription-review: app-kr6QaX2T79tx7pRDI31aIOmY    # 处方审核 Workflow
+    stock-forecast:    app-gFGm5hgvPsDnqAG2NOT86bT6      # 库存预测 Workflow
+    quality-check:     app-hxVP7t7QjaqIPfQ3nhjlO9wF      # 医疗质检 Workflow
+    operation-report:  app-TC0Qsg0nCm58oOlQ6aO8Ra1i      # 运营报告 Workflow
+
+# AI大模型配置（provider = dify 时走 Dify，否则直连 LLM）
 ai:
-  provider: ${AI_PROVIDER:deepseek}      # 模型提供商：mock/doubao/通义千问/deepseek
+  provider: ${AI_PROVIDER:dify}      # 模型提供商：mock/dify/deepseek/doubao/通义千问
   api-key: ${AI_API_KEY:sk-f08ff0429a5f41328a8d95bcf80d8362}
   model: deepseek-chat
   base-url: https://api.deepseek.com/v1

@@ -1,4 +1,4 @@
-﻿package com.neusoft.cloud_brain_diagnosis.controller;
+package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.annotation.RequireLogin;
 import com.neusoft.cloud_brain_diagnosis.common.context.UserContext;

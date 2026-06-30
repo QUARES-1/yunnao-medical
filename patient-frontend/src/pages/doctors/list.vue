@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <view class="page">
     <view class="filter-panel">
       <view class="search-box">
@@ -82,21 +82,19 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { storeToRefs } from 'pinia'
 import { onLoad } from '@dcloudio/uni-app'
-import { getDepartments, getDoctors } from '@/api/patient'
 import { showError } from '@/utils/request'
-import type { Department, Doctor } from '@/types/api'
+import { useDoctorsStore } from '@/stores/doctors'
 
-const departments = ref<Department[]>([])
-const doctors = ref<Doctor[]>([])
-const selected = ref<number>()
+const doctorStore = useDoctorsStore()
+const { departments, doctors, loading, selectedDepartmentId: selected } = storeToRefs(doctorStore)
 const selectedTitle = ref('')
 const keyword = ref('')
-const loading = ref(true)
 
 const titleOptions = computed(() => {
   const priority = ['主任医师', '副主任医师', '主治医师', '医师']
-  const available = [...new Set(doctors.value.map((doctor) => doctor.title).filter(Boolean) as string[])]
+  const available = [...new Set(doctors.value.map(doctor => doctor.title).filter(Boolean) as string[])]
   return available.sort((a, b) => {
     const aIndex = priority.indexOf(a)
     const bIndex = priority.indexOf(b)
@@ -106,41 +104,34 @@ const titleOptions = computed(() => {
 
 const filteredDoctors = computed(() => {
   const value = keyword.value.trim().toLowerCase()
-  return doctors.value.filter((doctor) => {
+  return doctors.value.filter(doctor => {
     if (selectedTitle.value && doctor.title !== selectedTitle.value) return false
     if (!value) return true
     return [doctor.name, doctor.departmentName, doctor.title, doctor.specialty]
       .filter(Boolean)
-      .some((field) => String(field).toLowerCase().includes(value))
+      .some(field => String(field).toLowerCase().includes(value))
   })
 })
 
 async function select(id?: number) {
-  selected.value = id
   selectedTitle.value = ''
-  loading.value = true
   try {
-    doctors.value = await getDoctors(id)
+    await doctorStore.loadDoctors(id)
   } catch (error) {
     showError(error)
-  } finally {
-    loading.value = false
   }
 }
-
 function resetFilter() {
   keyword.value = ''
   selectedTitle.value = ''
   if (selected.value) select()
 }
-
 const open = (id: number) => uni.navigateTo({ url: `/pages/doctors/detail?id=${id}` })
 
-onLoad(async (query) => {
+onLoad(async query => {
   const departmentId = query?.departmentId ? Number(query.departmentId) : undefined
   try {
-    departments.value = await getDepartments()
-    await select(departmentId)
+    await doctorStore.initialize(departmentId)
   } catch (error) {
     showError(error)
   }
@@ -188,3 +179,4 @@ onLoad(async (query) => {
 .empty-copy { margin-top: 10rpx; font-size: 22rpx; }
 .empty-state button { margin-top: 30rpx; padding: 0 32rpx; height: 68rpx; line-height: 68rpx; border-radius: 20rpx; background: #087f84; color: #fff; font-size: 23rpx; }
 </style>
+

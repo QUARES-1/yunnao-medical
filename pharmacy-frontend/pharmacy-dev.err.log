@@ -1,0 +1,10 @@
+[2m18:26:48[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mAxiosError[22m: timeout of 12000ms exceeded
+[39m > XMLHttpRequest.handleTimeout node_modules/axios/lib/adapters/xhr.js:142:10
+
+[2m18:26:48[22m [33m[1m[vite][22m[39m [33m[2m(client)[22m[39m [2m[console.warn] [22m[Vue warn]: Unhandled error during execution of mounted hook 
+  at <PharmacyLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< {} > > 
+  at <RouterView> 
+  at <App>
+[2m18:26:48[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m [31m[Unhandled rejection] [1mAxiosError[22m: timeout of 12000ms exceeded
+[39m > XMLHttpRequest.handleTimeout node_modules/axios/lib/adapters/xhr.js:142:10
+

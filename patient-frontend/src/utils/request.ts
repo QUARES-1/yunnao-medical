@@ -1,6 +1,10 @@
-import type { ApiResult } from '@/types/api'
+﻿import type { ApiResult } from '@/types/api'
 
-export const API_BASE_URL = 'http://localhost:8080'
+let defaultApiBaseUrl = 'http://localhost:8080'
+// #ifdef H5
+defaultApiBaseUrl = import.meta.env.DEV ? 'http://localhost:8080' : ''
+// #endif
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || defaultApiBaseUrl
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
@@ -35,3 +39,4 @@ export function showError(error: unknown) {
   const message = error instanceof Error ? error.message : '操作失败，请稍后重试'
   uni.showToast({ title: message, icon: 'none', duration: 2400 })
 }
+

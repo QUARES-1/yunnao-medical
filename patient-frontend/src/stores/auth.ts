@@ -1,6 +1,6 @@
 ﻿import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { devPatientLogin, getPatientInfo, wxLogin } from '@/api/patient'
+import { devPatientLogin, getPatientInfo, testPatientLogin, wxLogin } from '@/api/patient'
 import type { Patient } from '@/types/api'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -37,11 +37,23 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function loginWithTestAccount(account: string, password: string) {
+    loading.value = true
+    try {
+      const result = await testPatientLogin(account, password)
+      uni.setStorageSync('patient_token', result.token)
+      patient.value = await getPatientInfo()
+      return result
+    } finally {
+      loading.value = false
+    }
+  }
+
   function logout() {
     uni.removeStorageSync('patient_token')
     patient.value = null
   }
 
-  return { patient, loading, isLoggedIn, login, loadProfile, logout }
+  return { patient, loading, isLoggedIn, login, loginWithTestAccount, loadProfile, logout }
 })
 

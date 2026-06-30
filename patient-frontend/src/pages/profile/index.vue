@@ -9,7 +9,9 @@
     </view>
     <view class="card">
       <view @tap="go('/pages/registrations/list')"><text>挂号记录</text><text>查看全部记录 ›</text></view>
-      <view><text>电子病历</text><text>即将开放 ›</text></view><view><text>检查报告</text><text>即将开放 ›</text></view><view><text>我的处方</text><text>即将开放 ›</text></view>
+      <view @tap="go('/pages/medical-records/list')"><text>电子病历</text><text>查看就诊病历 ›</text></view>
+      <view @tap="go('/pages/reports/list')"><text>检查报告</text><text>查看检查结果 ›</text></view>
+      <view @tap="go('/pages/prescriptions/list')"><text>我的处方</text><text>查看处方记录 ›</text></view>
     </view>
     <view class="service">健康服务热线 <b>400-888-2026</b></view>
   </view>

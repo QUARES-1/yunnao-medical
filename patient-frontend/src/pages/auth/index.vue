@@ -40,6 +40,18 @@
       <button class="auth-button" :loading="saving || auth.loading" @tap="authorizeAndEnter">
         授权并进入小程序
       </button>
+
+      <view class="login-divider"><view /><text>队友联调</text><view /></view>
+      <view class="test-login-panel">
+        <view class="test-login-heading">
+          <text class="test-login-title">测试账号登录</text>
+          <text class="test-login-badge">实训专用</text>
+        </view>
+        <text class="test-login-tip">无需微信授权，也能进入同一患者档案</text>
+        <input v-model="testAccount" class="test-input" maxlength="50" placeholder="请输入测试账号" placeholder-class="input-placeholder" />
+        <input v-model="testPassword" class="test-input" password maxlength="50" placeholder="请输入登录密码" placeholder-class="input-placeholder" />
+        <button class="test-login-button" :loading="auth.loading" @tap="loginByAccount">使用测试账号登录</button>
+      </view>
       <text class="privacy-tip">仅用于本实训项目中的患者身份展示，不会用于其他用途</text>
     </view>
   </view>
@@ -58,6 +70,8 @@ const name = ref('')
 const localAvatar = ref('')
 const savedAvatar = ref('')
 const saving = ref(false)
+const testAccount = ref('')
+const testPassword = ref('')
 
 const previewUrl = computed(() => localAvatar.value || (savedAvatar.value ? (savedAvatar.value.startsWith('/') ? `${API_BASE_URL}${savedAvatar.value}` : savedAvatar.value) : ''))
 
@@ -110,9 +124,24 @@ async function authorizeAndEnter() {
   }
 }
 
-onLoad(async () => {
+async function loginByAccount() {
+  const account = testAccount.value.trim()
+  const password = testPassword.value
+  if (!account || !password) return uni.showToast({ title: '请输入账号和密码', icon: 'none' })
   try {
-    await ensureLogin()
+    auth.logout()
+    await auth.loginWithTestAccount(account, password)
+    uni.showToast({ title: '登录成功', icon: 'success' })
+    setTimeout(() => uni.reLaunch({ url: '/pages/index/index' }), 350)
+  } catch (e) {
+    showError(e)
+  }
+}
+
+onLoad(async () => {
+  if (!auth.isLoggedIn()) return
+  try {
+    await auth.loadProfile()
     name.value = auth.patient?.name || ''
     savedAvatar.value = auth.patient?.avatar || ''
     if (!needsAuthorization(auth.patient)) {
@@ -125,5 +154,5 @@ onLoad(async () => {
 </script>
 
 <style scoped>
-.auth-page{position:relative;min-height:100vh;box-sizing:border-box;padding:108rpx 34rpx 52rpx;background:linear-gradient(160deg,#075c71 0%,#078383 48%,#f4f8fb 48%,#f4f8fb 100%);overflow:hidden}.bg-orb{position:absolute;border-radius:50%;border:1rpx solid rgba(255,255,255,.15)}.orb-one{width:420rpx;height:420rpx;right:-150rpx;top:30rpx;box-shadow:0 0 0 70rpx rgba(255,255,255,.04)}.orb-two{width:260rpx;height:260rpx;left:-120rpx;top:300rpx;background:rgba(255,255,255,.06)}.brand-block{position:relative;z-index:1;color:#fff;margin-bottom:44rpx}.eyebrow,.brand,.slogan{display:block}.eyebrow{font-size:20rpx;letter-spacing:4rpx;opacity:.72}.brand{margin-top:10rpx;font-size:46rpx;font-weight:800}.slogan{margin-top:20rpx;width:560rpx;font-size:27rpx;line-height:1.6;opacity:.9}.auth-card{position:relative;z-index:2;padding:42rpx 30rpx 36rpx;border-radius:42rpx;background:rgba(255,255,255,.97);box-shadow:0 24rpx 70rpx rgba(9,69,82,.18)}.icon-wrap{width:86rpx;height:86rpx;margin:0 auto 16rpx;border-radius:30rpx;background:#e4f7f3;display:flex;align-items:center;justify-content:center}.wechat-icon{color:#087f84;font-size:45rpx;font-weight:800}.title,.subtitle{display:block;text-align:center}.title{color:#17384a;font-size:42rpx;font-weight:800}.subtitle{width:560rpx;max-width:100%;margin:16rpx auto 0;color:#7f939b;font-size:24rpx;line-height:1.6}.wechat-profile-card{display:flex;flex-direction:column;align-items:center;margin-top:36rpx;padding:30rpx 26rpx 28rpx;border:2rpx solid #d8eeec;border-radius:32rpx;background:linear-gradient(135deg,#f2fbfa,#ffffff);box-shadow:0 12rpx 34rpx rgba(8,127,132,.08)}.avatar-button{position:relative;width:172rpx;height:172rpx;margin:0;padding:0;border:0;border-radius:52rpx;background:transparent;overflow:visible}.avatar-button:after{border:0}.avatar{width:172rpx;height:172rpx;display:block;border-radius:52rpx;background:#dcefed;box-shadow:0 14rpx 36rpx rgba(8,127,132,.18)}.avatar-placeholder{display:flex;align-items:center;justify-content:center;color:#087f84;font-size:32rpx;font-weight:700}.camera{position:absolute;right:-8rpx;bottom:-8rpx;width:56rpx;height:56rpx;display:flex;align-items:center;justify-content:center;border:7rpx solid #fff;border-radius:50%;background:#087f84;color:#fff;font-size:32rpx}.avatar-tip{display:block;margin-top:18rpx;text-align:center;color:#3d8d8b;font-size:24rpx}.name-panel{width:100%;margin-top:28rpx}.field-label{display:block;margin-bottom:16rpx;color:#17384a;font-size:32rpx;font-weight:800}.nickname-input{height:90rpx;padding:0 26rpx;border:2rpx solid #cfe4e5;border-radius:24rpx;background:#fff;color:#17384a;font-size:32rpx;font-weight:700}.field-tip{display:block;margin-top:12rpx;color:#8ba0a7;font-size:22rpx}.input-placeholder{color:#a1b0b5;font-weight:400}.auth-button{height:94rpx;margin-top:30rpx;border-radius:26rpx;background:linear-gradient(135deg,#087f84,#15a092);color:#fff;font-size:31rpx;font-weight:800;box-shadow:0 14rpx 32rpx rgba(8,127,132,.22)}.privacy-tip{display:block;margin-top:22rpx;text-align:center;color:#98a9af;font-size:21rpx;line-height:1.5}
+.auth-page{position:relative;min-height:100vh;box-sizing:border-box;padding:108rpx 34rpx 52rpx;background:linear-gradient(160deg,#075c71 0%,#078383 48%,#f4f8fb 48%,#f4f8fb 100%);overflow:hidden}.bg-orb{position:absolute;border-radius:50%;border:1rpx solid rgba(255,255,255,.15)}.orb-one{width:420rpx;height:420rpx;right:-150rpx;top:30rpx;box-shadow:0 0 0 70rpx rgba(255,255,255,.04)}.orb-two{width:260rpx;height:260rpx;left:-120rpx;top:300rpx;background:rgba(255,255,255,.06)}.brand-block{position:relative;z-index:1;color:#fff;margin-bottom:44rpx}.eyebrow,.brand,.slogan{display:block}.eyebrow{font-size:20rpx;letter-spacing:4rpx;opacity:.72}.brand{margin-top:10rpx;font-size:46rpx;font-weight:800}.slogan{margin-top:20rpx;width:560rpx;font-size:27rpx;line-height:1.6;opacity:.9}.auth-card{position:relative;z-index:2;padding:42rpx 30rpx 36rpx;border-radius:42rpx;background:rgba(255,255,255,.97);box-shadow:0 24rpx 70rpx rgba(9,69,82,.18)}.icon-wrap{width:86rpx;height:86rpx;margin:0 auto 16rpx;border-radius:30rpx;background:#e4f7f3;display:flex;align-items:center;justify-content:center}.wechat-icon{color:#087f84;font-size:45rpx;font-weight:800}.title,.subtitle{display:block;text-align:center}.title{color:#17384a;font-size:42rpx;font-weight:800}.subtitle{width:560rpx;max-width:100%;margin:16rpx auto 0;color:#7f939b;font-size:24rpx;line-height:1.6}.wechat-profile-card{display:flex;flex-direction:column;align-items:center;margin-top:36rpx;padding:30rpx 26rpx 28rpx;border:2rpx solid #d8eeec;border-radius:32rpx;background:linear-gradient(135deg,#f2fbfa,#ffffff);box-shadow:0 12rpx 34rpx rgba(8,127,132,.08)}.avatar-button{position:relative;width:172rpx;height:172rpx;margin:0;padding:0;border:0;border-radius:52rpx;background:transparent;overflow:visible}.avatar-button:after{border:0}.avatar{width:172rpx;height:172rpx;display:block;border-radius:52rpx;background:#dcefed;box-shadow:0 14rpx 36rpx rgba(8,127,132,.18)}.avatar-placeholder{display:flex;align-items:center;justify-content:center;color:#087f84;font-size:32rpx;font-weight:700}.camera{position:absolute;right:-8rpx;bottom:-8rpx;width:56rpx;height:56rpx;display:flex;align-items:center;justify-content:center;border:7rpx solid #fff;border-radius:50%;background:#087f84;color:#fff;font-size:32rpx}.avatar-tip{display:block;margin-top:18rpx;text-align:center;color:#3d8d8b;font-size:24rpx}.name-panel{width:100%;margin-top:28rpx}.field-label{display:block;margin-bottom:16rpx;color:#17384a;font-size:32rpx;font-weight:800}.nickname-input{height:90rpx;padding:0 26rpx;border:2rpx solid #cfe4e5;border-radius:24rpx;background:#fff;color:#17384a;font-size:32rpx;font-weight:700}.field-tip{display:block;margin-top:12rpx;color:#8ba0a7;font-size:22rpx}.input-placeholder{color:#a1b0b5;font-weight:400}.auth-button{height:94rpx;margin-top:30rpx;border-radius:26rpx;background:linear-gradient(135deg,#087f84,#15a092);color:#fff;font-size:31rpx;font-weight:800;box-shadow:0 14rpx 32rpx rgba(8,127,132,.22)}.login-divider{display:flex;align-items:center;gap:20rpx;margin:34rpx 0 24rpx;color:#91a5ac;font-size:22rpx}.login-divider view{height:1rpx;flex:1;background:#dce8e9}.test-login-panel{padding:26rpx;border-radius:28rpx;background:#f5fafb;border:2rpx solid #e0eeee}.test-login-heading{display:flex;align-items:center;justify-content:space-between}.test-login-title{color:#17384a;font-size:30rpx;font-weight:800}.test-login-badge{padding:8rpx 14rpx;border-radius:999rpx;background:#e1f5ef;color:#078477;font-size:20rpx}.test-login-tip{display:block;margin:10rpx 0 20rpx;color:#82979e;font-size:22rpx}.test-input{height:84rpx;margin-top:14rpx;padding:0 22rpx;border:2rpx solid #d8e7e9;border-radius:20rpx;background:#fff;color:#17384a;font-size:28rpx}.test-login-button{height:86rpx;margin-top:20rpx;border:2rpx solid #0b8b88;border-radius:22rpx;background:#fff;color:#087f84;font-size:28rpx;font-weight:800}.privacy-tip{display:block;margin-top:22rpx;text-align:center;color:#98a9af;font-size:21rpx;line-height:1.5}
 </style>

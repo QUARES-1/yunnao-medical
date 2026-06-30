@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <scroll-view class="page" scroll-y :enhanced="true" :show-scrollbar="false">
     <view class="hero">
       <text class="tag">PRESCRIPTIONS</text>
@@ -60,20 +60,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { getPatientPrescriptions } from '@/api/patient'
-import type { Prescription, PrescriptionDrug } from '@/types/api'
+import { onMounted } from 'vue'
+import { storeToRefs } from 'pinia'
+import { usePrescriptionsStore } from '@/stores/prescriptions'
+import type { PrescriptionDrug } from '@/types/api'
 import { showError } from '@/utils/request'
 
-const loading = ref(false)
-const page = ref(1)
-const size = 10
-const total = ref(0)
-const hasMore = ref(false)
-const prescriptions = ref<Prescription[]>([])
-
-const dispensedCount = computed(() => prescriptions.value.filter(x => x.status === '已发药').length)
-const pendingCount = computed(() => prescriptions.value.filter(x => x.status !== '已发药').length)
+const prescriptionStore = usePrescriptionsStore()
+const { records: prescriptions, loading, total, hasMore, dispensedCount, pendingCount } = storeToRefs(prescriptionStore)
 
 function parseDrugs(value?: string): PrescriptionDrug[] {
   if (!value) return []
@@ -84,44 +78,19 @@ function parseDrugs(value?: string): PrescriptionDrug[] {
     return []
   }
 }
-
-function money(value?: number) {
-  return Number(value || 0).toFixed(2)
-}
-
+function money(value?: number) { return Number(value || 0).toFixed(2) }
 function formatTime(value?: string) {
   if (!value) return '暂无时间'
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value.slice(0, 10)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
-
-async function loadData(reset = false) {
-  if (loading.value) return
-  loading.value = true
-  try {
-    if (reset) {
-      page.value = 1
-      prescriptions.value = []
-    }
-    const res = await getPatientPrescriptions({ page: page.value, size })
-    const list = res.content || []
-    prescriptions.value = reset ? list : prescriptions.value.concat(list)
-    total.value = res.totalElements || prescriptions.value.length
-    hasMore.value = page.value < (res.totalPages || 1)
-  } catch (e) {
-    showError(e)
-  } finally {
-    loading.value = false
-  }
+async function loadMore() {
+  try { await prescriptionStore.loadMore() } catch (error) { showError(error) }
 }
-
-function loadMore() {
-  page.value += 1
-  loadData()
-}
-
-onMounted(() => loadData(true))
+onMounted(async () => {
+  try { await prescriptionStore.load(true) } catch (error) { showError(error) }
+})
 </script>
 
 <style scoped>
@@ -136,3 +105,4 @@ onMounted(() => loadData(true))
 .empty{margin-top:28rpx;padding:48rpx 28rpx;border-radius:28rpx;background:#fff;text-align:center;color:#8ca0a6}.empty-icon{width:80rpx;height:80rpx;margin:0 auto 18rpx;border-radius:26rpx;background:#e6f6f3;color:#0b8a80;display:flex;align-items:center;justify-content:center;font-weight:900}.empty-title{display:block;margin-bottom:8rpx;font-size:30rpx;font-weight:900;color:#244655}.empty text:last-child{display:block;font-size:23rpx;line-height:1.7}
 .load-more{margin:24rpx 0 0;background:#0c9289;color:#fff;border-radius:20rpx;font-weight:850}.bottom-space{height:40rpx}
 </style>
+

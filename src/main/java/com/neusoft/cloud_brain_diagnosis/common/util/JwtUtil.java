@@ -60,4 +60,20 @@ public class JwtUtil {
             return false;
         }
     }
+
+    /**
+     * 校验 token 是否属于指定用户
+     */
+    public boolean validateToken(String token, Long userId) {
+        try {
+            Claims claims = Jwts.parser()
+                    .verifyWith(getSigningKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return Long.parseLong(claims.getSubject()) == userId;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

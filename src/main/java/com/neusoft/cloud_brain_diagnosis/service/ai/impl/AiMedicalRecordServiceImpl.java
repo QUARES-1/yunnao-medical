@@ -4,9 +4,12 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.common.util.AiApiUtil;
+import com.neusoft.cloud_brain_diagnosis.entity.Doctor;
 import com.neusoft.cloud_brain_diagnosis.entity.MedicalRecordAiGenerate;
+import com.neusoft.cloud_brain_diagnosis.repository.DoctorRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.MedicalRecordAiGenerateRepository;
 import com.neusoft.cloud_brain_diagnosis.service.ai.AiMedicalRecordService;
+import com.neusoft.cloud_brain_diagnosis.service.ai.PromptTemplateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -22,18 +25,19 @@ public class AiMedicalRecordServiceImpl implements AiMedicalRecordService {
 
     private final MedicalRecordAiGenerateRepository generateRepository;
     private final AiApiUtil aiApiUtil;
+    private final PromptTemplateService promptTemplateService;
+    private final DoctorRepository doctorRepository;
 
     @Override
     @Transactional
     public Map<String, Object> generateRecord(Long patientId, String inputText, String inputType, Long doctorId) {
-        // 1. 组装提示词
-        String prompt = "请根据以下信息生成一份完整的门（急）诊病历：\n" + inputText;
-        String systemPrompt = "你是一名经验丰富的临床医生，请根据输入的对话/关键词生成一份规范的病历。"
-                + "病历需包含：主诉、现病史、既往史、体格检查、初步诊断、治疗意见。"
-                + "请严格按以下JSON格式返回："
-                + "{\"chiefComplaint\":\"主诉\",\"presentIllness\":\"现病史\","
-                + "\"pastHistory\":\"既往史\",\"physicalExamination\":\"体格检查\","
-                + "\"diagnosis\":\"诊断\",\"treatment\":\"治疗意见\"}";
+        // 获取医生科室信息，用于选择科室专属提示词模板
+        String departmentName = getDoctorDepartmentName(doctorId);
+
+        // 1. 使用科室专属模板生成提示词
+        Map<String, String> templates = promptTemplateService.getMedicalRecordTemplate(departmentName, inputText);
+        String systemPrompt = templates.get("system");
+        String prompt = templates.get("user");
 
         // 2. 调用AI
         String aiResponse = aiApiUtil.callAi(prompt, systemPrompt);
@@ -97,5 +101,19 @@ public class AiMedicalRecordServiceImpl implements AiMedicalRecordService {
     public MedicalRecordAiGenerate getGenerateDetail(Long id) {
         return generateRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("生成记录不存在"));
+    }
+
+    /**
+     * 获取医生的科室名称
+     */
+    private String getDoctorDepartmentName(Long doctorId) {
+        if (doctorId == null) return null;
+        try {
+            return doctorRepository.findById(doctorId)
+                    .map(Doctor::getDepartmentName)
+                    .orElse(null);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

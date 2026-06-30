@@ -48,7 +48,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/swagger-resources/**",
                         "/swagger-ui/**",
                         "/favicon.ico",
-                        "/upload/**"
+                        "/upload/**",
+                        // WebSocket 端点（由 WebSocket 拦截器自行鉴权）
+                        "/ws/**"
                 );
     }
 

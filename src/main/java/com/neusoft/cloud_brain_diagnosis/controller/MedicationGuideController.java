@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * TODO: AI 微服务未提供用药指导生成/打印接口，
+ * 后续需在 brain-ai-svc 中补充后，切换到 AiOtherFeignClient
+ */
 @RestController
 @RequestMapping("/api/medication/guide")
 @RequiredArgsConstructor

@@ -36,6 +36,11 @@ public interface AiAdminFeignClient {
     @GetMapping("/api/admin/ai/quality-check/{id}")
     Result<Map<String, Object>> getCheckDetail(@PathVariable("id") Long id);
 
+    @GetMapping("/api/admin/ai/quality-check/{id}/details")
+    Result<Map<String, Object>> getCheckDetails(@PathVariable("id") Long id,
+                                                 @RequestParam(defaultValue = "1") Integer page,
+                                                 @RequestParam(defaultValue = "10") Integer size);
+
     @GetMapping("/api/admin/ai/quality-check/doctor-stats")
     Result<Map<String, Object>> getDoctorStats();
 

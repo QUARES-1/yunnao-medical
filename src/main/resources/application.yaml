@@ -55,7 +55,7 @@ ai:
   service:
     url: http://localhost:8081
 
-  # AI大模型配置（历史遗留，现在用微服务dify）
+  # AI大模型配置（历史遗留，现在用微服务+dify，保留便于转换主服务）
   provider: deepseek                 # 模型提供商：mock/doubao/通义千问/deepseek
   api-key: sk-f08ff0429a5f41328a8d95bcf80d8362       # API密钥（mock模式不需要）
   model: deepseek-chat           # 模型名称

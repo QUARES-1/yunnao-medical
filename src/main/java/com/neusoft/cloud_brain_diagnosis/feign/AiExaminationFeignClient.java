@@ -20,13 +20,16 @@ public interface AiExaminationFeignClient {
                                                           @RequestParam(defaultValue = "1") Integer page,
                                                           @RequestParam(defaultValue = "10") Integer size);
 
-    @GetMapping("/api/examination/ai/critical/detect/{examinationId}")
-    Result<Map<String, Object>> detectCriticalValue(@PathVariable("examinationId") Long examinationId);
+    @GetMapping("/api/examination/ai/interpret-pro/{id}")
+    Result<Map<String, Object>> getProInterpretation(@PathVariable("id") Long id);
 
     @GetMapping("/api/examination/ai/critical/list")
     Result<Map<String, Object>> getCriticalList(@RequestParam(required = false) String status,
                                                  @RequestParam(defaultValue = "1") Integer page,
                                                  @RequestParam(defaultValue = "10") Integer size);
+
+    @GetMapping("/api/examination/ai/critical/detect/{examinationId}")
+    Result<Map<String, Object>> detectCriticalValue(@PathVariable("examinationId") Long examinationId);
 
     @PostMapping("/api/examination/ai/critical/confirm/{id}")
     Result<Map<String, Object>> confirmWarning(@PathVariable("id") Long id);
@@ -47,4 +50,19 @@ public interface AiExaminationFeignClient {
 
     @GetMapping("/api/examination/ai/review-stats")
     Result<Map<String, Object>> getReviewStats();
+
+    @GetMapping("/api/examination/ai/manual-list")
+    Result<Map<String, Object>> getManualList(@RequestParam(defaultValue = "1") Integer page,
+                                              @RequestParam(defaultValue = "10") Integer size);
+
+    @GetMapping("/api/examination/ai/review-list")
+    Result<Map<String, Object>> getReviewList(@RequestParam(required = false) String reviewResult,
+                                              @RequestParam(defaultValue = "1") Integer page,
+                                              @RequestParam(defaultValue = "10") Integer size);
+
+    @PostMapping("/api/examination/ai/manual-confirm/{id}")
+    Result<Map<String, Object>> manualConfirm(@PathVariable("id") Long id);
+
+    @PostMapping("/api/examination/ai/reject/{id}")
+    Result<Map<String, Object>> reject(@PathVariable("id") Long id, @RequestParam String reason);
 }

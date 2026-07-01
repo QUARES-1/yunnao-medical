@@ -20,6 +20,9 @@ public interface AiOtherFeignClient {
     Result<Map<String, Object>> getTriageHistory(@RequestParam(defaultValue = "1") Integer page,
                                                   @RequestParam(defaultValue = "10") Integer size);
 
+    @GetMapping("/api/triage/detail/{id}")
+    Result<Map<String, Object>> getTriageDetail(@PathVariable("id") Long id);
+
     // ========== 随访 ==========
     @PostMapping("/api/follow-up/plan/create")
     Result<Map<String, Object>> createFollowUpPlan(@RequestBody Map<String, Object> request);
@@ -28,12 +31,24 @@ public interface AiOtherFeignClient {
     Result<Map<String, Object>> getPatientPlans(@RequestParam(defaultValue = "1") Integer page,
                                                  @RequestParam(defaultValue = "10") Integer size);
 
+    @GetMapping("/api/follow-up/pending")
+    Result<Map<String, Object>> getPendingRecords(@RequestParam(defaultValue = "1") Integer page,
+                                                   @RequestParam(defaultValue = "10") Integer size);
+
+    @PostMapping("/api/follow-up/submit/{id}")
+    Result<Map<String, Object>> submitRecord(@PathVariable("id") Long id,
+                                              @RequestBody Map<String, Object> request);
+
     @GetMapping("/api/follow-up/detail/{id}")
     Result<Map<String, Object>> getFollowUpDetail(@PathVariable("id") Long id);
 
     @GetMapping("/api/follow-up/doctor/list")
     Result<Map<String, Object>> getDoctorFollowUpList(@RequestParam(defaultValue = "1") Integer page,
                                                        @RequestParam(defaultValue = "10") Integer size);
+
+    @PostMapping("/api/follow-up/doctor-reply/{id}")
+    Result<Map<String, Object>> doctorReply(@PathVariable("id") Long id,
+                                             @RequestParam String remark);
 
     // ========== 质检 ==========
     @GetMapping("/api/doctor/quality-check/my-list")
@@ -58,4 +73,7 @@ public interface AiOtherFeignClient {
 
     @DeleteMapping("/api/admin/ai/knowledge/delete/{id}")
     Result<String> deleteKnowledge(@PathVariable("id") Long id);
+
+    @PostMapping("/api/admin/ai/knowledge/search")
+    Result<Map<String, Object>> searchKnowledge(@RequestBody Map<String, String> request);
 }

@@ -5,23 +5,15 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 
 import com.neusoft.cloud_brain_diagnosis.common.annotation.RequireLogin;
-import com.neusoft.cloud_brain_diagnosis.common.context.UserContext;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.result.Result;
-import com.neusoft.cloud_brain_diagnosis.entity.AiChatRecord;
-import com.neusoft.cloud_brain_diagnosis.entity.OperationAiReport;
-import com.neusoft.cloud_brain_diagnosis.entity.QualityCheckDetail;
-import com.neusoft.cloud_brain_diagnosis.entity.QualityCheckRecord;
-import com.neusoft.cloud_brain_diagnosis.service.ai.AiChatService;
-import com.neusoft.cloud_brain_diagnosis.service.ai.AiOperationService;
-import com.neusoft.cloud_brain_diagnosis.service.ai.AiQualityService;
+import com.neusoft.cloud_brain_diagnosis.feign.AiAdminFeignClient;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -33,9 +25,7 @@ import java.util.LinkedHashMap;
 @Tag(name = "AI管理端", description = "AI运营分析、医疗质检、问答日志")
 public class AiAdminController {
 
-    private final AiOperationService operationService;
-    private final AiQualityService qualityService;
-    private final AiChatService chatService;
+    private final AiAdminFeignClient adminFeignClient;
 
     // ========== 运营分析 ==========
 
@@ -45,10 +35,7 @@ public class AiAdminController {
     @PostMapping("/operation-report/generate")
     @Operation(summary = "生成运营报告", description = "生成指定时间段的AI运营分析报告")
     public Result<Map<String, Object>> generateReport(@RequestBody Map<String, Object> request) {
-        String reportType = (String) request.getOrDefault("reportType", "daily");
-        String startDate = (String) request.get("startDate");
-        String endDate = (String) request.get("endDate");
-        return Result.success(operationService.generateReport(reportType, startDate, endDate));
+        return adminFeignClient.generateReport(request);
     }
 
     /**
@@ -56,8 +43,8 @@ public class AiAdminController {
      */
     @GetMapping("/operation-report/{id}")
     @Operation(summary = "运营报告详情", description = "查看运营分析报告详情")
-    public Result<OperationAiReport> getReportDetail(@PathVariable Long id) {
-        return Result.success(operationService.getReportDetail(id));
+    public Result<Map<String, Object>> getReportDetail(@PathVariable Long id) {
+        return adminFeignClient.getReportDetail(id);
     }
 
     /**
@@ -65,11 +52,11 @@ public class AiAdminController {
      */
     @GetMapping("/operation-report/list")
     @Operation(summary = "报告列表", description = "历史运营报告列表")
-    public Result<Page<OperationAiReport>> getReportList(
+    public Result<Map<String, Object>> getReportList(
             @RequestParam(required = false) String reportType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(operationService.getReportList(reportType, page, size));
+        return adminFeignClient.getReportList(reportType, page, size);
     }
 
     /**
@@ -78,30 +65,34 @@ public class AiAdminController {
     @GetMapping("/operation-overview")
     @Operation(summary = "首页AI概览", description = "管理员首页仪表盘AI分析概览")
     public Result<Map<String, Object>> getOperationOverview() {
-        return Result.success(operationService.getOperationOverview());
+        return adminFeignClient.getOperationOverview();
     }
 
     /**
-     * 流式生成运营报告
+     * 流式生成运营报告（SSE）
+     * 注意：此接口保持本地调用，通过 Feign 流式转发会给网关增加复杂性，
+     * 直接由 AI 微服务处理更合适，后续可迁移到前端直连 AI 微服务。
      */
     @PostMapping(value = "/operation-report/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    @Operation(summary = "流式生成运营报告", description = "通过 SSE 逐字返回 AI 运营报告内容，前端可实时展示生成过程")
+    @Operation(summary = "流式生成运营报告", description = "通过 SSE 逐字返回 AI 运营报告内容")
     public SseEmitter streamGenerateReport(@RequestBody Map<String, Object> request) {
+        // 流式场景暂保留通过 AiAdminFeignClient 获取完整报告后再流式输出
         SseEmitter emitter = new SseEmitter(120_000L);
         new Thread(() -> {
             try {
-                String reportType = (String) request.getOrDefault("reportType", "daily");
-                String startDate = (String) request.get("startDate");
-                String endDate = (String) request.get("endDate");
-                Map<String, Object> generated = operationService.generateReport(reportType, startDate, endDate);
-                Long reportId = generated.get("id") instanceof Number ? ((Number) generated.get("id")).longValue() : null;
-                OperationAiReport report = reportId != null ? operationService.getReportDetail(reportId) : null;
-                String streamText = buildStreamReportText(report, generated);
+                Result<Map<String, Object>> generated = adminFeignClient.generateReport(request);
+                Map<String, Object> data = generated.getData();
+                if (data == null) {
+                    emitter.send(SseEmitter.event().name("error").data("生成报告失败"));
+                    emitter.complete();
+                    return;
+                }
+                String streamText = buildStreamReportText(data);
                 for (int i = 0; i < streamText.length(); i++) {
                     emitter.send(SseEmitter.event().name("delta").data(String.valueOf(streamText.charAt(i))));
                     Thread.sleep(14L);
                 }
-                emitter.send(SseEmitter.event().name("done").data(String.valueOf(generated.get("id"))));
+                emitter.send(SseEmitter.event().name("done").data(String.valueOf(data.get("id"))));
                 emitter.complete();
             } catch (Exception e) {
                 try {
@@ -113,16 +104,16 @@ public class AiAdminController {
         return emitter;
     }
 
-    private String buildStreamReportText(OperationAiReport report, Map<String, Object> generated) {
-        if (report == null) {
-            return "一、运营摘要\n" + String.valueOf(generated.getOrDefault("summary", "暂无摘要"));
+    private String buildStreamReportText(Map<String, Object> generated) {
+        if (generated == null) {
+            return "一、运营摘要\n暂无摘要";
         }
         StringBuilder builder = new StringBuilder();
-        builder.append("一、运营摘要\n").append(cleanText(report.getSummary())).append("\n\n");
-        builder.append("二、核心指标\n").append(formatMetrics(report.getKeyMetrics())).append("\n");
-        builder.append("三、趋势分析\n").append(cleanText(report.getTrendsAnalysis())).append("\n\n");
-        builder.append("四、风险提醒\n").append(formatWarnings(report.getWarnings())).append("\n");
-        builder.append("五、优化建议\n").append(formatSuggestions(report.getSuggestions()));
+        builder.append("一、运营摘要\n").append(cleanText((String) generated.getOrDefault("summary", ""))).append("\n\n");
+        builder.append("二、核心指标\n").append(formatMetrics((String) generated.get("keyMetrics"))).append("\n");
+        builder.append("三、趋势分析\n").append(cleanText((String) generated.getOrDefault("trendsAnalysis", ""))).append("\n\n");
+        builder.append("四、风险提醒\n").append(formatWarnings((String) generated.get("warnings"))).append("\n");
+        builder.append("五、优化建议\n").append(formatSuggestions((String) generated.get("suggestions")));
         return builder.toString();
     }
 
@@ -202,9 +193,7 @@ public class AiAdminController {
     @PostMapping("/quality-check/start")
     @Operation(summary = "发起AI质检", description = "发起一次AI医疗质量质检")
     public Result<Map<String, Object>> startQualityCheck(@RequestBody Map<String, Object> request) {
-        String checkType = (String) request.getOrDefault("checkType", "medical_record");
-        Integer sampleSize = request.get("sampleSize") != null ? ((Number) request.get("sampleSize")).intValue() : 10;
-        return Result.success(qualityService.startQualityCheck(checkType, sampleSize));
+        return adminFeignClient.startQualityCheck(request);
     }
 
     /**
@@ -212,10 +201,10 @@ public class AiAdminController {
      */
     @GetMapping("/quality-check/list")
     @Operation(summary = "质检记录列表", description = "历史质检记录")
-    public Result<Page<QualityCheckRecord>> getCheckList(
+    public Result<Map<String, Object>> getCheckList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(qualityService.getCheckList(page, size));
+        return adminFeignClient.getCheckList(page, size);
     }
 
     /**
@@ -223,8 +212,8 @@ public class AiAdminController {
      */
     @GetMapping("/quality-check/{id}")
     @Operation(summary = "质检详情", description = "质检记录详情")
-    public Result<QualityCheckRecord> getCheckDetail(@PathVariable Long id) {
-        return Result.success(qualityService.getCheckDetail(id));
+    public Result<Map<String, Object>> getCheckDetail(@PathVariable Long id) {
+        return adminFeignClient.getCheckDetail(id);
     }
 
     /**
@@ -232,11 +221,11 @@ public class AiAdminController {
      */
     @GetMapping("/quality-check/{id}/details")
     @Operation(summary = "问题明细列表", description = "质检问题明细")
-    public Result<Page<QualityCheckDetail>> getCheckDetails(
+    public Result<Map<String, Object>> getCheckDetails(
             @PathVariable Long id,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(qualityService.getCheckDetails(id, page, size));
+        return adminFeignClient.getCheckDetails(id, page, size);
     }
 
     /**
@@ -245,7 +234,7 @@ public class AiAdminController {
     @GetMapping("/quality-check/doctor-stats")
     @Operation(summary = "医生质检统计", description = "各医生质检统计")
     public Result<Map<String, Object>> getDoctorStats() {
-        return Result.success(qualityService.getDoctorStats());
+        return adminFeignClient.getDoctorStats();
     }
 
     // ========== 问答日志 ==========
@@ -255,10 +244,9 @@ public class AiAdminController {
      */
     @GetMapping("/chat-log")
     @Operation(summary = "问答日志", description = "查看所有AI问答日志")
-    public Result<Page<AiChatRecord>> getChatLogs(
+    public Result<Map<String, Object>> getChatLogs(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return Result.success(chatService.getChatLogs(page, size));
+        return adminFeignClient.getChatLogs(page, size);
     }
 }
-

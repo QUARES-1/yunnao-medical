@@ -25,4 +25,8 @@ public interface AiChatFeignClient {
 
     @PostMapping("/api/ai/health-consult")
     Result<Map<String, Object>> healthConsult(@RequestBody Map<String, Object> request);
+
+    @GetMapping("/api/ai/consult/history")
+    Result<Map<String, Object>> getConsultHistory(@RequestParam(defaultValue = "1") Integer page,
+                                                  @RequestParam(defaultValue = "10") Integer size);
 }

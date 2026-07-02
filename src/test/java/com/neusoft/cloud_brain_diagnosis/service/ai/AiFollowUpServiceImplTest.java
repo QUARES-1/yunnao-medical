@@ -563,4 +563,100 @@ class AiFollowUpServiceImplTest {
 
         assertNotNull(result);
     }
+
+    // ========== Branch Coverage ==========
+
+    @Test
+    void createPlan_ShouldHandleNullPatientId() {
+        when(planRepository.save(any())).thenAnswer(inv -> {
+            FollowUpPlan p = inv.getArgument(0);
+            p.setId(100L);
+            return p;
+        });
+        when(recordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("disease", "感冒");
+
+        FollowUpPlan result = followUpService.createPlan(request, 10L);
+
+        assertEquals(100L, result.getId());
+        assertNull(result.getPatientId());
+        assertEquals(10L, result.getDoctorId());
+    }
+
+    @Test
+    void createPlan_ShouldHandleNullRegistrationId() {
+        when(planRepository.save(any())).thenAnswer(inv -> {
+            FollowUpPlan p = inv.getArgument(0);
+            p.setId(100L);
+            return p;
+        });
+        when(recordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("patientId", 1L);
+
+        FollowUpPlan result = followUpService.createPlan(request, 10L);
+
+        assertEquals(100L, result.getId());
+        assertNull(result.getRegistrationId());
+    }
+
+    @Test
+    void createPlan_ShouldHandleNullPlanType() {
+        when(planRepository.save(any())).thenAnswer(inv -> {
+            FollowUpPlan p = inv.getArgument(0);
+            p.setId(100L);
+            return p;
+        });
+        when(recordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Map<String, Object> request = new HashMap<>();
+        request.put("patientId", 1L);
+        request.put("planType", null);
+
+        FollowUpPlan result = followUpService.createPlan(request, 10L);
+
+        assertEquals(100L, result.getId());
+        assertNull(result.getPlanType());
+    }
+
+    @Test
+    void submitRecord_ShouldThrow_WhenPatientIdMismatch() {
+        FollowUpRecord record = new FollowUpRecord();
+        record.setId(1L);
+        record.setPatientId(1L);
+
+        when(recordRepository.findById(1L)).thenReturn(Optional.of(record));
+
+        assertThrows(BusinessException.class,
+                () -> followUpService.submitRecord(1L, "{}", 99L));
+    }
+
+    @Test
+    void submitRecord_ShouldHandleAbnormal_FromDangerSignal() {
+        FollowUpRecord record = new FollowUpRecord();
+        record.setId(1L);
+        record.setPatientId(1L);
+        record.setPlanId(100L);
+        record.setQuestionnaireJson("[]");
+
+        FollowUpPlan plan = new FollowUpPlan();
+        plan.setId(100L);
+        plan.setTotalTimes(3);
+        plan.setCompletedTimes(1);
+
+        when(recordRepository.findById(1L)).thenReturn(Optional.of(record));
+        when(aiApiUtil.callAi(anyString(), anyString()))
+                .thenReturn("{\"analysis\":\"Normal\",\"abnormal\":false}");
+        when(recordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(planRepository.findById(100L)).thenReturn(Optional.of(plan));
+        when(planRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        // "40℃" is a danger signal -> abnormal = true
+        followUpService.submitRecord(1L, "{\"temp\":\"40℃\"}", 1L);
+
+        verify(recordRepository, atLeastOnce()).save(argThat(r -> r.getAbnormalFlag() != null && r.getAbnormalFlag() == 1));
+    }
 }

@@ -49,9 +49,13 @@ public class AiPrescriptionServiceImpl implements AiPrescriptionService {
         StringBuilder drugsDesc = new StringBuilder();
         if (drugs != null) {
             for (Map<String, Object> drug : drugs) {
-                drugsDesc.append("- ").append(drug.get("name")).append(" ")
+                Object drugName = drug.get("name") != null ? drug.get("name") : drug.get("medicineName");
+                drugsDesc.append("- ").append(drugName).append(" ")
                         .append(drug.get("specification")).append(" ")
                         .append(drug.get("dosage")).append("\n");
+                if (!drug.containsKey("name") && drugName != null) {
+                    drug.put("name", drugName);
+                }
             }
         }
 

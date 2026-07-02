@@ -5469,3 +5469,6050 @@ Hibernate:
         ei1_0.type 
     from
         examination_item ei1_0
+2026-07-02T12:44:45.330+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:44:48.090+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:44:59.584+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:44:59.712+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:44:59.719+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:44:59.725+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:44:59.742+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:45:01.035+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:03.428+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:45:03.448+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:03.450+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:03.461+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:45:03.467+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:45:07.799+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:10.513+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:10.527+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:45:13.820+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.463+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:17.463+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:17.605+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.653+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.671+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.671+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.674+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.676+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.680+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.684+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.688+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:17.756+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+2026-07-02T12:45:21.827+08:00 DEBUG 45080 --- [brain-main-svc] [nPool-worker-10] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:21.838+08:00 DEBUG 45080 --- [brain-main-svc] [nPool-worker-10] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:23.518+08:00 DEBUG 45080 --- [brain-main-svc] [nPool-worker-10] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.examination_id=?
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.examination_id=?
+2026-07-02T12:45:25.340+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:25.354+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.358+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.361+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.364+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.367+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.370+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.627+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+2026-07-02T12:45:25.629+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:45:25.640+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.645+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:45:25.649+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:05.434+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:49:08.109+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:49:19.946+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:49:29.801+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:29.853+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:29.859+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:29.864+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:29.868+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:29.872+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:29.877+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:30.046+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:30.045+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:30.058+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:30.063+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:30.067+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:32.695+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:32.709+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:49:44.809+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:48.748+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:49:50.128+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:50.140+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.144+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.147+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.150+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.154+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.156+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.431+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+2026-07-02T12:49:50.434+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:49:50.458+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.464+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:50.476+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:49:54.143+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.id=?
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.id=?
+2026-07-02T12:49:54.154+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:50:00.905+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:50:19.134+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:50:19.129+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:50:19.135+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:50:19.168+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:50:19.180+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:50:26.376+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T12:50:26.377+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T12:50:26.465+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T12:50:26.480+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:50:26.494+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T12:50:26.495+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T12:50:26.500+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T12:50:26.536+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:50:26.569+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T12:56:32.532+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T12:56:32.555+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T12:56:32.568+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T12:56:32.572+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T12:56:32.604+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T12:56:32.715+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:32.727+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T12:56:32.739+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:32.756+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T12:56:32.944+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+Hibernate: 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+2026-07-02T12:56:33.050+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:33.065+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T12:56:35.968+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T12:56:35.992+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:35.998+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T12:56:37.757+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T12:56:42.780+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T12:56:42.798+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T12:56:42.804+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T12:56:42.815+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T12:56:53.586+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:56:55.956+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:55.976+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:55.981+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:55.989+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.018+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.028+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.035+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.118+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0
+2026-07-02T12:56:56.119+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        ear1_0.id,
+        ear1_0.abnormal_items,
+        ear1_0.examination_id,
+        ear1_0.history_compare,
+        ear1_0.lab_staff_id,
+        ear1_0.logic_issues,
+        ear1_0.patient_id,
+        ear1_0.raw_response,
+        ear1_0.review_result,
+        ear1_0.review_score,
+        ear1_0.review_time,
+        ear1_0.suggestions,
+        ear1_0.warnings 
+    from
+        examination_ai_review ear1_0 
+    where
+        ear1_0.review_result=? 
+    order by
+        ear1_0.review_time desc,
+        ear1_0.review_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:56:56.125+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.132+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:56:56.137+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.id=?
+2026-07-02T12:57:00.015+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:57:00.029+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:57:03.747+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:57:06.186+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+Hibernate: 
+    select
+        ei1_0.id,
+        ei1_0.description,
+        ei1_0.name,
+        ei1_0.price,
+        ei1_0.type 
+    from
+        examination_item ei1_0
+2026-07-02T12:57:06.190+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:57:06.197+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        e1_0.id,
+        e1_0.complete_time,
+        e1_0.create_time,
+        e1_0.department_id,
+        e1_0.doctor_id,
+        e1_0.doctor_name,
+        e1_0.item_id,
+        e1_0.item_name,
+        e1_0.patient_id,
+        e1_0.patient_name,
+        e1_0.registration_id,
+        e1_0.result,
+        e1_0.result_images,
+        e1_0.status,
+        e1_0.type 
+    from
+        examination e1_0 
+    where
+        e1_0.status=? 
+    order by
+        e1_0.create_time desc,
+        e1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T12:57:06.198+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T12:57:06.203+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+Hibernate: 
+    select
+        count(e1_0.id) 
+    from
+        examination e1_0 
+    where
+        e1_0.status=?
+2026-07-02T13:43:55.376+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:43:55.374+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:43:55.398+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T13:43:55.403+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T13:43:55.408+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T13:43:55.432+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:43:55.440+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T13:43:55.441+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:43:55.454+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:06.415+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:44:06.417+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:06.419+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T13:44:06.431+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T13:44:06.435+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T13:44:06.446+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:06.448+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:06.452+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:06.454+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T13:44:37.823+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:37.823+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:44:37.837+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T13:44:37.841+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T13:44:37.845+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T13:44:37.847+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:37.855+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:37.860+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T13:44:37.872+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:38.782+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+Hibernate: 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+2026-07-02T13:44:38.799+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:38.803+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-1] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:40.330+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-8] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:40.350+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:40.354+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-9] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T13:44:41.490+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-3] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:42.838+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:44:42.841+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T13:44:42.844+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T13:44:42.846+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T13:44:44.565+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:45.180+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:45.198+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:45.202+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+2026-07-02T13:44:45.871+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-5] org.hibernate.SQL                        : 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+Hibernate: 
+    select
+        mc1_0.id,
+        mc1_0.name,
+        mc1_0.sort 
+    from
+        medicine_category mc1_0 
+    order by
+        mc1_0.sort
+2026-07-02T13:44:45.886+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:45.890+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-7] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:47.659+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        patient p1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        patient p1_0
+2026-07-02T13:44:47.659+08:00 DEBUG 45080 --- [brain-main-svc] [io-8080-exec-10] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.create_time,
+        d1_0.description,
+        d1_0.name,
+        d1_0.sort,
+        d1_0.update_time 
+    from
+        department d1_0 
+    order by
+        d1_0.sort
+2026-07-02T13:44:47.668+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        doctor d1_0
+2026-07-02T13:44:47.679+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        department d1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        department d1_0
+2026-07-02T13:44:47.682+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-6] org.hibernate.SQL                        : 
+    select
+        count(*) 
+    from
+        registration r1_0
+Hibernate: 
+    select
+        count(*) 
+    from
+        registration r1_0
+2026-07-02T13:44:47.692+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        m1_0.id,
+        m1_0.category_id,
+        m1_0.category_name,
+        m1_0.create_time,
+        m1_0.description,
+        m1_0.manufacturer,
+        m1_0.name,
+        m1_0.price,
+        m1_0.specification,
+        m1_0.stock,
+        m1_0.unit 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        ) 
+    order by
+        m1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:47.693+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+Hibernate: 
+    select
+        d1_0.id,
+        d1_0.avatar,
+        d1_0.create_time,
+        d1_0.department_id,
+        d1_0.department_name,
+        d1_0.introduction,
+        d1_0.name,
+        d1_0.password,
+        d1_0.phone,
+        d1_0.specialty,
+        d1_0.title,
+        d1_0.update_time,
+        d1_0.username 
+    from
+        doctor d1_0 
+    order by
+        d1_0.create_time desc 
+    offset
+        ? rows 
+    fetch
+        first ? rows only
+2026-07-02T13:44:47.696+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-4] org.hibernate.SQL                        : 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+Hibernate: 
+    select
+        count(m1_0.id) 
+    from
+        medicine m1_0 
+    where
+        (
+            ? is null 
+            or m1_0.name like ? escape ''
+        ) 
+        and (
+            ? is null 
+            or m1_0.category_id=?
+        )
+2026-07-02T13:44:47.697+08:00 DEBUG 45080 --- [brain-main-svc] [nio-8080-exec-2] org.hibernate.SQL                        : 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+Hibernate: 
+    select
+        count(d1_0.id) 
+    from
+        doctor d1_0
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  03:58 h
+[INFO] Finished at: 2026-07-02T14:22:03+08:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.2.5:run (default-cli) on project cloud-brain-diagnosis: Process terminated with exit code: -1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException

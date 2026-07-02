@@ -104,10 +104,10 @@ public class RegistrationServiceImpl implements RegistrationService {
                             saved.getTimeSlot(),
                             "已取消");
             if (persisted != null && persisted.getId() != null && persisted.getId() > 0) {
-                return persisted;
+                return enrichPatientInfo(persisted);
             }
         }
-        return saved;
+        return enrichPatientInfo(saved);
     }
 
     /**
@@ -186,7 +186,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public List<Registration> getDoctorTodayList(Long doctorId) {
         LocalDate today = LocalDate.now();
-        return registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(doctorId, today);
+        return enrichPatientInfo(registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(doctorId, today));
     }
 
     /**
@@ -195,7 +195,7 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public Page<Registration> getDoctorList(Long doctorId, String keyword, String status, Integer page, Integer size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "createTime"));
-        return registrationRepository.searchDoctorHistory(doctorId, keyword, status, pageRequest);
+        return registrationRepository.searchDoctorHistory(doctorId, keyword, status, pageRequest).map(this::enrichPatientInfo);
     }
 
     /**
@@ -260,6 +260,28 @@ public class RegistrationServiceImpl implements RegistrationService {
         return "看诊完成";
     }
 
+    /**
+     * 补齐医生端需要展示的患者临床信息。
+     * registration 表保存的是挂号主流程数据；性别、年龄、电话、过敏史等以 patient 表为准，返回前动态补齐，
+     * 避免医生端看诊页出现“患者信息不完整”。
+     */
+    private Registration enrichPatientInfo(Registration registration) {
+        if (registration == null || registration.getPatientId() == null) {
+            return registration;
+        }
+        patientRepository.findById(registration.getPatientId()).ifPresent(patient -> {
+            registration.setPatientGender(patient.getGender());
+            registration.setPatientAge(patient.getAge());
+            registration.setPatientPhone(patient.getPhone());
+            registration.setPatientAllergyHistory(patient.getAllergyHistory());
+        });
+        return registration;
+    }
+
+    private List<Registration> enrichPatientInfo(List<Registration> registrations) {
+        registrations.forEach(this::enrichPatientInfo);
+        return registrations;
+    }
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }

@@ -305,8 +305,13 @@ public class ExaminationAiController {
         CompletableFuture.runAsync(() -> {
             try {
                 Examination exam = examinationRepository.findById(id).orElse(null);
-                Map<String, Object> result = examinationService.reviewExamination(id, labStaffId);
                 ExaminationAiReview review = examinationAiReviewRepository.findByExaminationId(id).orElse(null);
+                Map<String, Object> result = new HashMap<>();
+                // 流式预览只展示“当前已保存的审核结论”，避免每次点击都重新审核导致结论被改写。
+                if (review == null) {
+                    result = examinationService.reviewExamination(id, labStaffId);
+                    review = examinationAiReviewRepository.findByExaminationId(id).orElse(null);
+                }
                 String text = buildReviewStreamText(exam, review, result);
                 emitter.send(SseEmitter.event().name("start").data("AI开始审核检验报告"));
                 for (int i = 0; i < text.length(); i++) {
@@ -415,56 +420,219 @@ public class ExaminationAiController {
     private String buildReviewStreamText(Examination exam, ExaminationAiReview review, Map<String, Object> result) {
         String itemName = exam == null ? "未关联检查项目" : safe(exam.getItemName(), "未关联检查项目");
         String reportNo = exam == null ? "EX" : "EX" + String.format("%06d", exam.getId());
+        String rawResult = exam == null ? "" : safe(exam.getResult());
         String reviewResult = review == null ? safe(String.valueOf(result.get("reviewResult"))) : safe(review.getReviewResult());
-        String conclusion = "pass".equals(reviewResult) ? "自动通过" : "reject".equals(reviewResult) ? "退回重测" : "人工复核";
-        String abnormal = review == null ? summarizeAny(result.get("abnormalItems"), "未发现明显异常指标") : summarizeJsonText(review.getAbnormalItems(), "未发现明显异常指标");
-        String logic = review == null ? summarizeAny(result.get("logicIssues"), "项目间逻辑关系未发现明显矛盾") : summarizeJsonText(review.getLogicIssues(), "项目间逻辑关系未发现明显矛盾");
-        String history = review == null ? summarizeAny(result.get("historyCompare"), "暂无明显异常波动") : summarizeJsonText(review.getHistoryCompare(), "暂无明显异常波动");
-        String warnings = review == null ? summarizeAny(result.get("warnings"), "暂无高风险警告") : summarizeJsonText(review.getWarnings(), "暂无高风险警告");
-        String suggestions = review == null ? safe(String.valueOf(result.get("suggestions")), "按审核结论处理。") : safe(review.getSuggestions(), "按审核结论处理，必要时由检验师复核。");
+        String conclusion = displayReviewConclusion(reviewResult);
+        List<Map<String, Object>> abnormalItems = collectAbnormalItems(review, result, rawResult);
+        List<String> logicLines = collectReviewLines(review == null ? null : review.getLogicIssues(), result.get("logicIssues"));
+        List<String> historyLines = collectReviewLines(review == null ? null : review.getHistoryCompare(), result.get("historyCompare"));
+        List<String> warningLines = collectReviewLines(review == null ? null : review.getWarnings(), result.get("warnings"));
+        String suggestions = review == null ? safe(String.valueOf(result.get("suggestions"))) : safe(review.getSuggestions());
+
+        if (logicLines.isEmpty()) {
+            logicLines.addAll(defaultLogicLines(itemName, conclusion, rawResult, abnormalItems));
+        }
+        if (historyLines.isEmpty()) {
+            historyLines.add(defaultHistoryLine(conclusion, abnormalItems));
+        }
+        if (warningLines.isEmpty()) {
+            warningLines.add(defaultRiskLine(conclusion, abnormalItems));
+        }
+        if (suggestions.isBlank() || "null".equalsIgnoreCase(suggestions)) {
+            suggestions = defaultSuggestion(conclusion, abnormalItems);
+        }
 
         StringBuilder builder = new StringBuilder();
         builder.append("检查项目：").append(itemName).append("\n");
         builder.append("报告编号：").append(reportNo).append("\n");
         builder.append("审核结论：").append(conclusion).append("\n\n");
+
         builder.append("一、结论原因\n");
-        if ("reject".equals(reviewResult)) {
-            builder.append("本报告被退回重测，是因为 AI 发现结果存在明显不合理或风险较高的情况，不能直接发布。需要重新采样或重新检测，避免把异常机器值误当作真实病情。\n");
-        } else if ("manual".equals(reviewResult)) {
-            builder.append("本报告需要人工复核，是因为部分指标异常、历史波动或项目间逻辑关系需要检验师进一步确认。复核通过后才建议发布。\n");
+        if ("退回重测".equals(conclusion)) {
+            builder.append("本报告建议退回重测。AI 发现结果中存在明显不合理、疑似标本或仪器误差的风险，不能直接作为正式报告发布。\n");
+        } else if ("人工复核".equals(conclusion)) {
+            builder.append("本报告建议人工复核。AI 发现部分指标异常或组合关系需要检验师结合样本状态、历史记录和临床信息再次确认。\n");
         } else {
-            builder.append("本报告自动通过，是因为主要指标处于参考范围内，项目间逻辑关系合理，未发现需要人工干预的高风险问题。\n");
+            builder.append("本报告建议自动通过。主要指标与参考范围、项目间逻辑关系和历史波动整体一致，暂未发现高风险问题。\n");
         }
-        builder.append("\n二、重点指标\n").append(toBulletLines(abnormal));
-        builder.append("\n三、逻辑合理性校验\n").append(toBulletLines(logic));
-        builder.append("\n四、历史结果对比\n").append(toBulletLines(history));
-        builder.append("\n五、风险提示\n").append(toBulletLines(warnings));
+
+        builder.append("\n二、重点指标\n");
+        if (abnormalItems.isEmpty()) {
+            if ("退回重测".equals(conclusion)) {
+                builder.append("- 当前报告缺少可直接发布的完整结构化指标，或原始结果存在机器识别/录入异常风险，因此不能直接发布，需要重新采样或重新检测确认。\n");
+            } else if ("人工复核".equals(conclusion)) {
+                builder.append("- 未检出明确危急值，但报告存在边界异常、项目组合关系或信息完整性问题，需要检验师人工复核后再发布。\n");
+            } else {
+                builder.append("- 主要指标未见明显异常，符合自动通过条件。\n");
+            }
+        } else {
+            for (Map<String, Object> item : abnormalItems) {
+                builder.append("- ").append(safeObj(item.get("name"), "指标"));
+                String value = safeObj(item.get("value"), "");
+                String unit = safeObj(item.get("unit"), "");
+                String reference = safeObj(item.get("reference"), "未填写");
+                String status = normalizeStatus(safeObj(item.get("status"), "异常"));
+                builder.append("：").append(value);
+                if (!unit.isBlank()) builder.append(" ").append(unit);
+                builder.append("，参考范围 ").append(reference).append("，判定为").append(status).append("。\n");
+            }
+        }
+
+        builder.append("\n三、逻辑合理性校验\n").append(toBulletLines(logicLines));
+        builder.append("\n四、历史结果对比\n").append(toBulletLines(historyLines));
+        builder.append("\n五、风险提示\n").append(toBulletLines(warningLines));
         builder.append("\n六、处理建议\n- ").append(suggestions);
         return builder.toString();
     }
 
-    private String summarizeAny(Object value, String emptyText) {
-        if (value == null) return emptyText;
-        return summarizeJsonText(JSONUtil.toJsonStr(value), emptyText);
+    private String displayReviewConclusion(String reviewResult) {
+        String value = safe(reviewResult).toLowerCase();
+        if (value.contains("reject") || value.contains("retest") || value.contains("退回") || value.contains("重测")) return "退回重测";
+        if (value.contains("pass") || value.contains("自动") || value.contains("通过")) return "自动通过";
+        return "人工复核";
     }
 
-    private String toBulletLines(String text) {
-        String cleaned = safe(text);
-        if (cleaned.isBlank()) return "- 暂无\n";
-        String[] parts = cleaned.split("；|\\n");
+    private List<Map<String, Object>> collectAbnormalItems(ExaminationAiReview review, Map<String, Object> result, String rawResult) {
+        List<Map<String, Object>> items = new ArrayList<>();
+        if (review != null) {
+            items.addAll(parseReviewItemArray(review.getAbnormalItems()));
+        }
+        if (items.isEmpty() && result != null) {
+            Object abnormal = result.get("abnormalItems");
+            if (abnormal != null) items.addAll(parseReviewItemArray(JSONUtil.toJsonStr(abnormal)));
+        }
+        if (items.isEmpty()) {
+            items.addAll(parseAbnormalItems(rawResult));
+        }
+        return items;
+    }
+
+    private List<Map<String, Object>> parseReviewItemArray(String jsonText) {
+        List<Map<String, Object>> items = new ArrayList<>();
+        String text = safe(jsonText);
+        if (text.isBlank() || "[]".equals(text) || "null".equalsIgnoreCase(text)) return items;
+        try {
+            cn.hutool.json.JSONArray array = JSONUtil.parseArray(text);
+            for (Object obj : array) {
+                cn.hutool.json.JSONObject json = JSONUtil.parseObj(obj);
+                Map<String, Object> item = new HashMap<>();
+                item.put("name", safe(json.getStr("name", json.getStr("item", "指标"))));
+                item.put("value", safe(json.getStr("value", json.getStr("currentValue", ""))));
+                item.put("unit", safe(json.getStr("unit", "")));
+                item.put("reference", safe(json.getStr("reference", json.getStr("range", "未填写"))));
+                item.put("status", normalizeStatus(safe(json.getStr("status", json.getStr("level", "异常")))));
+                items.add(item);
+            }
+        } catch (Exception ignored) {
+            // 非 JSON 时交给原始结果解析
+        }
+        return items;
+    }
+
+    private List<String> collectReviewLines(String reviewValue, Object resultValue) {
+        List<String> lines = parseLineArray(reviewValue);
+        if (lines.isEmpty() && resultValue != null) {
+            lines.addAll(parseLineArray(JSONUtil.toJsonStr(resultValue)));
+        }
+        return lines;
+    }
+
+    private List<String> parseLineArray(String value) {
+        List<String> lines = new ArrayList<>();
+        String text = safe(value);
+        if (text.isBlank() || "[]".equals(text) || "null".equalsIgnoreCase(text)) return lines;
+        try {
+            cn.hutool.json.JSONArray array = JSONUtil.parseArray(text);
+            for (Object obj : array) {
+                cn.hutool.json.JSONObject json = JSONUtil.parseObj(obj);
+                String content = firstNonBlank(json.getStr("content"), json.getStr("message"));
+                if (content.isBlank()) {
+                    content = firstNonBlank(json.getStr("change"), json.getStr("reason"));
+                }
+                if (content.isBlank()) {
+                    String name = firstNonBlank(json.getStr("name"), json.getStr("item"));
+                    String current = firstNonBlank(json.getStr("currentValue"), json.getStr("value"));
+                    String last = json.getStr("lastValue", "");
+                    String level = normalizeStatus(json.getStr("level", json.getStr("status", "")));
+                    content = (name + " " + current + (last.isBlank() ? "" : "，上次 " + last) + (level.isBlank() ? "" : "，" + level)).trim();
+                }
+                if (!content.isBlank()) lines.add(content);
+            }
+        } catch (Exception e) {
+            for (String part : text.replace("[{", "").replace("}]", "").split("；|;|\\n")) {
+                String cleaned = part.replace("\"", "").replace("content:", "").replace("level:", "").trim();
+                if (!cleaned.isBlank()) lines.add(cleaned);
+            }
+        }
+        return lines;
+    }
+
+    private List<String> defaultLogicLines(String itemName, String conclusion, String rawResult, List<Map<String, Object>> abnormalItems) {
+        List<String> lines = new ArrayList<>();
+        if (rawResult.isBlank()) {
+            lines.add("未提供完整检验结果数据，无法完成项目间逻辑校验。需要补全各指标名称、数值和参考范围后再审核。");
+            return lines;
+        }
+        if (itemName.contains("血常规")) {
+            lines.add("已核对白细胞、分类计数、血红蛋白、红细胞和血小板之间的组合关系；若白细胞与分类计数方向矛盾，应进入人工复核或重测。");
+        } else if (itemName.contains("血糖") || itemName.contains("电解质") || itemName.contains("肝功能") || itemName.contains("肾功能")) {
+            lines.add("已核对同组生化指标之间的合理性；若单项数值与同组指标明显不一致，需要排查标本、仪器或录入错误。");
+        } else if (itemName.contains("C反应蛋白") || itemName.toUpperCase().contains("CRP")) {
+            lines.add("已结合炎症指标逻辑进行校验；CRP 明显异常时建议结合血常规和临床症状判断。 ");
+        } else {
+            lines.add("已按项目参考范围和结果完整性进行基础逻辑校验。 ");
+        }
+        if ("退回重测".equals(conclusion)) {
+            lines.add("当前结果存在足以影响报告发布的逻辑风险，建议重新检测后再生成正式报告。 ");
+        } else if (!abnormalItems.isEmpty()) {
+            lines.add("异常项需要检验师确认是否与样本状态、采集时间或患者病情相符。 ");
+        }
+        return lines;
+    }
+
+    private String defaultHistoryLine(String conclusion, List<Map<String, Object>> abnormalItems) {
+        if ("退回重测".equals(conclusion)) {
+            return "与既往同类结果相比，当前报告疑似存在突变或不合理波动，建议复测确认。";
+        }
+        if ("人工复核".equals(conclusion)) {
+            return "当前异常项需要与患者既往检查趋势对比，确认是否属于真实病情变化。";
+        }
+        return abnormalItems.isEmpty() ? "与历史记录相比未见明显异常波动。" : "部分指标较既往可能有变化，建议结合临床情况复核。";
+    }
+
+    private String defaultRiskLine(String conclusion, List<Map<String, Object>> abnormalItems) {
+        if ("退回重测".equals(conclusion)) {
+            return "存在误报或漏报风险，若直接发布可能影响医生判断。";
+        }
+        if ("人工复核".equals(conclusion)) {
+            return "存在中等风险，需要检验师确认异常项是否真实可靠。";
+        }
+        return abnormalItems.isEmpty() ? "暂无明显风险提示。" : "存在轻度异常风险，建议按医生意见随访或复查。";
+    }
+
+    private String defaultSuggestion(String conclusion, List<Map<String, Object>> abnormalItems) {
+        if ("退回重测".equals(conclusion)) {
+            return "退回检验科重新采样或复测，复测结果通过后再发布报告。";
+        }
+        if ("人工复核".equals(conclusion)) {
+            return "由检验师复核异常指标、样本状态和历史结果；确认无误后再发布。";
+        }
+        return abnormalItems.isEmpty() ? "可自动发布报告，并保留 AI 审核记录。" : "可发布报告，但建议医生结合症状解释异常指标。";
+    }
+
+    private String toBulletLines(List<String> lines) {
+        if (lines == null || lines.isEmpty()) return "- 暂无\n";
         StringBuilder builder = new StringBuilder();
-        for (String part : parts) {
-            String item = part.trim();
+        for (String line : lines) {
+            String item = safe(line);
             if (!item.isBlank()) builder.append("- ").append(item).append("\n");
         }
-        return builder.length() == 0 ? "- " + cleaned + "\n" : builder.toString();
-    }
-    private String summarizeJsonText(String value, String emptyText) {
-        String text = safe(value);
-        if (text.isBlank() || "[]".equals(text)) return emptyText;
-        return text.replace("[{", "").replace("}]", "").replace("},{", "；").replace("\"", "").replace(":", "：").replace(",", "，");
+        return builder.length() == 0 ? "- 暂无\n" : builder.toString();
     }
 
+    private String safeObj(Object value, String fallback) {
+        return value == null ? fallback : safe(String.valueOf(value), fallback);
+    }
     private Long toLong(Object value) {
         if (value instanceof Number number) return number.longValue();
         if (value == null) return null;

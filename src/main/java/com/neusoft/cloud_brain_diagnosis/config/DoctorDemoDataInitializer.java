@@ -44,6 +44,7 @@ public class DoctorDemoDataInitializer implements CommandLineRunner {
         List<Registration> registrations = ensureRegistrations(doctors, patients, departments);
         ensureMedicalRecords(registrations);
         ensurePrescriptions(registrations, medicines);
+        normalizeDoctorDemoData(doctors, patients, departments);
     }
 
     private Map<String, Department> ensureDepartments() {
@@ -246,6 +247,60 @@ public class DoctorDemoDataInitializer implements CommandLineRunner {
         prescriptionRepository.save(p);
     }
 
+
+    /**
+     * 纠偏医生端演示数据：旧库里可能残留“张子/泌尿外科”等早期测试数据。
+     * 医生端联调默认使用 doctor01 / 123456，因此这里强制保持 doctor01 与其挂号记录一致。
+     */
+    private void normalizeDoctorDemoData(List<Doctor> doctors, List<Patient> patients, Map<String, Department> departments) {
+        Doctor mainDoctor = doctors.stream()
+                .filter(d -> "doctor01".equals(d.getUsername()))
+                .findFirst()
+                .orElse(null);
+        Department mainDepartment = departments.get("心血管内科");
+        if (mainDoctor == null || mainDepartment == null) return;
+
+        mainDoctor.setName("张建国");
+        mainDoctor.setTitle("主任医师");
+        mainDoctor.setDepartmentId(mainDepartment.getId());
+        mainDoctor.setDepartmentName(mainDepartment.getName());
+        mainDoctor.setSpecialty("高血压、冠心病、心律失常、心力衰竭");
+        mainDoctor.setIntroduction("从事心血管内科临床工作二十余年，擅长高血压、冠心病、心律失常及心力衰竭的规范化诊疗。");
+        doctorRepository.save(mainDoctor);
+
+        for (Registration registration : registrationRepository.findAll()) {
+            if (Objects.equals(registration.getDoctorId(), mainDoctor.getId())) {
+                registration.setDoctorName(mainDoctor.getName());
+                registration.setDepartmentId(mainDepartment.getId());
+                registration.setDepartmentName(mainDepartment.getName());
+                registrationRepository.save(registration);
+            }
+        }
+
+        LocalDate today = LocalDate.now();
+        List<Registration> todayList = registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(mainDoctor.getId(), today);
+        if (todayList.size() < 3 && !patients.isEmpty()) {
+            Set<Long> usedPatientIds = todayList.stream().map(Registration::getPatientId).collect(Collectors.toSet());
+            List<String> slots = List.of("上午", "下午", "上午");
+            List<String> statuses = List.of("就诊中", "待就诊", "待就诊");
+            int index = 0;
+            for (Patient patient : patients) {
+                if (todayList.size() >= 3) break;
+                if (usedPatientIds.contains(patient.getId())) continue;
+                Registration created = saveRegistration(patient, mainDoctor, mainDepartment, today, slots.get(index % slots.size()), statuses.get(index % statuses.size()));
+                todayList.add(created);
+                usedPatientIds.add(patient.getId());
+                index++;
+            }
+        }
+
+        List<Registration> refreshedToday = registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(mainDoctor.getId(), today);
+        if (refreshedToday.stream().noneMatch(r -> "就诊中".equals(r.getStatus())) && !refreshedToday.isEmpty()) {
+            Registration first = refreshedToday.get(0);
+            first.setStatus("就诊中");
+            registrationRepository.save(first);
+        }
+    }
     private Map<String, Object> drug(Medicine m, int quantity, String dosage) {
         Map<String, Object> item = new LinkedHashMap<>();
         item.put("medicineId", m.getId());
@@ -263,3 +318,4 @@ public class DoctorDemoDataInitializer implements CommandLineRunner {
     private record MedicineSeed(String name, String category, String specification, String unit, String manufacturer, Double price, Integer stock) {}
     private record ExaminationSeed(String name, String type, Double price, String description) {}
 }
+

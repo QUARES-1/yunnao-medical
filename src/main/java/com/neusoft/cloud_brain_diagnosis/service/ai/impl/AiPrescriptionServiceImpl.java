@@ -39,13 +39,14 @@ public class AiPrescriptionServiceImpl implements AiPrescriptionService {
         Long patientId = request.get("patientId") != null ? ((Number) request.get("patientId")).longValue() : null;
         Integer patientAge = request.get("patientAge") != null ? ((Number) request.get("patientAge")).intValue() : null;
         String patientGender = (String) request.get("patientGender");
+        String allergyHistory = request.get("allergyHistory") == null ? "" : String.valueOf(request.get("allergyHistory"));
         List<Map<String, Object>> drugs = (List<Map<String, Object>>) request.get("drugs");
 
         // 获取医生科室信息，用于选择科室专属提示词模板
         String departmentName = getDoctorDepartmentName(doctorId);
 
         // 1. 组装患者信息和药品描述
-        String patientInfo = "患者信息：年龄" + patientAge + "岁，性别" + patientGender;
+        String patientInfo = "患者信息：年龄" + patientAge + "岁，性别" + patientGender + "，过敏史：" + (allergyHistory.isBlank() ? "未提供" : allergyHistory);
         StringBuilder drugsDesc = new StringBuilder();
         if (drugs != null) {
             for (Map<String, Object> drug : drugs) {
@@ -99,7 +100,19 @@ public class AiPrescriptionServiceImpl implements AiPrescriptionService {
             // 解析失败使用默认值
         }
 
-        // 4. 保存审核记录
+        // 4. 明确禁忌规则兜底：例如青霉素过敏患者使用阿莫西林，必须标为过敏风险。
+        JSONArray allergyRiskArray = allergyRisks == null || allergyRisks.isBlank()
+                ? new JSONArray()
+                : JSONUtil.parseArray(allergyRisks);
+        if (hasPenicillinAllergyRisk(allergyHistory, drugs, allergyRiskArray)) {
+            allergyRisks = allergyRiskArray.toString();
+            reviewResult = "reject";
+            reviewScore = Math.min(reviewScore, 55);
+            suggestions = (suggestions == null || suggestions.isBlank() ? "" : suggestions + "；")
+                    + "患者存在青霉素类药物过敏史，处方中含阿莫西林/青霉素类药物，建议立即替换为非青霉素类抗菌药并重新审核。";
+        }
+
+        // 5. 保存审核记录
         PrescriptionAiReview review = new PrescriptionAiReview();
         review.setDoctorId(doctorId);
         review.setPatientId(patientId);
@@ -178,6 +191,36 @@ public class AiPrescriptionServiceImpl implements AiPrescriptionService {
                 .orElseThrow(() -> new BusinessException("审核记录不存在"));
     }
 
+
+    /**
+     * 硬规则识别典型过敏禁忌，避免 AI 漏判影响医生端演示和真实业务安全。
+     */
+    private boolean hasPenicillinAllergyRisk(String allergyHistory, List<Map<String, Object>> drugs, JSONArray allergyRiskArray) {
+        if (allergyHistory == null || drugs == null) {
+            return false;
+        }
+        String allergy = allergyHistory.toLowerCase(Locale.ROOT);
+        boolean penicillinAllergy = allergy.contains("青霉素") || allergy.contains("penicillin");
+        if (!penicillinAllergy) {
+            return false;
+        }
+        boolean added = false;
+        for (Map<String, Object> drug : drugs) {
+            Object drugNameObj = drug.get("name") != null ? drug.get("name") : drug.get("medicineName");
+            String drugName = drugNameObj == null ? "" : String.valueOf(drugNameObj);
+            String normalized = drugName.toLowerCase(Locale.ROOT);
+            if (drugName.contains("阿莫西林") || drugName.contains("青霉素") || normalized.contains("amoxicillin") || normalized.contains("penicillin")) {
+                JSONObject risk = new JSONObject();
+                risk.set("drug", drugName);
+                risk.set("level", "high");
+                risk.set("issue", "患者有青霉素类药物过敏史，当前药品属于青霉素类/β-内酰胺类相关药物，存在明确过敏风险。");
+                risk.set("suggestion", "禁止直接发药，建议医生更换非青霉素类替代药物后重新开方。");
+                allergyRiskArray.add(risk);
+                added = true;
+            }
+        }
+        return added;
+    }
     /**
      * 获取医生的科室名称
      */

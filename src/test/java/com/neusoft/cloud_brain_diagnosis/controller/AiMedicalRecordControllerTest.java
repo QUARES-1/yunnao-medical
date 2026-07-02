@@ -1,6 +1,7 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.MedicalRecordAiGenerate;
 import com.neusoft.cloud_brain_diagnosis.feign.AiMedicalRecordFeignClient;
@@ -39,6 +40,23 @@ class AiMedicalRecordControllerTest {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
         when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(medicalRecordFeignClient.generateRecord(anyMap())).thenAnswer(inv -> {
+            Map<String, Object> request = inv.getArgument(0);
+            Long patientId = ((Number) request.get("patientId")).longValue();
+            String inputText = String.valueOf(request.getOrDefault("inputText", ""));
+            String inputType = String.valueOf(request.getOrDefault("inputType", "keyword"));
+            return success(medicalRecordService.generateRecord(patientId, inputText, inputType, jwtUtil.getUserIdFromToken("")));
+        });
+        when(medicalRecordFeignClient.getGenerateList(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(medicalRecordService.getGenerateList(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(medicalRecordFeignClient.getGenerateDetail(anyLong()))
+                .thenAnswer(inv -> success(medicalRecordService.getGenerateDetail(inv.getArgument(0))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== generateRecord() ==========

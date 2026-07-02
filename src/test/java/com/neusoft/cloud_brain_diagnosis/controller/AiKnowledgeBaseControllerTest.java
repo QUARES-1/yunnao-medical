@@ -2,6 +2,7 @@ package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.AiKnowledgeBase;
 import com.neusoft.cloud_brain_diagnosis.feign.AiOtherFeignClient;
@@ -39,6 +40,32 @@ class AiKnowledgeBaseControllerTest {
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.ADMIN.getCode());
+        when(otherFeignClient.getKnowledgeList(nullable(String.class), nullable(String.class), anyInt(), anyInt()))
+                .thenAnswer(inv -> success(knowledgeBaseService.getKnowledgeList(inv.getArgument(0),
+                        inv.getArgument(1), inv.getArgument(2), inv.getArgument(3))));
+        when(otherFeignClient.addKnowledge(anyMap()))
+                .thenAnswer(inv -> Result.success(knowledgeBaseService.addKnowledge(toKnowledge(inv.getArgument(0)))));
+        when(otherFeignClient.updateKnowledge(anyMap()))
+                .thenAnswer(inv -> Result.success(knowledgeBaseService.updateKnowledge(toKnowledge(inv.getArgument(0)))));
+        when(otherFeignClient.deleteKnowledge(anyLong()))
+                .thenAnswer(inv -> Result.success(knowledgeBaseService.deleteKnowledge(inv.getArgument(0))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
+    }
+
+    private AiKnowledgeBase toKnowledge(Map<String, Object> data) {
+        AiKnowledgeBase knowledge = new AiKnowledgeBase();
+        Object id = data.get("id");
+        if (id instanceof Number number) {
+            knowledge.setId(number.longValue());
+        }
+        knowledge.setQuestion((String) data.get("question"));
+        knowledge.setAnswer((String) data.get("answer"));
+        knowledge.setCategory((String) data.get("category"));
+        return knowledge;
     }
 
     // ========== getList() ==========

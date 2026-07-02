@@ -27,6 +27,7 @@ public class AiOperationServiceImpl implements AiOperationService {
     @Override
     @Transactional
     public Map<String, Object> generateReport(String reportType, String startDate, String endDate) {
+        String normalizedReportType = reportType == null || reportType.isBlank() ? "monthly" : reportType;
         LocalDate start = startDate != null ? LocalDate.parse(startDate) : LocalDate.now().minusWeeks(1);
         LocalDate end = endDate != null ? LocalDate.parse(endDate) : LocalDate.now();
 
@@ -43,7 +44,7 @@ public class AiOperationServiceImpl implements AiOperationService {
         String aiResponse = aiApiUtil.callAi(prompt, systemPrompt);
 
         OperationAiReport report = new OperationAiReport();
-        report.setReportType(reportType);
+        report.setReportType(normalizedReportType);
         report.setStartDate(start);
         report.setEndDate(end);
 
@@ -72,7 +73,8 @@ public class AiOperationServiceImpl implements AiOperationService {
         Map<String, Object> result = new HashMap<>();
         result.put("id", report.getId());
         result.put("summary", report.getSummary());
-        result.put("reportType", reportType);
+        result.put("reportType", normalizedReportType);
+        result.put("forecastType", normalizedReportType);
         result.put("startDate", start);
         result.put("endDate", end);
         result.put("createTime", report.getCreateTime());

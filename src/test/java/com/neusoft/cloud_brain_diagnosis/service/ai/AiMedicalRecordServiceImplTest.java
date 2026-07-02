@@ -140,7 +140,7 @@ class AiMedicalRecordServiceImplTest {
         Map<String, Object> result = medicalRecordService.generateRecord(1L, "头痛", "keyword", null);
 
         assertNotNull(result.get("id"));
-        assertEquals("", result.get("chiefComplaint"));
+        assertEquals("主诉", result.get("chiefComplaint"));
     }
 
     @Test

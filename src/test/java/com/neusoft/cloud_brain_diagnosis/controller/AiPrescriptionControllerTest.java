@@ -2,6 +2,7 @@ package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.PrescriptionAiReview;
 import com.neusoft.cloud_brain_diagnosis.feign.AiPrescriptionFeignClient;
@@ -39,6 +40,21 @@ class AiPrescriptionControllerTest {
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+        when(prescriptionFeignClient.checkPrescription(anyMap()))
+                .thenAnswer(inv -> success(prescriptionService.checkPrescription(inv.getArgument(0), jwtUtil.getUserIdFromToken(""))));
+        when(prescriptionFeignClient.getReviewList(anyInt(), anyInt()))
+                .thenAnswer(inv -> {
+                    String role = jwtUtil.getRoleFromToken("");
+                    Long doctorId = RoleEnum.DOCTOR.getCode().equals(role) ? jwtUtil.getUserIdFromToken("") : null;
+                    return success(prescriptionService.getReviewList(doctorId, inv.getArgument(0), inv.getArgument(1)));
+                });
+        when(prescriptionFeignClient.getReviewDetail(anyLong()))
+                .thenAnswer(inv -> success(prescriptionService.getReviewDetail(inv.getArgument(0))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== checkPrescription() ==========

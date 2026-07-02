@@ -128,7 +128,7 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         String value = Optional.ofNullable(text).orElse("").toLowerCase();
         String[] keywords = {"症状加重", "持续高热", "高热", "胸痛", "胸闷", "呼吸困难",
                 "意识不清", "大量出血", "伤口红肿", "伤口流脓", "剧烈疼痛", "反复呕吐",
-                "自行停药", "39℃", "40℃"};
+                "自行停药", "39℃", "40℃", "39c", "40c"};
         return Arrays.stream(keywords).anyMatch(value::contains);
     }
 

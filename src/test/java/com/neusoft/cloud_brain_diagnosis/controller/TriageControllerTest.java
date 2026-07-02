@@ -2,6 +2,7 @@ package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.TriageRecord;
 import com.neusoft.cloud_brain_diagnosis.feign.AiOtherFeignClient;
@@ -40,6 +41,22 @@ class TriageControllerTest {
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(1L);
+        when(otherFeignClient.triageConsult(anyMap())).thenAnswer(inv -> {
+            Map<String, Object> request = inv.getArgument(0);
+            Object patientIdValue = request.get("patientId");
+            Long patientId = patientIdValue instanceof Number number ? number.longValue() : null;
+            return success(triageService.consult(String.valueOf(request.getOrDefault("chiefComplaint", "")), patientId));
+        });
+        when(otherFeignClient.getTriageHistory(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(triageService.getPatientList(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(otherFeignClient.getTriageDetail(anyLong()))
+                .thenAnswer(inv -> success(triageService.getDetail(inv.getArgument(0))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== consult() ==========
@@ -95,7 +112,7 @@ class TriageControllerTest {
         when(triageService.getPatientList(eq(1L), eq(1), eq(10)))
                 .thenReturn(new PageImpl<>(List.of(record)));
 
-        mockMvc.perform(get("/api/triage/patient/list")
+        mockMvc.perform(get("/api/triage/history")
                         .header("Authorization", "Bearer patient-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].id").value(1))
@@ -110,7 +127,7 @@ class TriageControllerTest {
         when(triageService.getPatientList(eq(1L), eq(2), eq(20)))
                 .thenReturn(new PageImpl<>(List.of()));
 
-        mockMvc.perform(get("/api/triage/patient/list")
+        mockMvc.perform(get("/api/triage/history")
                         .param("page", "2")
                         .param("size", "20")
                         .header("Authorization", "Bearer patient-token"))

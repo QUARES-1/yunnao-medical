@@ -244,15 +244,19 @@ public class AiChatServiceImpl implements AiChatService {
         String aiResponse = aiApiUtil.callAi(prompt, systemPrompt);
 
         Map<String, Object> result = new HashMap<>();
-        try {
-            JSONObject json = JSONUtil.parseObj(aiResponse);
-            result.put("answer", json.getStr("answer", aiResponse));
-            result.put("relatedQuestions", json.getJSONArray("relatedQuestions") != null
-                    ? json.getJSONArray("relatedQuestions").toList(String.class) : new ArrayList<>());
-            result.put("recommendDepartment", json.getStr("recommendDepartment"));
-            result.put("recommendDepartmentId", json.getLong("recommendDepartmentId"));
-        } catch (Exception e) {
-            result.put("answer", aiResponse);
+        if (aiResponse == null || aiResponse.isBlank()) {
+            result.put("answer", "AI response unavailable");
+        } else {
+            try {
+                JSONObject json = JSONUtil.parseObj(aiResponse);
+                result.put("answer", json.getStr("answer", aiResponse));
+                result.put("relatedQuestions", json.getJSONArray("relatedQuestions") != null
+                        ? json.getJSONArray("relatedQuestions").toList(String.class) : new ArrayList<>());
+                result.put("recommendDepartment", json.getStr("recommendDepartment"));
+                result.put("recommendDepartmentId", json.getLong("recommendDepartmentId"));
+            } catch (Exception e) {
+                result.put("answer", aiResponse);
+            }
         }
 
         // 保存健康咨询记录

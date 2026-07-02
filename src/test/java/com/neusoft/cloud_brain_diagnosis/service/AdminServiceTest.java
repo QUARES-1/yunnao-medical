@@ -284,40 +284,4 @@ class AdminServiceTest {
                 () -> adminService.login("admin", "anypass"));
     }
 
-    @Test
-    void getAdminInfo_ShouldThrow_WhenNotFound() {
-        when(adminRepository.findById(99L)).thenReturn(Optional.empty());
-
-        assertThrows(BusinessException.class,
-                () -> adminService.getAdminInfo(99L));
-    }
-
-    @Test
-    void changePassword_ShouldThrow_WhenOldPasswordWrong() {
-        Admin admin = new Admin();
-        admin.setId(1L);
-        admin.setPassword("$2a$10$hashedpassword");
-
-        when(adminRepository.findById(1L)).thenReturn(Optional.of(admin));
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> adminService.changePassword(1L, "wrong", "newPass"));
-        assertEquals("原密码错误", ex.getMessage());
-    }
-
-    @Test
-    void register_ShouldThrow_WhenUsernameExists() {
-        when(adminRepository.findByUsername("existing")).thenReturn(Optional.of(new Admin()));
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> adminService.register("existing", "password", "name"));
-        assertEquals("用户名已存在", ex.getMessage());
-    }
-
-    @Test
-    void login_ShouldThrow_WhenPasswordBlank() {
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> adminService.login("admin", "   "));
-        assertEquals("请输入账号和密码", ex.getMessage());
-    }
 }

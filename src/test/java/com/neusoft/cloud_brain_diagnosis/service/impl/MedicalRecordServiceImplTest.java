@@ -12,137 +12,115 @@ import com.neusoft.cloud_brain_diagnosis.repository.RegistrationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * MedicalRecordServiceImpl ∞◊∫–µ•‘™≤‚ ‘
- * ∏≤∏«£∫–¬‘ˆ°¢–ﬁ∏ƒ°¢œÍ«È°¢¡–±Ì°¢»®œﬁ—È÷§
- */
 @ExtendWith(MockitoExtension.class)
 class MedicalRecordServiceImplTest {
 
     @Mock
     private MedicalRecordRepository medicalRecordRepository;
+
     @Mock
     private RegistrationRepository registrationRepository;
+
     @Mock
     private PatientRepository patientRepository;
+
     @Mock
     private DoctorRepository doctorRepository;
 
+    @InjectMocks
     private MedicalRecordServiceImpl medicalRecordService;
+
+    private MedicalRecord testRecord;
+    private Registration testRegistration;
+    private Patient testPatient;
+    private Doctor testDoctor;
 
     @BeforeEach
     void setUp() {
-        medicalRecordService = new MedicalRecordServiceImpl(
-                medicalRecordRepository, registrationRepository, patientRepository, doctorRepository);
+        testRegistration = new Registration();
+        testRegistration.setId(100L);
+        testRegistration.setDoctorId(1L);
+        testRegistration.setPatientId(2L);
+        testRegistration.setStatus("Â∞±ËØä‰∏≠");
+
+        testPatient = new Patient();
+        testPatient.setId(2L);
+        testPatient.setName("ÊµãËØïÊÇ£ËÄÖ");
+
+        testDoctor = new Doctor();
+        testDoctor.setId(1L);
+        testDoctor.setName("ÊµãËØïÂåªÁîü");
+
+        testRecord = new MedicalRecord();
+        testRecord.setId(50L);
+        testRecord.setRegistrationId(100L);
+        testRecord.setPatientId(2L);
+        testRecord.setDoctorId(1L);
+        testRecord.setChiefComplaint("Â§¥Áñº");
+        testRecord.setDiagnosis("ÂÅèÂ§¥Áóõ");
     }
 
-    // ========== saveRecord - –ﬁ∏ƒ≤°¿˙ ==========
-
     @Test
-    void saveRecord_ShouldUpdateExistingRecord() {
-        MedicalRecord existing = new MedicalRecord();
-        existing.setId(1L);
-        existing.setRegistrationId(10L);
-        existing.setChiefComplaint("æ…÷˜Àﬂ");
-
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-        registration.setStatus("æÕ’Ô÷–");
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+    void saveRecord_updateExistingRecord_success() {
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
         when(medicalRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         MedicalRecord update = new MedicalRecord();
-        update.setId(1L);
-        update.setChiefComplaint("–¬÷˜Àﬂ");
-        update.setDiagnosis("–¬’Ô∂œ");
+        update.setId(50L);
+        update.setChiefComplaint("Updated complaint");
+        update.setDiagnosis("Updated diagnosis");
 
         MedicalRecord result = medicalRecordService.saveRecord(update, 1L);
 
-        assertEquals("–¬÷˜Àﬂ", result.getChiefComplaint());
-        assertEquals("–¬’Ô∂œ", result.getDiagnosis());
+        assertEquals("Updated complaint", result.getChiefComplaint());
+        assertEquals("Updated diagnosis", result.getDiagnosis());
     }
 
     @Test
-    void saveRecord_ShouldOnlyUpdateNonNullFields() {
-        MedicalRecord existing = new MedicalRecord();
-        existing.setId(1L);
-        existing.setRegistrationId(10L);
-        existing.setChiefComplaint("æ…÷˜Àﬂ");
-        existing.setDiagnosis("æ…’Ô∂œ");
+    void saveRecord_partialUpdate_keepsOtherFields() {
+        testRecord.setChiefComplaint("Old complaint");
+        testRecord.setPresentIllness("Old illness");
+        testRecord.setPastHistory("Old history");
 
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-        registration.setStatus("æÕ’Ô÷–");
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
         when(medicalRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         MedicalRecord update = new MedicalRecord();
-        update.setId(1L);
+        update.setId(50L);
         update.setChiefComplaint(null);
-        update.setDiagnosis("÷ª∏¸–¬’Ô∂œ");
+        update.setDiagnosis("New diagnosis");
+        update.setPastHistory(null);
 
         MedicalRecord result = medicalRecordService.saveRecord(update, 1L);
 
-        assertEquals("æ…÷˜Àﬂ", result.getChiefComplaint());
-        assertEquals("÷ª∏¸–¬’Ô∂œ", result.getDiagnosis());
+        assertEquals("Old complaint", result.getChiefComplaint());
+        assertEquals("New diagnosis", result.getDiagnosis());
+        assertEquals("Old history", result.getPastHistory());
     }
 
     @Test
-    void saveRecord_ShouldThrow_WhenRecordNotFound() {
-        when(medicalRecordRepository.findById(99L)).thenReturn(Optional.empty());
-
-        MedicalRecord update = new MedicalRecord();
-        update.setId(99L);
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> medicalRecordService.saveRecord(update, 1L));
-        assertEquals("≤°¿˙≤ª¥Ê‘⁄", ex.getMessage());
-    }
-
-    // ========== saveRecord - –¬‘ˆ≤°¿˙ ==========
-
-    @Test
-    void saveRecord_ShouldCreateNewRecord_WhenIdIsNull() {
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-        registration.setDepartmentId(5L);
-        registration.setStatus("æÕ’Ô÷–");
-
-        Patient patient = new Patient();
-        patient.setId(2L);
-        patient.setName("’≈»˝");
-
-        Doctor doctor = new Doctor();
-        doctor.setId(1L);
-        doctor.setName("¿Ó“Ω…˙");
-
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-        when(medicalRecordRepository.findByRegistrationId(10L)).thenReturn(Optional.empty());
-        when(patientRepository.findById(2L)).thenReturn(Optional.of(patient));
-        when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
+    void saveRecord_createNewRecord_success() {
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(medicalRecordRepository.findByRegistrationId(100L)).thenReturn(Optional.empty());
+        when(patientRepository.findById(2L)).thenReturn(Optional.of(testPatient));
+        when(doctorRepository.findById(1L)).thenReturn(Optional.of(testDoctor));
         when(medicalRecordRepository.save(any())).thenAnswer(inv -> {
             MedicalRecord r = inv.getArgument(0);
             r.setId(100L);
@@ -150,68 +128,30 @@ class MedicalRecordServiceImplTest {
         });
 
         MedicalRecord record = new MedicalRecord();
-        record.setRegistrationId(10L);
-        record.setChiefComplaint("Õ∑Õ¥");
-        record.setDiagnosis("∆´Õ∑Õ¥");
+        record.setRegistrationId(100L);
+        record.setChiefComplaint("Â§¥Áñº");
+        record.setDiagnosis("ÂÅèÂ§¥Áóõ");
 
         MedicalRecord result = medicalRecordService.saveRecord(record, 1L);
 
         assertEquals(100L, result.getId());
-        assertEquals("Õ∑Õ¥", result.getChiefComplaint());
-        assertEquals("’≈»˝", result.getPatientName());
-        assertEquals("¿Ó“Ω…˙", result.getDoctorName());
-        assertEquals(5L, result.getDepartmentId());
+        assertEquals("Â§¥Áñº", result.getChiefComplaint());
+        assertEquals("ÊµãËØïÊÇ£ËÄÖ", result.getPatientName());
+        assertEquals("ÊµãËØïÂåªÁîü", result.getDoctorName());
     }
 
     @Test
-    void saveRecord_ShouldUpdateExistingRecord_WhenSameRegistration() {
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-        registration.setDepartmentId(5L);
-        registration.setStatus("æÕ’Ô÷–");
-
-        Patient patient = new Patient();
-        patient.setId(2L);
-        patient.setName("’≈»˝");
-
-        Doctor doctor = new Doctor();
-        doctor.setId(1L);
-        doctor.setName("¿Ó“Ω…˙");
-
-        MedicalRecord existingRecord = new MedicalRecord();
-        existingRecord.setId(50L);
-        existingRecord.setRegistrationId(10L);
-
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-        when(medicalRecordRepository.findByRegistrationId(10L)).thenReturn(Optional.of(existingRecord));
-        when(patientRepository.findById(2L)).thenReturn(Optional.of(patient));
-        when(doctorRepository.findById(1L)).thenReturn(Optional.of(doctor));
-        when(medicalRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
-
+    void saveRecord_nullRegistrationId_throwsException() {
         MedicalRecord record = new MedicalRecord();
-        record.setRegistrationId(10L);
-        record.setChiefComplaint("∏¸–¬÷˜Àﬂ");
-
-        MedicalRecord result = medicalRecordService.saveRecord(record, 1L);
-
-        assertEquals(50L, result.getId());
-        assertEquals("∏¸–¬÷˜Àﬂ", result.getChiefComplaint());
-    }
-
-    @Test
-    void saveRecord_ShouldThrow_WhenRegistrationIdIsNull() {
-        MedicalRecord record = new MedicalRecord();
-        record.setChiefComplaint("Õ∑Õ¥");
+        record.setChiefComplaint("Â§¥Áñº");
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> medicalRecordService.saveRecord(record, 1L));
-        assertEquals("π“∫≈ID≤ªƒ‹Œ™ø’", ex.getMessage());
+        assertEquals("ÊåÇÂè∑ID‰∏çËÉΩ‰∏∫Á©∫", ex.getMessage());
     }
 
     @Test
-    void saveRecord_ShouldThrow_WhenRegistrationNotFound() {
+    void saveRecord_registrationNotFound_throwsException() {
         when(registrationRepository.findById(99L)).thenReturn(Optional.empty());
 
         MedicalRecord record = new MedicalRecord();
@@ -219,207 +159,229 @@ class MedicalRecordServiceImplTest {
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> medicalRecordService.saveRecord(record, 1L));
-        assertEquals("π“∫≈º«¬º≤ª¥Ê‘⁄", ex.getMessage());
+        assertEquals("ÊåÇÂè∑ËÆ∞ÂΩï‰∏çÂ≠òÂú®", ex.getMessage());
     }
 
     @Test
-    void saveRecord_ShouldThrow_WhenDoctorNotOperate() {
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(99L);
-        registration.setStatus("æÕ’Ô÷–");
-
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+    void saveRecord_patientNotFound_throwsException() {
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(patientRepository.findById(2L)).thenReturn(Optional.empty());
 
         MedicalRecord record = new MedicalRecord();
-        record.setRegistrationId(10L);
+        record.setRegistrationId(100L);
+        record.setChiefComplaint("Â§¥Áñº");
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> medicalRecordService.saveRecord(record, 1L));
-        assertEquals("Œﬁ»®≤Ÿ◊˜∆‰À˚“Ω…˙µƒªº’ﬂ", ex.getMessage());
+        assertEquals("ÊÇ£ËÄÖ‰∏çÂ≠òÂú®", ex.getMessage());
     }
 
     @Test
-    void saveRecord_ShouldThrow_WhenRegistrationNotInProgress() {
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setStatus("¥˝æÕ’Ô");
-
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+    void saveRecord_doctorNotFound_throwsException() {
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(patientRepository.findById(2L)).thenReturn(Optional.of(testPatient));
+        when(doctorRepository.findById(1L)).thenReturn(Optional.empty());
 
         MedicalRecord record = new MedicalRecord();
-        record.setRegistrationId(10L);
+        record.setRegistrationId(100L);
+        record.setChiefComplaint("Â§¥Áñº");
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> medicalRecordService.saveRecord(record, 1L));
-        assertEquals("«Îœ»ø™ ºø¥’Ô£¨÷ª”–æÕ’Ô÷–µƒπ“∫≈ø…“‘±‡º≠≤°¿˙", ex.getMessage());
-    }
-
-    // ========== getDetail ==========
-
-    @Test
-    void getDetail_ShouldReturnRecord_ForDoctor() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-        record.setRegistrationId(10L);
-
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-
-        MedicalRecord result = medicalRecordService.getDetail(1L, 1L, "doctor");
-
-        assertEquals(1L, result.getId());
+        assertEquals("ÂåªÁîü‰∏çÂ≠òÂú®", ex.getMessage());
     }
 
     @Test
-    void getDetail_ShouldReturnRecord_ForPatient() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-        record.setRegistrationId(10L);
+    void saveRecord_permissionDenied_throwsException() {
+        testRegistration.setDoctorId(99L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
 
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(5L);
-        registration.setPatientId(1L);
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-
-        MedicalRecord result = medicalRecordService.getDetail(1L, 1L, "patient");
-
-        assertEquals(1L, result.getId());
-    }
-
-    @Test
-    void getDetail_ShouldThrow_WhenDoctorCannotAccess() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-        record.setRegistrationId(10L);
-
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(99L);
-        registration.setPatientId(2L);
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+        MedicalRecord update = new MedicalRecord();
+        update.setId(50L);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> medicalRecordService.getDetail(1L, 1L, "doctor"));
-        assertEquals("∏√ªº’ﬂ≤ª Ù”⁄µ±«∞“Ω…˙£¨Œﬁ»®≤Èø¥≤°¿˙", ex.getMessage());
+                () -> medicalRecordService.saveRecord(update, 1L));
+        assertEquals("Êó†ÊùÉÊìç‰ΩúÂÖ∂‰ªñÂåªÁîüÁöÑÊÇ£ËÄÖ", ex.getMessage());
     }
 
     @Test
-    void getDetail_ShouldThrow_WhenPatientCannotAccess() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-        record.setRegistrationId(10L);
+    void saveRecord_notInProgress_throwsException() {
+        testRegistration.setStatus("Â∑≤ÂÆåÊàê");
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
 
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(5L);
-        registration.setPatientId(99L);
-
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
+        MedicalRecord update = new MedicalRecord();
+        update.setId(50L);
 
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> medicalRecordService.getDetail(1L, 1L, "patient"));
-        assertEquals("Œﬁ»®≤Èø¥∆‰À˚ªº’ﬂµƒ≤°¿˙", ex.getMessage());
+                () -> medicalRecordService.saveRecord(update, 1L));
+        assertEquals("ËØ∑ÂÖàÂºÄÂßãÁúãËØäÔºåÂè™ÊúâÂ∞±ËØä‰∏≠ÁöÑÊåÇÂè∑ÂèØ‰ª•ÁºñËæëÁóÖÂéÜ", ex.getMessage());
     }
 
     @Test
-    void getDetail_ShouldThrow_WhenInvalidRole() {
+    void saveRecord_sameRegistration_updatesExistingRecord() {
+        MedicalRecord existingRecord = new MedicalRecord();
+        existingRecord.setId(60L);
+        existingRecord.setRegistrationId(100L);
+        existingRecord.setChiefComplaint("Old complaint");
+
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(medicalRecordRepository.findByRegistrationId(100L)).thenReturn(Optional.of(existingRecord));
+        when(patientRepository.findById(2L)).thenReturn(Optional.of(testPatient));
+        when(doctorRepository.findById(1L)).thenReturn(Optional.of(testDoctor));
+        when(medicalRecordRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
         MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-        record.setRegistrationId(10L);
+        record.setRegistrationId(100L);
+        record.setChiefComplaint("New complaint");
 
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
+        MedicalRecord result = medicalRecordService.saveRecord(record, 1L);
 
-        when(medicalRecordRepository.findById(1L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-
-        BusinessException ex = assertThrows(BusinessException.class,
-                () -> medicalRecordService.getDetail(1L, 1L, "invalid"));
-        assertEquals("µ±«∞Ω«…´Œﬁ»®≤Èø¥≤°¿˙", ex.getMessage());
+        assertEquals(60L, result.getId());
+        assertEquals("New complaint", result.getChiefComplaint());
     }
 
     @Test
-    void getDetail_ShouldThrow_WhenNotFound() {
+    void saveRecord_recordNotFound_throwsException() {
         when(medicalRecordRepository.findById(99L)).thenReturn(Optional.empty());
 
+        MedicalRecord update = new MedicalRecord();
+        update.setId(99L);
+
         BusinessException ex = assertThrows(BusinessException.class,
-                () -> medicalRecordService.getDetail(99L, 1L, "admin"));
-        assertEquals("≤°¿˙≤ª¥Ê‘⁄", ex.getMessage());
+                () -> medicalRecordService.saveRecord(update, 1L));
+        assertEquals("ÁóÖÂéÜ‰∏çÂ≠òÂú®", ex.getMessage());
     }
 
-    // ========== getPatientList / getDoctorList ==========
+    @Test
+    void getDetail_doctorAccess_success() {
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+
+        MedicalRecord result = medicalRecordService.getDetail(50L, 1L, "doctor");
+
+        assertEquals(50L, result.getId());
+    }
 
     @Test
-    void getPatientList_ShouldReturnPage() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
+    void getDetail_patientAccess_success() {
+        testRegistration.setDoctorId(5L);
+        testRegistration.setPatientId(2L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
 
-        Page<MedicalRecord> page = new PageImpl<>(List.of(record));
-        when(medicalRecordRepository.findByPatientIdOrderByCreateTimeDesc(eq(1L), any(Pageable.class))).thenReturn(page);
+        MedicalRecord result = medicalRecordService.getDetail(50L, 2L, "patient");
 
-        Page<MedicalRecord> result = medicalRecordService.getPatientList(1L, 1, 10);
+        assertEquals(50L, result.getId());
+    }
+
+    @Test
+    void getDetail_adminAccess_success() {
+        testRegistration.setDoctorId(5L);
+        testRegistration.setPatientId(5L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+
+        MedicalRecord result = medicalRecordService.getDetail(50L, 1L, "admin");
+
+        assertEquals(50L, result.getId());
+    }
+
+    @Test
+    void getDetail_doctorCannotAccessOtherDoctorRecord_throwsException() {
+        testRegistration.setDoctorId(99L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> medicalRecordService.getDetail(50L, 1L, "doctor"));
+        assertEquals("ËØ•ÊÇ£ËÄÖ‰∏çÂ±û‰∫éÂΩìÂâçÂåªÁîüÔºåÊó†ÊùÉÊü•ÁúãÁóÖÂéÜ", ex.getMessage());
+    }
+
+    @Test
+    void getDetail_patientCannotAccessOtherRecord_throwsException() {
+        testRegistration.setPatientId(99L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> medicalRecordService.getDetail(50L, 1L, "patient"));
+        assertEquals("Êó†ÊùÉÊü•ÁúãÂÖ∂‰ªñÊÇ£ËÄÖÁöÑÁóÖÂéÜ", ex.getMessage());
+    }
+
+    @Test
+    void getDetail_invalidRole_throwsException() {
+        testRegistration.setDoctorId(1L);
+        testRegistration.setPatientId(2L);
+        when(medicalRecordRepository.findById(50L)).thenReturn(Optional.of(testRecord));
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> medicalRecordService.getDetail(50L, 1L, "invalid"));
+        assertEquals("ÂΩìÂâçËßíËâ≤Êó†ÊùÉÊü•ÁúãÁóÖÂéÜ", ex.getMessage());
+    }
+
+    @Test
+    void getDetail_recordNotFound_throwsException() {
+        when(medicalRecordRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(BusinessException.class,
+                () -> medicalRecordService.getDetail(99L, 1L, "admin"));
+    }
+
+    @Test
+    void getByRegistrationId_patientAccess_success() {
+        testRegistration.setPatientId(1L);
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(medicalRecordRepository.findByRegistrationId(100L)).thenReturn(Optional.of(testRecord));
+
+        MedicalRecord result = medicalRecordService.getByRegistrationId(100L, 1L, "patient");
+
+        assertNotNull(result);
+        assertEquals(100L, result.getRegistrationId());
+    }
+
+    @Test
+    void getByRegistrationId_doctorAccess_success() {
+        testRegistration.setDoctorId(1L);
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(medicalRecordRepository.findByRegistrationId(100L)).thenReturn(Optional.of(testRecord));
+
+        MedicalRecord result = medicalRecordService.getByRegistrationId(100L, 1L, "doctor");
+
+        assertNotNull(result);
+        assertEquals(100L, result.getRegistrationId());
+    }
+
+    @Test
+    void getByRegistrationId_notFound_returnsNull() {
+        testRegistration.setDoctorId(1L);
+        when(registrationRepository.findById(100L)).thenReturn(Optional.of(testRegistration));
+        when(medicalRecordRepository.findByRegistrationId(100L)).thenReturn(Optional.empty());
+
+        MedicalRecord result = medicalRecordService.getByRegistrationId(100L, 1L, "doctor");
+
+        assertNull(result);
+    }
+
+    @Test
+    void getPatientList_success() {
+        Page<MedicalRecord> page = new PageImpl<>(Collections.singletonList(testRecord));
+        when(medicalRecordRepository.findByPatientIdOrderByCreateTimeDesc(eq(2L), any(Pageable.class))).thenReturn(page);
+
+        Page<MedicalRecord> result = medicalRecordService.getPatientList(2L, 1, 10);
 
         assertEquals(1, result.getContent().size());
     }
 
     @Test
-    void getDoctorList_ShouldReturnPage() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-
-        Page<MedicalRecord> page = new PageImpl<>(List.of(record));
+    void getDoctorList_success() {
+        Page<MedicalRecord> page = new PageImpl<>(Collections.singletonList(testRecord));
         when(medicalRecordRepository.findByDoctorIdOrderByCreateTimeDesc(eq(1L), any(Pageable.class))).thenReturn(page);
 
         Page<MedicalRecord> result = medicalRecordService.getDoctorList(1L, 1, 10);
 
         assertEquals(1, result.getContent().size());
-    }
-
-    @Test
-    void getByRegistrationId_ShouldReturnRecord() {
-        MedicalRecord record = new MedicalRecord();
-        record.setId(1L);
-
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-
-        when(medicalRecordRepository.findByRegistrationId(10L)).thenReturn(Optional.of(record));
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-
-        MedicalRecord result = medicalRecordService.getByRegistrationId(10L, 1L, "doctor");
-
-        assertEquals(1L, result.getId());
-    }
-
-    @Test
-    void getByRegistrationId_ShouldReturnNull_WhenNotFound() {
-        Registration registration = new Registration();
-        registration.setId(10L);
-        registration.setDoctorId(1L);
-        registration.setPatientId(2L);
-
-        when(medicalRecordRepository.findByRegistrationId(10L)).thenReturn(Optional.empty());
-        when(registrationRepository.findById(10L)).thenReturn(Optional.of(registration));
-
-        MedicalRecord result = medicalRecordService.getByRegistrationId(10L, 1L, "doctor");
-
-        assertNull(result);
     }
 }

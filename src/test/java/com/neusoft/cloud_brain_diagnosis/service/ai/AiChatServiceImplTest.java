@@ -173,7 +173,6 @@ class AiChatServiceImplTest {
 
     @Test
     void chat_ShouldReturnNull_WhenQuestionIsBlank() {
-        when(knowledgeBaseRepository.findByStatus(1)).thenReturn(Collections.emptyList());
         when(aiApiUtil.callAi(anyString(), anyString())).thenReturn("{\"answer\":\"空白问题\"}");
         when(chatRecordRepository.save(any())).thenAnswer(inv -> {
             AiChatRecord r = inv.getArgument(0);
@@ -336,7 +335,6 @@ class AiChatServiceImplTest {
         highScore.setSort(2);
 
         when(knowledgeBaseRepository.findByStatus(1)).thenReturn(List.of(lowScore, highScore));
-        when(knowledgeBaseRepository.findByCategory(anyString(), any())).thenReturn(new org.springframework.data.domain.PageImpl<>(List.of()));
         when(chatRecordRepository.save(any())).thenAnswer(inv -> {
             AiChatRecord r = inv.getArgument(0);
             r.setId(100L);

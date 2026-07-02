@@ -1,21 +1,22 @@
 package com.neusoft.cloud_brain_diagnosis.service;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.neusoft.cloud_brain_diagnosis.websocket.DoctorNotificationWebSocketHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-/**
- * NotificationService 单元测试 - WebSocket 推送通知
- */
 @ExtendWith(MockitoExtension.class)
 class NotificationServiceTest {
 
@@ -29,93 +30,60 @@ class NotificationServiceTest {
         notificationService = new NotificationService(webSocketHandler);
     }
 
-    // ========== notifyHighRiskMedication() ==========
-
     @Test
-    void notifyHighRiskMedication_ShouldSend_WhenDoctorOnline() {
+    void notifyHighRiskMedication_ShouldSendRejectPayload() {
         when(webSocketHandler.sendToDoctor(eq(10L), anyString())).thenReturn(true);
+        List<Map<String, Object>> warnings = List.of(Map.of("level", "high", "content", "risk"));
 
-        notificationService.notifyHighRiskMedication(10L, 1L,
-                List.of(Map.of("level", "high", "content", "剂量过大")),
-                "降低剂量");
+        notificationService.notifyHighRiskMedication(10L, 99L, warnings, "change dosage");
 
-        verify(webSocketHandler).sendToDoctor(eq(10L), contains("HIGH_RISK_MEDICATION"));
+        JSONObject payload = capturePayload();
+        assertEquals("HIGH_RISK_MEDICATION", payload.getStr("type"));
+        JSONObject data = payload.getJSONObject("data");
+        assertEquals(99L, data.getLong("reviewId"));
+        assertEquals("reject", data.getStr("reviewResult"));
+        assertEquals("change dosage", data.getStr("suggestions"));
+        assertNotNull(data.getStr("timestamp"));
     }
 
     @Test
-    void notifyHighRiskMedication_ShouldNotThrow_WhenDoctorOffline() {
-        when(webSocketHandler.sendToDoctor(eq(99L), anyString())).thenReturn(false);
+    void notifyMediumRiskMedication_ShouldSendWarningPayloadEvenWhenOffline() {
+        when(webSocketHandler.sendToDoctor(eq(11L), anyString())).thenReturn(false);
 
-        // Should not throw, just log debug
-        notificationService.notifyHighRiskMedication(99L, 1L,
-                List.of(Map.of("level", "high", "content", "风险")),
-                "建议");
+        notificationService.notifyMediumRiskMedication(11L, 100L, List.of(), "watch");
 
-        verify(webSocketHandler).sendToDoctor(eq(99L), contains("HIGH_RISK_MEDICATION"));
+        JSONObject payload = capturePayload();
+        assertEquals("MEDIUM_RISK_MEDICATION", payload.getStr("type"));
+        assertEquals("warning", payload.getJSONObject("data").getStr("reviewResult"));
     }
 
     @Test
-    void notifyHighRiskMedication_ShouldIncludeReviewId() {
-        when(webSocketHandler.sendToDoctor(eq(10L), anyString())).thenReturn(true);
+    void notify_ShouldIncludeExtraDataWhenProvided() {
+        Map<String, Object> data = Map.of("recordId", 123L, "flag", true);
 
-        notificationService.notifyHighRiskMedication(10L, 999L,
-                List.of(), "建议");
+        notificationService.notify(12L, "CUSTOM", "title", "content", data);
 
-        verify(webSocketHandler).sendToDoctor(eq(10L), contains("999"));
-    }
-
-    // ========== notifyMediumRiskMedication() ==========
-
-    @Test
-    void notifyMediumRiskMedication_ShouldSend_WhenDoctorOnline() {
-        when(webSocketHandler.sendToDoctor(eq(10L), anyString())).thenReturn(true);
-
-        notificationService.notifyMediumRiskMedication(10L, 2L,
-                List.of(Map.of("level", "medium", "content", "注意")),
-                "建议复核");
-
-        verify(webSocketHandler).sendToDoctor(eq(10L), contains("MEDIUM_RISK_MEDICATION"));
+        JSONObject payload = capturePayload();
+        assertEquals("CUSTOM", payload.getStr("type"));
+        assertEquals("title", payload.getStr("title"));
+        assertEquals("content", payload.getStr("content"));
+        assertEquals(123L, payload.getJSONObject("data").getLong("recordId"));
+        assertTrue(payload.getJSONObject("data").getBool("flag"));
+        assertNotNull(payload.getStr("timestamp"));
     }
 
     @Test
-    void notifyMediumRiskMedication_ShouldNotThrow_WhenDoctorOffline() {
-        when(webSocketHandler.sendToDoctor(eq(88L), anyString())).thenReturn(false);
+    void notify_ShouldOmitDataWhenExtraDataIsNull() {
+        notificationService.notify(13L, "CUSTOM", "title", "content", null);
 
-        notificationService.notifyMediumRiskMedication(88L, 2L,
-                List.of(), "建议");
-
-        verify(webSocketHandler).sendToDoctor(eq(88L), contains("MEDIUM_RISK_MEDICATION"));
+        JSONObject payload = capturePayload();
+        assertEquals("CUSTOM", payload.getStr("type"));
+        assertNull(payload.get("data"));
     }
 
-    // ========== notify() ==========
-
-    @Test
-    void notify_ShouldSend_WithExtraData() {
-        when(webSocketHandler.sendToDoctor(eq(5L), anyString())).thenReturn(true);
-
-        notificationService.notify(5L, "CUSTOM_TYPE", "自定义标题", "自定义内容",
-                Map.of("orderId", 123, "status", "pending"));
-
-        verify(webSocketHandler).sendToDoctor(eq(5L), argThat(json ->
-                json.contains("CUSTOM_TYPE") && json.contains("自定义标题")));
-    }
-
-    @Test
-    void notify_ShouldSend_WithoutExtraData() {
-        when(webSocketHandler.sendToDoctor(eq(5L), anyString())).thenReturn(true);
-
-        notificationService.notify(5L, "SIMPLE_TYPE", "标题", "内容", null);
-
-        verify(webSocketHandler).sendToDoctor(eq(5L), argThat(json ->
-                json.contains("SIMPLE_TYPE")));
-    }
-
-    @Test
-    void notify_ShouldNotThrow_WhenDoctorOffline() {
-        when(webSocketHandler.sendToDoctor(eq(77L), anyString())).thenReturn(false);
-
-        notificationService.notify(77L, "TYPE", "标题", "内容", null);
-
-        verify(webSocketHandler).sendToDoctor(eq(77L), anyString());
+    private JSONObject capturePayload() {
+        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        verify(webSocketHandler).sendToDoctor(anyLong(), captor.capture());
+        return JSONUtil.parseObj(captor.getValue());
     }
 }

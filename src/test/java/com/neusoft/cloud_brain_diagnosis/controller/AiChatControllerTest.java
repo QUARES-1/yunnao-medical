@@ -1,6 +1,7 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.AiChatRecord;
 import com.neusoft.cloud_brain_diagnosis.feign.AiChatFeignClient;
@@ -12,11 +13,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -38,13 +45,24 @@ class AiChatControllerTest {
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(1L);
+        when(chatFeignClient.getChatHistory(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(chatService.getChatHistory(1L, "patient", inv.getArgument(0), inv.getArgument(1))));
+        when(chatFeignClient.feedback(anyLong(), anyString()))
+                .thenAnswer(inv -> Result.success(chatService.feedback(inv.getArgument(0), inv.getArgument(1))));
+        when(chatFeignClient.getConsultHistory(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(chatService.getChatHistory(1L, "patient", inv.getArgument(0), inv.getArgument(1))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== chat() ==========
 
     @Test
     void chat_ShouldReturnAnswer() throws Exception {
-        when(chatService.chat(eq("如何挂号"), any(), isNull(), isNull()))
+        when(chatService.chat(eq("如何挂号"), any(), isNull(), eq("guest")))
                 .thenReturn(Map.of("answer", "您可以通过公众号挂号", "source", "knowledge"));
 
         mockMvc.perform(post("/api/ai/chat")
@@ -57,7 +75,7 @@ class AiChatControllerTest {
 
     @Test
     void chat_ShouldPassSessionId() throws Exception {
-        when(chatService.chat(eq("挂号"), eq("session-123"), isNull(), isNull()))
+        when(chatService.chat(eq("挂号"), eq("session-123"), isNull(), eq("guest")))
                 .thenReturn(Map.of("answer", "答案", "source", "ai"));
 
         mockMvc.perform(post("/api/ai/chat")
@@ -155,5 +173,69 @@ class AiChatControllerTest {
                         .header("Authorization", "Bearer patient-token"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.content[0].id").value(2));
+    }
+
+    @Test
+    void chat_ShouldReturnError_WhenQuestionIsBlank() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+
+        Result<Map<String, Object>> result = controller.chat(Map.of("question", "   "));
+
+        assertEquals(500, result.getCode());
+        verify(chatService, never()).chat(anyString(), anyString(), any(), anyString());
+    }
+
+    @Test
+    void healthConsult_ShouldReturnError_WhenQuestionIsBlank() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+
+        Result<Map<String, Object>> result = controller.healthConsult(Map.of("question", ""));
+
+        assertEquals(500, result.getCode());
+    }
+
+    @Test
+    void chatStream_ShouldReturnEmitter_ForValidAndBlankQuestion() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+        when(chatService.chat(eq("hello"), anyString(), isNull(), eq("guest")))
+                .thenReturn(Map.of("answer", "OK", "source", "unit-test"));
+
+        assertNotNull(controller.chatStream(Map.of("question", "hello")));
+        assertNotNull(controller.chatStream(Map.of("question", " ")));
+    }
+
+    @Test
+    void healthConsultStream_ShouldReturnEmitter_ForValidAndBlankQuestion() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+        when(chatService.healthConsult(eq("headache"), isNull(), eq(false)))
+                .thenReturn(Map.of("answer", "OK"));
+
+        assertNotNull(controller.healthConsultStream(Map.of("question", "headache", "includeHistory", false)));
+        assertNotNull(controller.healthConsultStream(Map.of("question", "")));
+    }
+
+    @Test
+    void streamAnswer_ShouldSendCharactersAndDoneEvent() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+
+        assertDoesNotThrow(() -> ReflectionTestUtils.invokeMethod(
+                controller,
+                "streamAnswer",
+                new SseEmitter(1000L),
+                Map.of("answer", "OK", "source", "unit-test")
+        ));
+    }
+
+    @Test
+    void sendError_ShouldIgnoreEmitterSendFailure() {
+        AiChatController controller = new AiChatController(chatFeignClient, chatService);
+        SseEmitter emitter = new SseEmitter(1000L) {
+            @Override
+            public void send(SseEmitter.SseEventBuilder builder) throws IOException {
+                throw new IOException("closed");
+            }
+        };
+
+        assertDoesNotThrow(() -> ReflectionTestUtils.invokeMethod(controller, "sendError", emitter, "failed"));
     }
 }

@@ -72,7 +72,7 @@ class RegistrationServiceTest {
         when(doctorRepository.findById(10L)).thenReturn(Optional.of(doctor));
         when(registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(10L, LocalDate.now().plusDays(1)))
                 .thenReturn(List.of());
-        when(registrationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(registrationRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Registration result = registrationService.createRegistration(input);
         assertEquals("患者张三", result.getPatientName());
@@ -202,7 +202,7 @@ class RegistrationServiceTest {
         when(doctorRepository.findById(10L)).thenReturn(Optional.of(doctor));
         when(registrationRepository.findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(10L, LocalDate.now().plusDays(1)))
                 .thenReturn(List.of(existing));
-        when(registrationRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        when(registrationRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
 
         Registration result = registrationService.createRegistration(input);
         assertEquals("待就诊", result.getStatus());

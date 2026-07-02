@@ -1,7 +1,9 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.FollowUpPlan;
 import com.neusoft.cloud_brain_diagnosis.entity.FollowUpRecord;
@@ -41,6 +43,30 @@ class FollowUpControllerTest {
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
         when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+        when(otherFeignClient.createFollowUpPlan(anyMap()))
+                .thenAnswer(inv -> success(followUpService.createPlan(inv.getArgument(0), jwtUtil.getUserIdFromToken(""))));
+        when(otherFeignClient.getPatientPlans(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(followUpService.getPatientPlans(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(otherFeignClient.getPendingRecords(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(followUpService.getPendingRecords(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(otherFeignClient.submitRecord(anyLong(), anyMap()))
+                .thenAnswer(inv -> Result.success(followUpService.submitRecord(inv.getArgument(0),
+                        String.valueOf((Object) inv.getArgument(1)), jwtUtil.getUserIdFromToken(""))));
+        when(otherFeignClient.getFollowUpDetail(anyLong()))
+                .thenAnswer(inv -> success(followUpService.getDetail(inv.getArgument(0))));
+        when(otherFeignClient.getDoctorFollowUpList(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(followUpService.getDoctorList(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(otherFeignClient.doctorReply(anyLong(), anyString()))
+                .thenAnswer(inv -> success(followUpService.doctorReply(inv.getArgument(0),
+                        inv.getArgument(1), jwtUtil.getUserIdFromToken(""))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== createPlan() ==========
@@ -121,6 +147,8 @@ class FollowUpControllerTest {
 
         when(followUpService.submitRecord(eq(1L), anyString(), eq(1L)))
                 .thenReturn("提交成功");
+        when(otherFeignClient.submitRecord(eq(1L), anyMap()))
+                .thenReturn(Result.success("提交成功"));
 
         mockMvc.perform(post("/api/follow-up/submit/1")
                         .contentType(MediaType.APPLICATION_JSON)

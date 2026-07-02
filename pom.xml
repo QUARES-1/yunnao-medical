@@ -162,14 +162,6 @@
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
 				<version>0.8.12</version>
-				<configuration>
-					<excludes>
-						<exclude>**/entity/**</exclude>
-						<exclude>**/enums/**</exclude>
-						<exclude>**/*Application.java</exclude>
-						<exclude>**/config/**</exclude>
-					</excludes>
-				</configuration>
 				<executions>
 					<execution>
 						<id>prepare-agent</id>
@@ -179,6 +171,7 @@
 						</goals>
 						<configuration>
 							<propertyName>argLine</propertyName>
+							<destFile>C:/tmp/cloud-brain-diagnosis-jacoco.exec</destFile>
 						</configuration>
 					</execution>
 					<execution>
@@ -187,6 +180,15 @@
 						<goals>
 							<goal>report</goal>
 						</goals>
+						<configuration>
+							<dataFile>C:/tmp/cloud-brain-diagnosis-jacoco.exec</dataFile>
+							<excludes>
+								<exclude>**/entity/**</exclude>
+								<exclude>**/enums/**</exclude>
+								<exclude>**/*Application*</exclude>
+								<exclude>**/config/**</exclude>
+							</excludes>
+						</configuration>
 					</execution>
 					<execution>
 						<id>check</id>
@@ -195,6 +197,13 @@
 							<goal>check</goal>
 						</goals>
 						<configuration>
+							<dataFile>C:/tmp/cloud-brain-diagnosis-jacoco.exec</dataFile>
+							<excludes>
+								<exclude>**/entity/**</exclude>
+								<exclude>**/enums/**</exclude>
+								<exclude>**/*Application*</exclude>
+								<exclude>**/config/**</exclude>
+							</excludes>
 							<rules>
 								<rule>
 									<element>BUNDLE</element>
@@ -202,7 +211,7 @@
 										<limit>
 											<counter>INSTRUCTION</counter>
 											<value>COVEREDRATIO</value>
-											<minimum>0.15</minimum>
+											<minimum>0.80</minimum>
 										</limit>
 									</limits>
 								</rule>
@@ -218,7 +227,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>3.2.5</version>
 				<configuration>
-					<argLine>${argLine}</argLine>
+					<argLine>@{argLine}</argLine>
 					<excludes>
 						<exclude>**/CloudBrainDiagnosisApplicationTests.java</exclude>
 					</excludes>

@@ -1,6 +1,7 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.QualityCheckDetail;
 import com.neusoft.cloud_brain_diagnosis.feign.AiOtherFeignClient;
@@ -35,7 +36,19 @@ class DoctorQualityCheckControllerTest {
     @BeforeEach
     void setUp() {
         when(jwtUtil.validateToken(anyString())).thenReturn(true);
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
         when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(otherFeignClient.getMyQualityList(anyInt(), anyInt()))
+                .thenAnswer(inv -> success(qualityService.getMyQualityList(jwtUtil.getUserIdFromToken(""),
+                        inv.getArgument(0), inv.getArgument(1))));
+        when(otherFeignClient.rectify(anyLong(), anyString()))
+                .thenAnswer(inv -> Result.success(qualityService.rectify(inv.getArgument(0),
+                        inv.getArgument(1), jwtUtil.getUserIdFromToken(""))));
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private Result<java.util.Map<String, Object>> success(Object data) {
+        return (Result) Result.success(data);
     }
 
     // ========== getMyQualityList ==========

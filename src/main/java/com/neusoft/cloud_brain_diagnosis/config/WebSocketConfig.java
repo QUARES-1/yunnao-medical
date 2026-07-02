@@ -3,6 +3,7 @@ package com.neusoft.cloud_brain_diagnosis.config;
 import com.neusoft.cloud_brain_diagnosis.websocket.DoctorNotificationWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -24,6 +25,7 @@ public class WebSocketConfig implements WebSocketConfigurer {
     }
 
     @Bean
+    @Profile("!test")
     public ServletServerContainerFactoryBean createWebSocketContainer() {
         ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
         container.setMaxTextMessageBufferSize(65536);

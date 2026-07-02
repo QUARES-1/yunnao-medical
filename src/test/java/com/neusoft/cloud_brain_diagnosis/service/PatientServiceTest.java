@@ -283,4 +283,140 @@ class PatientServiceTest {
             assertTrue(ex.getMessage().contains("微信登录失败"));
         }
     }
+
+    // ========== testLogin() - Edge Cases ==========
+
+    @Test
+    void testLogin_ShouldThrow_WhenAccountIsNull() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin(null, "password123"));
+        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenAccountIsBlank() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("   ", "password123"));
+        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenPasswordIsNull() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("account", null));
+        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenPasswordIsBlank() {
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("account", "   "));
+        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenAccountNotFound() {
+        when(patientRepository.findByLoginAccount("unknown")).thenReturn(Optional.empty());
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("unknown", "password"));
+        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenPasswordMismatch() {
+        Patient patient = new Patient();
+        patient.setId(1L);
+        patient.setName("Test");
+        patient.setPasswordHash("$2a$10$dummyhash");
+        when(patientRepository.findByLoginAccount("account")).thenReturn(Optional.of(patient));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("account", "wrongpassword"));
+        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+    }
+
+    @Test
+    void testLogin_ShouldThrow_WhenPasswordHashIsNull() {
+        Patient patient = new Patient();
+        patient.setId(1L);
+        patient.setName("Test");
+        patient.setPasswordHash(null);
+        when(patientRepository.findByLoginAccount("account")).thenReturn(Optional.of(patient));
+
+        BusinessException ex = assertThrows(BusinessException.class,
+                () -> patientService.testLogin("account", "anypassword"));
+        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+    }
+
+    // ========== wxLogin() - Edge Cases ==========
+
+    @Test
+    void wxLogin_ShouldThrow_WhenOpenidIsNull() {
+        try (var mockedStatic = mockStatic(cn.hutool.http.HttpUtil.class)) {
+            String wxResponse = "{\"openid\":null}";
+            mockedStatic.when(() -> cn.hutool.http.HttpUtil.get(anyString(), any(Map.class)))
+                    .thenReturn(wxResponse);
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> patientService.wxLogin("test_code"));
+            assertTrue(ex.getMessage().contains("微信授权失败"));
+        }
+    }
+
+    @Test
+    void wxLogin_ShouldThrow_WhenOpenidIsBlank() {
+        try (var mockedStatic = mockStatic(cn.hutool.http.HttpUtil.class)) {
+            String wxResponse = "{\"openid\":\"\"}";
+            mockedStatic.when(() -> cn.hutool.http.HttpUtil.get(anyString(), any(Map.class)))
+                    .thenReturn(wxResponse);
+
+            BusinessException ex = assertThrows(BusinessException.class,
+                    () -> patientService.wxLogin("test_code"));
+            assertTrue(ex.getMessage().contains("微信授权失败"));
+        }
+    }
+
+    @Test
+    void wxLogin_ShouldCreateNewPatient_WhenOpenidNotFound_AndNeedCompleteInfo() {
+        try (var mockedStatic = mockStatic(cn.hutool.http.HttpUtil.class)) {
+            String wxResponse = "{\"openid\":\"new_openid\"}";
+            mockedStatic.when(() -> cn.hutool.http.HttpUtil.get(anyString(), any(Map.class)))
+                    .thenReturn(wxResponse);
+
+            when(patientRepository.findByOpenid("new_openid")).thenReturn(Optional.empty());
+            when(patientRepository.save(any(Patient.class))).thenAnswer(inv -> {
+                Patient p = inv.getArgument(0);
+                p.setId(3L);
+                return p;
+            });
+            when(jwtUtil.generateToken(3L, "patient")).thenReturn("jwt_token");
+
+            Map<String, Object> result = patientService.wxLogin("test_code");
+            assertEquals("jwt_token", result.get("token"));
+            assertEquals(3L, result.get("patientId"));
+            assertEquals(true, result.get("needCompleteInfo"));
+        }
+    }
+
+    @Test
+    void wxLogin_ShouldNotNeedCompleteInfo_WhenPhoneExists() {
+        try (var mockedStatic = mockStatic(cn.hutool.http.HttpUtil.class)) {
+            String wxResponse = "{\"openid\":\"test_openid\"}";
+            mockedStatic.when(() -> cn.hutool.http.HttpUtil.get(anyString(), any(Map.class)))
+                    .thenReturn(wxResponse);
+
+            Patient existing = new Patient();
+            existing.setId(5L);
+            existing.setName("User");
+            existing.setOpenid("test_openid");
+            existing.setPhone("13800138000");
+
+            when(patientRepository.findByOpenid("test_openid")).thenReturn(Optional.of(existing));
+            when(jwtUtil.generateToken(5L, "patient")).thenReturn("jwt_token");
+
+            Map<String, Object> result = patientService.wxLogin("test_code");
+            assertEquals(false, result.get("needCompleteInfo"));
+        }
+    }
 }

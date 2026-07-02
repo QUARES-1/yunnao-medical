@@ -8,7 +8,11 @@ import org.springframework.test.context.ActiveProfiles;
  * 云脑诊疗平台 应用启动测试
  * 验证Spring上下文能正常加载所有Bean
  */
-@SpringBootTest
+@SpringBootTest(properties = {
+        "spring.autoconfigure.exclude=" +
+                "org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.websocket.reactive.WebSocketReactiveAutoConfiguration"
+})
 @ActiveProfiles("test")
 class CloudBrainDiagnosisApplicationTests {
 

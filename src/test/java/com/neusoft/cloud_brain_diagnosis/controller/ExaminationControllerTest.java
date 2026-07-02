@@ -5,6 +5,7 @@ import com.neusoft.cloud_brain_diagnosis.common.exception.BusinessException;
 import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
 import com.neusoft.cloud_brain_diagnosis.entity.Examination;
 import com.neusoft.cloud_brain_diagnosis.entity.ExaminationItem;
+import com.neusoft.cloud_brain_diagnosis.repository.ExaminationItemRepository;
 import com.neusoft.cloud_brain_diagnosis.service.ExaminationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,12 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * ExaminationController Web层测试
  * 覆盖：检查开立、取消、查询列表、详情、更新结果、项目列表
  */
-@WebMvcTest(ExaminationController.class)
+@WebMvcTest(value = ExaminationController.class, properties = {
+        "spring.autoconfigure.exclude=" +
+                "org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.websocket.reactive.WebSocketReactiveAutoConfiguration"
+})
 class ExaminationControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockBean private ExaminationService examinationService;
     @MockBean private JwtUtil jwtUtil;
+    @MockBean private ExaminationItemRepository examinationItemRepository;
 
     @BeforeEach
     void setUp() {
@@ -288,5 +294,145 @@ class ExaminationControllerTest {
         mockMvc.perform(get("/api/examination/item/list")
                         .param("type", "检查"))
                 .andExpect(status().isOk());
+    }
+
+    // ========== Reset demo data ==========
+
+    @Test
+    void resetDemoExaminationItems_ShouldReturnCount() throws Exception {
+        ExaminationItem item = new ExaminationItem();
+        item.setId(1L);
+        item.setName("Blood Test");
+
+        when(examinationItemRepository.saveAll(any())).thenReturn(List.of(item));
+
+        mockMvc.perform(post("/api/examination/item/reset-demo-data"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.count").value(1));
+    }
+
+    // ========== Update result with query params ==========
+
+    @Test
+    void updateResult_ShouldSucceed_WithQueryParams() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.LAB.getCode());
+
+        when(examinationService.updateResult(1L, "Test Result", null))
+                .thenReturn("Updated successfully");
+
+        mockMvc.perform(put("/api/examination/update-result")
+                        .param("id", "1")
+                        .param("result", "Test Result")
+                        .header("Authorization", "Bearer lab-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value("Updated successfully"));
+    }
+
+    @Test
+    void updateResult_ShouldSucceed_WithResultImages() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.LAB.getCode());
+
+        when(examinationService.updateResult(1L, "Test Result", "image1.jpg,image2.jpg"))
+                .thenReturn("Updated successfully");
+
+        mockMvc.perform(put("/api/examination/update-result")
+                        .param("id", "1")
+                        .param("result", "Test Result")
+                        .param("resultImages", "image1.jpg,image2.jpg")
+                        .header("Authorization", "Bearer lab-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value("Updated successfully"));
+    }
+
+    // ========== Lab list with custom pagination ==========
+
+    @Test
+    void getLabList_ShouldUseCustomPagination() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.LAB.getCode());
+
+        when(examinationService.getLabList(eq("已完成"), eq(2), eq(20)))
+                .thenReturn(new PageImpl<>(List.of(new Examination())));
+
+        mockMvc.perform(get("/api/examination/lab/list")
+                        .param("status", "已完成")
+                        .param("page", "2")
+                        .param("size", "20")
+                        .header("Authorization", "Bearer lab-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    // ========== Doctor list with custom pagination ==========
+
+    @Test
+    void getDoctorList_ShouldUseCustomPagination() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+
+        when(examinationService.getDoctorList(eq(10L), eq(2), eq(20)))
+                .thenReturn(new PageImpl<>(List.of(new Examination())));
+
+        mockMvc.perform(get("/api/examination/doctor/list")
+                        .param("page", "2")
+                        .param("size", "20")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    // ========== Patient list with custom pagination ==========
+
+    @Test
+    void getPatientList_ShouldUseCustomPagination() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.PATIENT.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(1L);
+
+        when(examinationService.getPatientList(eq(1L), eq(2), eq(20)))
+                .thenReturn(new PageImpl<>(List.of(new Examination())));
+
+        mockMvc.perform(get("/api/examination/patient/list")
+                        .param("page", "2")
+                        .param("size", "20")
+                        .header("Authorization", "Bearer patient-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content").isArray());
+    }
+
+    // ========== Get detail as doctor ==========
+
+    @Test
+    void getDetail_ShouldWorkForDoctor() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+
+        Examination exam = new Examination();
+        exam.setId(1L);
+        exam.setStatus("待检查");
+
+        when(examinationService.getDetail(1L, 10L, "doctor")).thenReturn(exam);
+
+        mockMvc.perform(get("/api/examination/detail/1")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1));
+    }
+
+    // ========== Get detail as lab ==========
+
+    @Test
+    void getDetail_ShouldWorkForLab() throws Exception {
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.LAB.getCode());
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(5L);
+
+        Examination exam = new Examination();
+        exam.setId(1L);
+        exam.setStatus("待检查");
+
+        when(examinationService.getDetail(1L, 5L, "lab")).thenReturn(exam);
+
+        mockMvc.perform(get("/api/examination/detail/1")
+                        .header("Authorization", "Bearer lab-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1));
     }
 }

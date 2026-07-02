@@ -68,4 +68,36 @@ class JwtUtilTest {
         String tampered = parts[0] + "." + parts[1] + ".invalidsignature";
         assertFalse(jwtUtil.validateToken(tampered));
     }
+
+    // ========== validateToken(token, userId) ==========
+
+    @Test
+    void validateTokenWithUserId_ShouldReturnTrue_WhenUserIdMatches() {
+        String token = jwtUtil.generateToken(42L, "doctor");
+        assertTrue(jwtUtil.validateToken(token, 42L));
+    }
+
+    @Test
+    void validateTokenWithUserId_ShouldReturnFalse_WhenUserIdDoesNotMatch() {
+        String token = jwtUtil.generateToken(42L, "doctor");
+        assertFalse(jwtUtil.validateToken(token, 99L));
+    }
+
+    @Test
+    void validateTokenWithUserId_ShouldReturnFalse_ForInvalidToken() {
+        assertFalse(jwtUtil.validateToken("invalid.token.here", 1L));
+    }
+
+    @Test
+    void validateTokenWithUserId_ShouldReturnFalse_ForEmptyToken() {
+        assertFalse(jwtUtil.validateToken("", 1L));
+    }
+
+    @Test
+    void validateTokenWithUserId_ShouldReturnFalse_ForTamperedToken() {
+        String token = jwtUtil.generateToken(42L, "admin");
+        String[] parts = token.split("\\.");
+        String tampered = parts[0] + "." + parts[1] + ".invalidsignature";
+        assertFalse(jwtUtil.validateToken(tampered, 42L));
+    }
 }

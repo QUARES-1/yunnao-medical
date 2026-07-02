@@ -1,0 +1,123 @@
+package com.neusoft.cloud_brain_diagnosis.controller;
+
+import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
+import com.neusoft.cloud_brain_diagnosis.common.util.JwtUtil;
+import com.neusoft.cloud_brain_diagnosis.entity.MedicalRecordAiGenerate;
+import com.neusoft.cloud_brain_diagnosis.feign.AiMedicalRecordFeignClient;
+import com.neusoft.cloud_brain_diagnosis.service.ai.AiMedicalRecordService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.Map;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(value = AiMedicalRecordController.class, properties = {
+        "spring.autoconfigure.exclude=" +
+                "org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration," +
+                "org.springframework.boot.autoconfigure.websocket.reactive.WebSocketReactiveAutoConfiguration"
+})
+class AiMedicalRecordControllerTest {
+
+    @Autowired private MockMvc mockMvc;
+    @MockBean private AiMedicalRecordFeignClient medicalRecordFeignClient;
+    @MockBean private AiMedicalRecordService medicalRecordService;
+    @MockBean private JwtUtil jwtUtil;
+
+    @BeforeEach
+    void setUp() {
+        when(jwtUtil.validateToken(anyString())).thenReturn(true);
+        when(jwtUtil.getUserIdFromToken(anyString())).thenReturn(10L);
+        when(jwtUtil.getRoleFromToken(anyString())).thenReturn(RoleEnum.DOCTOR.getCode());
+    }
+
+    // ========== generateRecord() ==========
+
+    @Test
+    void generateRecord_ShouldReturnGeneratedRecord() throws Exception {
+        when(medicalRecordService.generateRecord(eq(1L), eq("头痛3天"), eq("keyword"), eq(10L)))
+                .thenReturn(Map.of(
+                        "id", 100L,
+                        "chiefComplaint", "头痛3天",
+                        "presentIllness", "轻微头痛",
+                        "diagnosis", "偏头痛"
+                ));
+
+        mockMvc.perform(post("/api/medical-record/ai/generate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"patientId\":1,\"inputText\":\"头痛3天\",\"inputType\":\"keyword\"}")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.chiefComplaint").value("头痛3天"))
+                .andExpect(jsonPath("$.data.presentIllness").value("轻微头痛"))
+                .andExpect(jsonPath("$.data.diagnosis").value("偏头痛"));
+    }
+
+    @Test
+    void generateRecord_ShouldUseDefaultInputType() throws Exception {
+        when(medicalRecordService.generateRecord(eq(1L), eq("测试"), eq("keyword"), eq(10L)))
+                .thenReturn(Map.of("id", 100L));
+
+        mockMvc.perform(post("/api/medical-record/ai/generate")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"patientId\":1,\"inputText\":\"测试\"}")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk());
+    }
+
+    // ========== getGenerateList() ==========
+
+    @Test
+    void getGenerateList_ShouldReturnPage() throws Exception {
+        MedicalRecordAiGenerate gen = new MedicalRecordAiGenerate();
+        gen.setId(1L);
+        gen.setPatientId(1L);
+
+        when(medicalRecordService.getGenerateList(eq(10L), eq(1), eq(10)))
+                .thenReturn(new PageImpl<>(List.of(gen)));
+
+        mockMvc.perform(get("/api/medical-record/ai/generate-list")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.content[0].id").value(1));
+    }
+
+    @Test
+    void getGenerateList_ShouldSupportPagination() throws Exception {
+        when(medicalRecordService.getGenerateList(eq(10L), eq(2), eq(20)))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        mockMvc.perform(get("/api/medical-record/ai/generate-list")
+                        .param("page", "2")
+                        .param("size", "20")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk());
+    }
+
+    // ========== getGenerateDetail() ==========
+
+    @Test
+    void getGenerateDetail_ShouldReturnRecord() throws Exception {
+        MedicalRecordAiGenerate gen = new MedicalRecordAiGenerate();
+        gen.setId(1L);
+        gen.setGeneratedChiefComplaint("头痛");
+
+        when(medicalRecordService.getGenerateDetail(1L)).thenReturn(gen);
+
+        mockMvc.perform(get("/api/medical-record/ai/generate/1")
+                        .header("Authorization", "Bearer doctor-token"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.id").value(1))
+                .andExpect(jsonPath("$.data.generatedChiefComplaint").value("头痛"));
+    }
+}

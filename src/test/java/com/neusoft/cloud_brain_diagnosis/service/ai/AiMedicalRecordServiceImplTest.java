@@ -122,4 +122,60 @@ class AiMedicalRecordServiceImplTest {
 
         assertThrows(BusinessException.class, () -> medicalRecordService.getGenerateDetail(99L));
     }
+
+    // ========== Branch Coverage ==========
+
+    @Test
+    void generateRecord_ShouldHandleNullDoctorId() {
+        when(promptTemplateService.getMedicalRecordTemplate(eq(null), any()))
+                .thenReturn(Map.of("system", "sys", "user", "user"));
+        when(aiApiUtil.callAi(anyString(), anyString()))
+                .thenReturn("{\"chiefComplaint\":\"主诉\",\"presentIllness\":\"现病史\"}");
+        when(generateRepository.save(any())).thenAnswer(inv -> {
+            MedicalRecordAiGenerate g = inv.getArgument(0);
+            g.setId(100L);
+            return g;
+        });
+
+        Map<String, Object> result = medicalRecordService.generateRecord(1L, "头痛", "keyword", null);
+
+        assertNotNull(result.get("id"));
+        assertEquals("", result.get("chiefComplaint"));
+    }
+
+    @Test
+    void generateRecord_ShouldHandleDoctorRepositoryException() {
+        when(doctorRepository.findById(10L)).thenThrow(new RuntimeException("DB error"));
+        when(promptTemplateService.getMedicalRecordTemplate(any(), any()))
+                .thenReturn(Map.of("system", "sys", "user", "user"));
+        when(aiApiUtil.callAi(anyString(), anyString()))
+                .thenReturn("{\"chiefComplaint\":\"主诉\",\"presentIllness\":\"现病史\"}");
+        when(generateRepository.save(any())).thenAnswer(inv -> {
+            MedicalRecordAiGenerate g = inv.getArgument(0);
+            g.setId(100L);
+            return g;
+        });
+
+        // Should not throw, getDoctorDepartmentName catches exception and returns null
+        Map<String, Object> result = medicalRecordService.generateRecord(1L, "头痛", "keyword", 10L);
+
+        assertNotNull(result.get("id"));
+    }
+
+    @Test
+    void generateRecord_ShouldHandleNullInputText() {
+        when(promptTemplateService.getMedicalRecordTemplate(eq(null), eq(null)))
+                .thenReturn(Map.of("system", "sys", "user", "user"));
+        when(aiApiUtil.callAi(anyString(), anyString()))
+                .thenReturn("{\"chiefComplaint\":\"\",\"presentIllness\":\"\"}");
+        when(generateRepository.save(any())).thenAnswer(inv -> {
+            MedicalRecordAiGenerate g = inv.getArgument(0);
+            g.setId(100L);
+            return g;
+        });
+
+        Map<String, Object> result = medicalRecordService.generateRecord(1L, null, null, 10L);
+
+        assertNotNull(result.get("id"));
+    }
 }

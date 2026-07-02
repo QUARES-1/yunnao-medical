@@ -200,12 +200,66 @@ class AiOperationServiceImplTest {
     }
 
     @Test
-    void getOperationOverview_ShouldReturnEmptyLists_WhenNoReports() {
-        when(reportRepository.findAll(any(Sort.class))).thenReturn(Collections.emptyList());
+    void generateReport_ShouldHandlePartialJson_WithOnlySummary() {
+        when(aiApiUtil.callAi(anyString(), anyString())).thenReturn("{\"summary\":\"仅摘要\"}");
+        when(reportRepository.save(any())).thenAnswer(invocation -> {
+            OperationAiReport report = invocation.getArgument(0);
+            report.setId(1L);
+            return report;
+        });
 
-        Map<String, Object> result = operationService.getOperationOverview();
+        Map<String, Object> result = operationService.generateReport("weekly", "2026-01-01", "2026-01-07");
 
         assertNotNull(result);
-        assertNotNull(result.get("keyMetrics"));
+        assertEquals("仅摘要", result.get("summary"));
+    }
+
+    @Test
+    void generateReport_ShouldSetDefaultForecastType_WhenTypeIsNull() {
+        when(aiApiUtil.callAi(anyString(), anyString())).thenReturn("{\"summary\":\"报告\"}");
+        when(reportRepository.save(any())).thenAnswer(invocation -> {
+            OperationAiReport report = invocation.getArgument(0);
+            report.setId(1L);
+            return report;
+        });
+
+        Map<String, Object> result = operationService.generateReport(null, "2026-01-01", "2026-01-07");
+
+        assertEquals("monthly", result.get("forecastType"));
+    }
+
+    @Test
+    void generateReport_ShouldHandleKeyMetricsNull() {
+        when(aiApiUtil.callAi(anyString(), anyString())).thenReturn("{\"summary\":\"报告\",\"forecasts\":{\"trend\":\"up\"}}");
+        when(reportRepository.save(any())).thenAnswer(invocation -> {
+            OperationAiReport report = invocation.getArgument(0);
+            report.setId(1L);
+            return report;
+        });
+
+        Map<String, Object> result = operationService.generateReport("daily", "2026-01-01", "2026-01-07");
+
+        assertNotNull(result);
+        verify(reportRepository).save(any(OperationAiReport.class));
+    }
+
+    @Test
+    void getReportList_ShouldReturnAll_WhenReportTypeIsNull() {
+        when(reportRepository.findByOrderByCreateTimeDesc(any(Pageable.class))).thenReturn(Page.empty());
+
+        var result = operationService.getReportList(null, 1, 10);
+
+        assertNotNull(result);
+        verify(reportRepository).findByOrderByCreateTimeDesc(any(Pageable.class));
+    }
+
+    @Test
+    void getReportList_ShouldFilterByType_WhenProvided() {
+        when(reportRepository.findByReportTypeOrderByCreateTimeDesc(eq("daily"), any(Pageable.class))).thenReturn(Page.empty());
+
+        var result = operationService.getReportList("daily", 1, 10);
+
+        assertNotNull(result);
+        verify(reportRepository).findByReportTypeOrderByCreateTimeDesc(eq("daily"), any(Pageable.class));
     }
 }

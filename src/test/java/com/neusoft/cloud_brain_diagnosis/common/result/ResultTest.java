@@ -89,4 +89,39 @@ class ResultTest {
         assertEquals("Custom", result.getMsg());
         assertEquals("Data", result.getData());
     }
+
+    @Test
+    void lombokGeneratedMethods_ShouldCoverEqualsHashCodeAndToString() {
+        Result<String> first = new Result<>(200, "OK", "data");
+        Result<String> same = new Result<>(200, "OK", "data");
+        Result<String> differentCode = new Result<>(201, "OK", "data");
+        Result<String> differentMsg = new Result<>(200, "Created", "data");
+        Result<String> differentData = new Result<>(200, "OK", "other");
+
+        assertEquals(first, first);
+        assertEquals(first, same);
+        assertEquals(first.hashCode(), same.hashCode());
+        assertNotEquals(first, null);
+        assertNotEquals(first, "not a result");
+        assertNotEquals(first, differentCode);
+        assertNotEquals(first, differentMsg);
+        assertNotEquals(first, differentData);
+        assertTrue(first.toString().contains("code=200"));
+        assertTrue(first.canEqual(same));
+    }
+
+    @Test
+    void lombokEquals_ShouldHandleNullFields() {
+        Result<String> empty = new Result<>();
+        Result<String> sameEmpty = new Result<>();
+        Result<String> withCode = new Result<>(200, null, null);
+        Result<String> withMsg = new Result<>(null, "OK", null);
+        Result<String> withData = new Result<>(null, null, "data");
+
+        assertEquals(empty, sameEmpty);
+        assertEquals(empty.hashCode(), sameEmpty.hashCode());
+        assertNotEquals(empty, withCode);
+        assertNotEquals(empty, withMsg);
+        assertNotEquals(empty, withData);
+    }
 }

@@ -59,6 +59,50 @@
             </el-form-item>
             <el-alert v-else type="info" :closable="false" :description="readonlyMessage" style="max-width:600px" />
           </el-form>
+
+          <!-- AI 病历生成面板 -->
+          <div v-if="!isReadonly" class="ai-panel">
+            <div class="ai-panel-header">
+              <span class="ai-icon">🤖</span>
+              <span>AI 辅助诊疗</span>
+              <el-tag size="small" type="success">DeepSeek</el-tag>
+            </div>
+            <div class="ai-panel-body">
+              <el-input
+                v-model="aiInputText"
+                type="textarea"
+                :rows="3"
+                placeholder="请输入患者症状描述，如：患者女，28岁，咳嗽伴有发烧三天，体温38.5℃..."
+                :disabled="aiGenerating"
+              />
+              <div class="ai-actions">
+                <el-button
+                  type="primary"
+                  :loading="aiGenerating"
+                  :disabled="!aiInputText.trim()"
+                  @click="handleAiGenerate"
+                  class="ai-generate-btn"
+                >
+                  {{ aiGenerating ? 'AI 分析中...' : '🤖 AI 生成病历' }}
+                </el-button>
+              </div>
+              <!-- AI 生成结果展示 -->
+              <div v-if="aiGeneratedRecord" class="ai-result-card">
+                <div class="ai-result-header">
+                  <span>✅ AI 生成结果</span>
+                  <el-button type="success" size="small" @click="applyAiRecord">应用到表单</el-button>
+                </div>
+                <el-descriptions :column="2" border size="small">
+                  <el-descriptions-item label="主诉" :span="2">{{ aiGeneratedRecord.chiefComplaint || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="现病史" :span="2">{{ aiGeneratedRecord.presentIllness || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="既往史" :span="2">{{ aiGeneratedRecord.pastHistory || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="体格检查" :span="2">{{ aiGeneratedRecord.physicalExamination || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="诊断结果">{{ aiGeneratedRecord.diagnosis || '-' }}</el-descriptions-item>
+                  <el-descriptions-item label="治疗意见">{{ aiGeneratedRecord.treatment || '-' }}</el-descriptions-item>
+                </el-descriptions>
+              </div>
+            </div>
+          </div>
         </el-tab-pane>
 
         <!-- 开检查 -->
@@ -193,7 +237,7 @@
                   </el-table-column>
                 </el-table>
                 <div class="total-amount">合计：<b>¥{{ totalAmount }}</b></div>
-                <el-button type="primary" @click="submitPrescription" :loading="savingPrescription" style="margin-top:12px">
+                <el-button type="primary" @click="submitPrescriptionWithAiReview" :loading="savingPrescription" style="margin-top:12px">
                   提交处方
                 </el-button>
               </div>
@@ -204,6 +248,60 @@
         </el-tab-pane>
       </el-tabs>
     </el-card>
+
+    <!-- AI 处方审核弹窗 -->
+    <el-dialog v-model="aiReviewDialogVisible" title="🤖 AI 处方审核" width="600px" :close-on-click-modal="false">
+      <div v-if="aiReviewResult">
+        <div class="review-score">
+          <span>AI 审核评分：</span>
+          <span class="score-value" :class="aiReviewResult.reviewScore >= 80 ? 'score-pass' : 'score-fail'">
+            {{ aiReviewResult.reviewScore }} / 100
+          </span>
+        </div>
+        <div class="review-status">
+          <el-tag :type="isAiReviewPassed(aiReviewResult) ? 'success' : 'warning'" size="large">
+            {{ isAiReviewPassed(aiReviewResult) ? '✅ 审核通过，处方合理' : '⚠️ 存在风险，建议复核' }}
+          </el-tag>
+        </div>
+        <div v-if="aiReviewResult.warnings && aiReviewResult.warnings.length > 0" class="review-warnings">
+          <h4>⚠️ 警告信息</h4>
+          <ul>
+            <li v-for="(w, idx) in aiReviewResult.warnings" :key="idx">{{ w.content || w }}</li>
+          </ul>
+        </div>
+        <div v-if="aiReviewResult.drugInteractions && aiReviewResult.drugInteractions.length > 0" class="review-warnings review-warnings--orange">
+          <h4>💊 配伍/相互作用</h4>
+          <ul>
+            <li v-for="(w, idx) in aiReviewResult.drugInteractions" :key="idx">{{ formatReviewIssue(w) }}</li>
+          </ul>
+        </div>
+        <div v-if="aiReviewResult.dosageIssues && aiReviewResult.dosageIssues.length > 0" class="review-warnings">
+          <h4>📏 剂量风险</h4>
+          <ul>
+            <li v-for="(w, idx) in aiReviewResult.dosageIssues" :key="idx">{{ formatReviewIssue(w) }}</li>
+          </ul>
+        </div>
+        <div v-if="aiReviewResult.allergyRisks && aiReviewResult.allergyRisks.length > 0" class="review-warnings">
+          <h4>🧬 过敏风险</h4>
+          <ul>
+            <li v-for="(w, idx) in aiReviewResult.allergyRisks" :key="idx">{{ formatReviewIssue(w) }}</li>
+          </ul>
+        </div>
+        <div v-if="aiReviewResult.suggestions" class="review-suggestions">
+          <h4>💡 修改建议</h4>
+          <p>{{ aiReviewResult.suggestions }}</p>
+        </div>
+      </div>
+      <div v-else class="review-loading">
+        <el-icon class="is-loading"><component is="Loading" /></el-icon>
+        <span>AI 正在审核处方中...</span>
+      </div>
+      <template #footer>
+        <el-button @click="aiReviewDialogVisible = false">返回修改处方</el-button>
+        <el-button type="warning" @click="confirmPrescriptionAfterReview('skip')">忽略风险，继续提交</el-button>
+        <el-button type="primary" @click="confirmPrescriptionAfterReview('ok')">确认提交处方</el-button>
+      </template>
+    </el-dialog>
 
     <!-- 完成看诊按钮 -->
     <div class="complete-bar" v-if="registration?.status === '就诊中'">
@@ -232,7 +330,10 @@ import {
   cancelPrescription,
   completeConsultation,
   getExaminationsByRegistration,
-  getPrescriptionsByRegistration
+  getPrescriptionsByRegistration,
+  aiGenerateRecord,
+  aiCheckPrescription,
+  aiGenerateRecordStream
 } from '../../api/doctor'
 
 const route = useRoute()
@@ -280,6 +381,14 @@ const savingPrescription = ref(false)
 const completing = ref(false)
 const existingPrescriptions = ref([])
 
+// AI 相关状态
+const aiInputText = ref('')
+const aiGenerating = ref(false)
+const aiGeneratedRecord = ref(null)
+const aiReviewDialogVisible = ref(false)
+const aiReviewResult = ref(null)
+const aiReviewing = ref(false)
+
 const totalAmount = computed(() => {
   return prescriptionDrugs.value.reduce((sum, d) => sum + d.price * d.quantity, 0).toFixed(2)
 })
@@ -294,6 +403,14 @@ const formatTime = (time) => {
   return new Date(time).toLocaleString('zh-CN')
 }
 const examStatusType = status => ({ '已完成': 'success', '待检查': 'warning', '已撤销': 'info' }[status] || 'info')
+const isAiReviewPassed = result => ['safe', 'pass', 'passed', '通过', '审核通过'].includes(result?.reviewResult)
+const formatReviewIssue = item => {
+  if (!item) return ''
+  if (typeof item === 'string') return item
+  const drug = item.drug || item.medicineName || item.name
+  const issue = item.content || item.issue || item.reason || item.message || JSON.stringify(item)
+  return drug ? `${drug}：${issue}` : issue
+}
 
 // 解析处方里的 drugs JSON 字符串
 const parseDrugs = (drugsStr) => {
@@ -441,7 +558,172 @@ const removeDrug = (index) => {
 
 const calcTotal = () => {}
 
-// 提交处方
+// AI 生成病历（SSE 流式）
+const handleAiGenerate = async () => {
+  if (!aiInputText.value.trim()) {
+    ElMessage.warning('请输入患者症状描述')
+    return
+  }
+  aiGenerating.value = true
+  aiGeneratedRecord.value = {
+    chiefComplaint: '',
+    presentIllness: '',
+    pastHistory: '',
+    physicalExamination: '',
+    diagnosis: '',
+    treatment: ''
+  }
+  try {
+    const response = await aiGenerateRecordStream({
+      patientId: registration.value?.patientId,
+      inputText: aiInputText.value,
+      inputType: 'symptom'
+    })
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      // 解析 SSE 事件（以 \n\n 分隔）
+      while (true) {
+        const idx = buffer.indexOf('\n\n')
+        if (idx < 0) break
+        const eventText = buffer.slice(0, idx)
+        buffer = buffer.slice(idx + 2)
+        let eventName = ''
+        let eventData = ''
+        for (const rawLine of eventText.split('\n')) {
+          const line = rawLine.replace(/\r$/, '')
+          if (line.startsWith('event:')) {
+            eventName = line.slice(6).trim()
+          } else if (line.startsWith('data:')) {
+            eventData += line.slice(5).trim()
+          }
+        }
+        if (eventName && eventData) {
+          try {
+            const data = JSON.parse(eventData)
+            if (eventName === 'data' && data.field && data.char !== undefined) {
+              if (!aiGeneratedRecord.value[data.field]) aiGeneratedRecord.value[data.field] = ''
+              aiGeneratedRecord.value[data.field] += data.char
+            }
+            if (eventName === 'complete' && data.status === 'complete') {
+              ElMessage.success('AI 病历生成完成')
+            }
+          } catch (e) {
+            // 忽略解析失败的行
+          }
+        }
+      }
+    }
+  } catch (e) {
+    ElMessage.error('AI 流式生成失败：' + (e.message || '请检查后端服务'))
+    // 降级为普通 API
+    try {
+      aiGenerating.value = true
+      const res = await aiGenerateRecord({
+        patientId: registration.value?.patientId,
+        inputText: aiInputText.value,
+        inputType: 'symptom'
+      })
+      aiGeneratedRecord.value = res.data
+      ElMessage.success('AI 病历生成完成（降级模式）')
+    } catch (e2) {
+      ElMessage.error('降级调用也失败：' + (e2.message || '请检查后端服务'))
+    }
+  } finally {
+    aiGenerating.value = false
+  }
+}
+
+// 将AI生成的病历应用到表单
+const applyAiRecord = () => {
+  if (!aiGeneratedRecord.value) return
+  const fields = ['chiefComplaint', 'presentIllness', 'pastHistory', 'physicalExamination', 'diagnosis', 'treatment']
+  fields.forEach(f => {
+    if (aiGeneratedRecord.value[f]) {
+      recordForm[f] = aiGeneratedRecord.value[f]
+    }
+  })
+  ElMessage.success('AI 生成内容已应用到表单，请核对后保存')
+}
+
+// 带AI审核的处方提交
+const submitPrescriptionWithAiReview = async () => {
+  if (prescriptionDrugs.value.some(d => !d.dosage)) {
+    ElMessage.warning('请填写所有药品的用法用量')
+    return
+  }
+  if (prescriptionDrugs.value.some(d => d.quantity < 1 || d.quantity > d.stock)) {
+    ElMessage.warning('处方数量不能超过当前药品库存')
+    return
+  }
+  // 打开 AI 审核弹窗
+  aiReviewDialogVisible.value = true
+  aiReviewResult.value = null
+  aiReviewing.value = true
+  try {
+    const drugs = prescriptionDrugs.value.map(d => ({
+      medicineName: d.medicineName,
+      specification: d.specification,
+      quantity: d.quantity,
+      unit: d.unit,
+      dosage: d.dosage
+    }))
+    const res = await aiCheckPrescription({
+      patientId: registration.value?.patientId,
+      patientAge: registration.value?.patientAge,
+      patientGender: registration.value?.patientGender,
+      drugs
+    })
+    aiReviewResult.value = res.data
+  } catch (e) {
+    aiReviewResult.value = {
+      reviewResult: 'manual',
+      reviewScore: 0,
+      warnings: [{ content: 'AI审核接口异常：' + (e.message || '未知错误') }],
+      suggestions: '请人工审核处方'
+    }
+  } finally {
+    aiReviewing.value = false
+  }
+}
+
+// AI审核后确认提交
+const confirmPrescriptionAfterReview = async (action) => {
+  aiReviewDialogVisible.value = false
+  if (action === 'skip') {
+    // 忽略风险直接提交
+    await doSubmitPrescription()
+  } else {
+    await doSubmitPrescription()
+  }
+}
+
+// 实际提交处方
+const doSubmitPrescription = async () => {
+  savingPrescription.value = true
+  try {
+    const drugs = prescriptionDrugs.value.map(({ price, stock, ...rest }) => rest)
+    await createPrescription({
+      registrationId: Number(regId),
+      drugs: JSON.stringify(drugs),
+      totalAmount: parseFloat(totalAmount.value)
+    })
+    ElMessage.success('处方开具成功')
+    prescriptionDrugs.value = []
+    await loadExistingPrescriptions()
+  } finally {
+    savingPrescription.value = false
+  }
+}
+
+// 提交处方（原始方法，保留兼容）
 const submitPrescription = async () => {
   if (prescriptionDrugs.value.some(d => !d.dosage)) {
     ElMessage.warning('请填写所有药品的用法用量')
@@ -577,4 +859,130 @@ onMounted(loadPage)
 .exam-section :deep(.el-table),.prescription-section :deep(.el-table){border-radius:12px;overflow:hidden}.exam-section :deep(.el-table th.el-table__cell),.prescription-section :deep(.el-table th.el-table__cell){background:#f6f9fa;color:#687f87;font-size:12px}.exam-section :deep(.el-button--primary),.prescription-section :deep(.el-button--primary){border:0;border-radius:9px;background:linear-gradient(135deg,#087f84,#16a393)}.drugs-title{padding-left:10px;border-left:3px solid #16a293}.complete-bar{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding:17px 20px;border:1px solid #d9e9e7;border-radius:16px;background:linear-gradient(100deg,#eff9f6,#f8fcfb);box-shadow:0 7px 20px rgba(26,67,81,.05)}.complete-bar>div{display:flex;align-items:center;gap:8px;color:#71878e;font-size:11px}.complete-bar>div .el-icon{color:#138f80;font-size:17px}.complete-bar .el-button{border:0;border-radius:11px;background:linear-gradient(135deg,#087f84,#16a393);box-shadow:0 8px 18px rgba(8,127,132,.18)}@media(max-width:800px){.hero-number{display:none}.record-form{grid-template-columns:1fr}.record-form :deep(.el-form-item:nth-child(n)){grid-column:auto}.complete-bar{align-items:stretch;flex-direction:column;gap:14px}}
 .consultation-page{min-width:0;max-width:100%;overflow-x:hidden}.patient-card,.workspace-card{min-width:0}.exam-section,.prescription-section{min-width:0;max-width:100%;overflow:hidden}.exam-section :deep(.el-table),.prescription-section :deep(.el-table){max-width:100%}.quantity-input{width:105px}.quantity-input :deep(.el-input__wrapper){padding-left:8px;padding-right:30px}
 .section-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}.section-heading .section-title{margin-bottom:0}.section-heading .el-button{border-radius:9px;color:#087f84}.print-btn{height:32px!important;padding:0 14px!important;border:1px solid #0c938d!important;border-radius:9px!important;background:#e9f8f5!important;color:#087f84!important;font-weight:700!important;box-shadow:0 4px 10px rgba(8,127,132,.12)}.print-btn:hover{background:#0b928b!important;color:#fff!important;transform:translateY(-1px)}
+
+/* AI 面板样式 */
+.ai-panel {
+  margin-top: 20px;
+  border: 1px solid #d5edeb;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f6fdfc, #edf8f6);
+  overflow: hidden;
+}
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #087f84, #16a393);
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+.ai-panel-header .ai-icon {
+  font-size: 20px;
+}
+.ai-panel-header .el-tag {
+  margin-left: auto;
+}
+.ai-panel-body {
+  padding: 16px 18px;
+}
+.ai-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+.ai-generate-btn {
+  border: 0 !important;
+  border-radius: 9px !important;
+  background: linear-gradient(135deg, #087f84, #16a393) !important;
+  box-shadow: 0 6px 16px rgba(8,127,132,.2) !important;
+}
+.ai-result-card {
+  margin-top: 16px;
+  border: 1px solid #c8e6e1;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+.ai-result-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #eaf8f5;
+  font-weight: 600;
+  color: #087f84;
+  border-bottom: 1px solid #d5edeb;
+}
+
+/* AI 审核弹窗样式 */
+.review-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.score-value {
+  font-size: 28px;
+}
+.score-pass { color: #67c23a; }
+.score-fail { color: #f56c6c; }
+.review-status {
+  margin-bottom: 16px;
+}
+.review-warnings {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fef0f0;
+  border-radius: 8px;
+  border-left: 4px solid #f56c6c;
+}
+.review-warnings--orange {
+  background: #fff7e8;
+  border-left-color: #e6a23c;
+}
+.review-warnings h4 {
+  margin: 0 0 8px 0;
+  color: #f56c6c;
+}
+.review-warnings ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.review-warnings li {
+  line-height: 1.8;
+  color: #606266;
+}
+.review-suggestions {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #ecf5ff;
+  border-radius: 8px;
+  border-left: 4px solid #409eff;
+}
+.review-suggestions h4 {
+  margin: 0 0 8px 0;
+  color: #409eff;
+}
+.review-suggestions p {
+  margin: 0;
+  color: #606266;
+  white-space: pre-wrap;
+}
+.review-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 40px;
+  color: #909399;
+  font-size: 15px;
+}
 </style>
+
+
+
+

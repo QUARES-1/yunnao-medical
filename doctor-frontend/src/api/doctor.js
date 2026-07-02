@@ -104,3 +104,24 @@ export const getPrescriptionsByRegistration = (regId) =>
 // 处方详情
 export const getPrescriptionDetail = (id) =>
   request.get(`/api/prescription/detail/${id}`)
+
+// AI 生成病历
+export const aiGenerateRecord = (data) =>
+  request.post('/api/medical-record/ai/generate', data)
+
+// AI 处方审核
+export const aiCheckPrescription = (data) =>
+  request.post('/api/prescription/ai/check', data)
+
+// AI 流式生成病历 (SSE)
+export const aiGenerateRecordStream = (data) => {
+  const token = localStorage.getItem('token')
+  return fetch('http://localhost:8080/api/medical-record/ai/generate-stream', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'token': token
+    },
+    body: JSON.stringify(data)
+  })
+}

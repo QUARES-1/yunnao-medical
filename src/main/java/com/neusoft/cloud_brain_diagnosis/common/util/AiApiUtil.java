@@ -94,6 +94,9 @@ public class AiApiUtil {
         if (systemPrompt.contains("用药指导") || systemPrompt.contains("medication")) {
             return mockMedicationGuide();
         }
+        if (systemPrompt.contains("检验审核") || systemPrompt.contains("检验科审核") || systemPrompt.contains("examination review")) {
+            return mockExaminationReview(prompt);
+        }
         if (systemPrompt.contains("检验") || systemPrompt.contains("examination") || systemPrompt.contains("interpret")) {
             return mockExaminationInterpret();
         }
@@ -115,9 +118,7 @@ public class AiApiUtil {
         if (systemPrompt.contains("库存") || systemPrompt.contains("stock")) {
             return mockStockForecast();
         }
-        if (systemPrompt.contains("检验审核") || systemPrompt.contains("examination review")) {
-            return mockExaminationReview();
-        }
+        
         // 通用问答
         return mockGeneralChat(prompt);
     }
@@ -240,10 +241,16 @@ public class AiApiUtil {
 
     private String mockStockForecast() {
         return "{\"forecastData\":[{\"medicineId\":1,\"name\":\"阿莫西林胶囊\",\"currentStock\":200,\"forecastConsume\":350,\"suggestPurchase\":200,\"unit\":\"盒\"},{\"medicineId\":5,\"name\":\"布洛芬缓释胶囊\",\"currentStock\":300,\"forecastConsume\":280,\"suggestPurchase\":0,\"unit\":\"盒\"}],\"purchaseSuggestions\":[\"夏季胃肠道疾病增多，建议增加蒙脱石散、益生菌库存\",\"抗生素类药品需求稳定，按常规量采购即可\"],\"factors\":[\"夏季来临，呼吸系统药品需求增加\",\"流感季已过，抗病毒药品需求减少\"],\"totalForecastAmount\":85600.00,\"totalPurchaseAmount\":42300.00}";
-    }
-
-    private String mockExaminationReview() {
-        return "{\"reviewResult\":\"manual\",\"reviewScore\":70,\"abnormalItems\":[{\"name\":\"白细胞计数\",\"value\":\"15.2\",\"unit\":\"×10^9/L\",\"reference\":\"4.0-10.0\",\"status\":\"偏高\",\"level\":\"moderate\"}],\"logicIssues\":[{\"level\":\"info\",\"content\":\"白细胞分类百分比总和在合理范围内\"}],\"historyCompare\":[{\"item\":\"白细胞计数\",\"lastValue\":\"8.5\",\"currentValue\":\"15.2\",\"change\":\"+78.8%\",\"level\":\"significant\"}],\"warnings\":[{\"level\":\"medium\",\"content\":\"白细胞显著升高，提示严重细菌感染，建议人工复核\"}],\"suggestions\":\"结果显示明显细菌感染，建议人工复核确认后发报告。\"}";
+    }
+    private String mockExaminationReview(String prompt) {
+        String text = prompt == null ? "" : prompt;
+        if (containsAny(text, "离谱", "无法识别", "溶血", "污染", "明显不符", "C反应蛋白")) {
+            return "{\"reviewResult\":\"reject\",\"reviewScore\":58,\"abnormalItems\":[{\"name\":\"C反应蛋白\",\"value\":\"明显异常/与临床不符\",\"unit\":\"mg/L\",\"reference\":\"0-10\",\"status\":\"偏高\",\"level\":\"severe\"}],\"logicIssues\":[{\"level\":\"high\",\"content\":\"结果与样本状态或其他炎症指标不匹配，存在机器读数或样本污染可能\"}],\"historyCompare\":[{\"item\":\"C反应蛋白\",\"lastValue\":\"8\",\"currentValue\":\"异常突增\",\"change\":\"异常波动\",\"level\":\"significant\"}],\"warnings\":[{\"level\":\"high\",\"content\":\"该指标异常幅度过大，建议退回重新采样复测\"}],\"suggestions\":\"退回重测：请核对样本是否溶血、污染或采集错误，重新检测后再发布报告。\"}";
+        }
+        if (containsAny(text, "白细胞", "中性粒", "血糖", "血钾", "血红蛋白")) {
+            return "{\"reviewResult\":\"manual\",\"reviewScore\":82,\"abnormalItems\":[{\"name\":\"白细胞计数\",\"value\":\"15.2\",\"unit\":\"×10^9/L\",\"reference\":\"4.0-10.0\",\"status\":\"偏高\",\"level\":\"moderate\"}],\"logicIssues\":[{\"level\":\"medium\",\"content\":\"白细胞总数与分类计数需人工确认是否匹配\"}],\"historyCompare\":[{\"item\":\"白细胞计数\",\"lastValue\":\"8.5\",\"currentValue\":\"15.2\",\"change\":\"+78.8%\",\"level\":\"significant\"}],\"warnings\":[{\"level\":\"medium\",\"content\":\"指标异常但仍需结合样本与病情判断\"}],\"suggestions\":\"人工复核：请检验师核对仪器结果、样本状态和历史记录，确认无误后发布。\"}";
+        }
+        return "{\"reviewResult\":\"pass\",\"reviewScore\":95,\"abnormalItems\":[],\"logicIssues\":[],\"historyCompare\":[],\"warnings\":[],\"suggestions\":\"自动通过：指标处于参考范围内，项目间逻辑关系合理，可正常发布。\"}";
     }
 
     private String mockGeneralChat(String question) {

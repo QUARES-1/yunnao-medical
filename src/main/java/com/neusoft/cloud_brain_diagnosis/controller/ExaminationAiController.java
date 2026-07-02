@@ -1,5 +1,7 @@
 package com.neusoft.cloud_brain_diagnosis.controller;
 
+import cn.hutool.json.JSONUtil;
+
 import com.neusoft.cloud_brain_diagnosis.common.annotation.RequireLogin;
 import com.neusoft.cloud_brain_diagnosis.common.context.UserContext;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
@@ -9,6 +11,7 @@ import com.neusoft.cloud_brain_diagnosis.entity.Examination;
 import com.neusoft.cloud_brain_diagnosis.entity.ExaminationAiReview;
 import com.neusoft.cloud_brain_diagnosis.feign.AiExaminationFeignClient;
 import com.neusoft.cloud_brain_diagnosis.repository.CriticalValueWarningRepository;
+import com.neusoft.cloud_brain_diagnosis.repository.ExaminationAiReviewRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.ExaminationRepository;
 import com.neusoft.cloud_brain_diagnosis.service.ai.AiExaminationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +43,7 @@ public class ExaminationAiController {
     private final AiExaminationService examinationService;
     private final ExaminationRepository examinationRepository;
     private final CriticalValueWarningRepository criticalValueWarningRepository;
+    private final ExaminationAiReviewRepository examinationAiReviewRepository;
 
     // ========== 检验报告解读 ==========
 
@@ -302,11 +306,7 @@ public class ExaminationAiController {
             try {
                 Examination exam = examinationRepository.findById(id).orElse(null);
                 Map<String, Object> result = examinationService.reviewExamination(id, labStaffId);
-                ExaminationAiReview review = null;
-                Object reviewId = result.get("reviewId");
-                if (reviewId instanceof Number number) {
-                    review = examinationService.getReviewDetail(number.longValue());
-                }
+                ExaminationAiReview review = examinationAiReviewRepository.findByExaminationId(id).orElse(null);
                 String text = buildReviewStreamText(exam, review, result);
                 emitter.send(SseEmitter.event().name("start").data("AI开始审核检验报告"));
                 for (int i = 0; i < text.length(); i++) {
@@ -417,21 +417,48 @@ public class ExaminationAiController {
         String reportNo = exam == null ? "EX" : "EX" + String.format("%06d", exam.getId());
         String reviewResult = review == null ? safe(String.valueOf(result.get("reviewResult"))) : safe(review.getReviewResult());
         String conclusion = "pass".equals(reviewResult) ? "自动通过" : "reject".equals(reviewResult) ? "退回重测" : "人工复核";
+        String abnormal = review == null ? summarizeAny(result.get("abnormalItems"), "未发现明显异常指标") : summarizeJsonText(review.getAbnormalItems(), "未发现明显异常指标");
+        String logic = review == null ? summarizeAny(result.get("logicIssues"), "项目间逻辑关系未发现明显矛盾") : summarizeJsonText(review.getLogicIssues(), "项目间逻辑关系未发现明显矛盾");
+        String history = review == null ? summarizeAny(result.get("historyCompare"), "暂无明显异常波动") : summarizeJsonText(review.getHistoryCompare(), "暂无明显异常波动");
+        String warnings = review == null ? summarizeAny(result.get("warnings"), "暂无高风险警告") : summarizeJsonText(review.getWarnings(), "暂无高风险警告");
+        String suggestions = review == null ? safe(String.valueOf(result.get("suggestions")), "按审核结论处理。") : safe(review.getSuggestions(), "按审核结论处理，必要时由检验师复核。");
+
         StringBuilder builder = new StringBuilder();
         builder.append("检查项目：").append(itemName).append("\n");
         builder.append("报告编号：").append(reportNo).append("\n");
         builder.append("审核结论：").append(conclusion).append("\n\n");
-        if (review != null) {
-            builder.append("异常指标：").append(summarizeJsonText(review.getAbnormalItems(), "未发现明显异常指标")).append("\n\n");
-            builder.append("逻辑校验：").append(summarizeJsonText(review.getLogicIssues(), "项目间逻辑关系未发现明显矛盾")).append("\n\n");
-            builder.append("历史波动：").append(summarizeJsonText(review.getHistoryCompare(), "暂无明显异常波动")).append("\n\n");
-            builder.append("处理建议：").append(safe(review.getSuggestions(), "按审核结论处理，必要时由检验师复核。"));
+        builder.append("一、结论原因\n");
+        if ("reject".equals(reviewResult)) {
+            builder.append("本报告被退回重测，是因为 AI 发现结果存在明显不合理或风险较高的情况，不能直接发布。需要重新采样或重新检测，避免把异常机器值误当作真实病情。\n");
+        } else if ("manual".equals(reviewResult)) {
+            builder.append("本报告需要人工复核，是因为部分指标异常、历史波动或项目间逻辑关系需要检验师进一步确认。复核通过后才建议发布。\n");
         } else {
-            builder.append("AI已完成初步审核，请刷新列表查看详情。");
+            builder.append("本报告自动通过，是因为主要指标处于参考范围内，项目间逻辑关系合理，未发现需要人工干预的高风险问题。\n");
         }
+        builder.append("\n二、重点指标\n").append(toBulletLines(abnormal));
+        builder.append("\n三、逻辑合理性校验\n").append(toBulletLines(logic));
+        builder.append("\n四、历史结果对比\n").append(toBulletLines(history));
+        builder.append("\n五、风险提示\n").append(toBulletLines(warnings));
+        builder.append("\n六、处理建议\n- ").append(suggestions);
         return builder.toString();
     }
 
+    private String summarizeAny(Object value, String emptyText) {
+        if (value == null) return emptyText;
+        return summarizeJsonText(JSONUtil.toJsonStr(value), emptyText);
+    }
+
+    private String toBulletLines(String text) {
+        String cleaned = safe(text);
+        if (cleaned.isBlank()) return "- 暂无\n";
+        String[] parts = cleaned.split("；|\\n");
+        StringBuilder builder = new StringBuilder();
+        for (String part : parts) {
+            String item = part.trim();
+            if (!item.isBlank()) builder.append("- ").append(item).append("\n");
+        }
+        return builder.length() == 0 ? "- " + cleaned + "\n" : builder.toString();
+    }
     private String summarizeJsonText(String value, String emptyText) {
         String text = safe(value);
         if (text.isBlank() || "[]".equals(text)) return emptyText;

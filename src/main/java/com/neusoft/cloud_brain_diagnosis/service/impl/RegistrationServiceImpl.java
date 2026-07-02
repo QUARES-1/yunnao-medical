@@ -90,7 +90,24 @@ public class RegistrationServiceImpl implements RegistrationService {
         registration.setStatus("待就诊");
 
         // 7. 保存并返回
-        return registrationRepository.save(registration);
+        Registration saved = registrationRepository.saveAndFlush(registration);
+
+        // 金仓数据库在部分 JDBC/Hibernate 组合下，IDENTITY 主键可能已经入库，
+        // 但没有正确回填到实体对象，导致前端拿到 id=0 后跳转详情失败。
+        // 这里按本次挂号的唯一业务条件查回最新记录，确保返回给前端的是真实挂号编号。
+        if (saved.getId() == null || saved.getId() <= 0) {
+            Registration persisted = registrationRepository
+                    .findTopByPatientIdAndDoctorIdAndRegistrationDateAndTimeSlotAndStatusNotOrderByCreateTimeDesc(
+                            saved.getPatientId(),
+                            saved.getDoctorId(),
+                            saved.getRegistrationDate(),
+                            saved.getTimeSlot(),
+                            "已取消");
+            if (persisted != null && persisted.getId() != null && persisted.getId() > 0) {
+                return persisted;
+            }
+        }
+        return saved;
     }
 
     /**

@@ -8,7 +8,7 @@
 
     <view class="overview">
       <view><text class="num">{{ warnings.length }}</text><text>预警记录</text></view>
-      <view><text class="num danger">{{ pendingCount }}</text><text>待医生处理</text></view>
+      <view><text class="num danger">{{ pendingCount }}</text><text>待完成处置</text></view>
       <view><text class="num safe">{{ processedCount }}</text><text>已完成处理</text></view>
     </view>
 
@@ -17,13 +17,14 @@
       <view class="item-head">
         <view class="alarm">!</view>
         <view class="head-main">
-          <text class="warning-title">{{ item.criticalItems || '发现危急指标' }}</text>
+          <text class="warning-title">{{ criticalTitle(item.criticalItems) }}</text>
           <text class="warning-time">{{ formatTime(item.createTime) }}</text>
         </view>
         <text class="status" :class="item.status">{{ statusText(item.status) }}</text>
       </view>
       <view class="info-row"><text>报告编号</text><text>EX{{ String(item.examinationId).padStart(6, '0') }}</text></view>
-      <view class="info-row"><text>开单医生</text><text>{{ item.doctorName || '待确认' }}医生</text></view>
+      <view class="critical-detail">{{ item.criticalItems || '检验结果达到危急值范围，请尽快联系医生。' }}</view>
+      <view class="info-row"><text>开单医生</text><text>{{ doctorDisplayName(item.doctorName) }}</text></view>
       <view class="info-row"><text>检验科处置</text><text class="urgent">{{ item.labRemark || '已标记加急复核' }}</text></view>
       <view v-if="item.doctorRemark" class="doctor-note">
         <text>医生处理意见</text><text>{{ item.doctorRemark }}</text>
@@ -73,6 +74,14 @@ async function loadData() {
 function statusText(status?: string) {
   return ({ pending: '待医生确认', confirmed: '医生已确认', processed: '已处理' } as Record<string, string>)[status || ''] || '预警中'
 }
+function criticalTitle(value?: string) {
+  const text = value?.trim()
+  return text ? text.split(/[，,；;]/)[0] : '发现危急指标'
+}
+function doctorDisplayName(value?: string) {
+  const name = value?.trim().replace(/医生$/, '')
+  return name ? `${name}医生` : '开单医生信息待同步'
+}
 function formatTime(value?: string) {
   return value ? value.replace('T', ' ').slice(0, 16) : '--'
 }
@@ -83,4 +92,5 @@ function goReport(id: number) {
 
 <style scoped>
 .page{min-height:100vh;background:#f4f8fb;padding:28rpx;color:#18394b}.hero{padding:34rpx;border-radius:34rpx;background:linear-gradient(135deg,#8b2732,#ef6b5b);color:#fff;box-shadow:0 16rpx 36rpx rgba(177,59,54,.18)}.tag,.title,.sub{display:block}.tag{font-size:19rpx;letter-spacing:3rpx;opacity:.75}.title{font-size:41rpx;font-weight:850;margin:12rpx 0}.sub{font-size:24rpx;line-height:1.7;opacity:.9}.overview{display:grid;grid-template-columns:repeat(3,1fr);gap:12rpx;margin-top:22rpx}.overview>view{padding:22rpx 8rpx;border-radius:22rpx;background:#fff;text-align:center;box-shadow:0 8rpx 24rpx rgba(29,68,83,.06)}.overview text{display:block;font-size:19rpx;color:#85979e}.overview .num{margin-bottom:5rpx;font-size:33rpx;font-weight:850;color:#244a58}.overview .danger{color:#e4564c}.overview .safe{color:#168e77}.warning-item,.empty,.state,.tips{margin-top:22rpx;border-radius:28rpx;background:#fff;box-shadow:0 10rpx 28rpx rgba(29,68,83,.07)}.warning-item{padding:25rpx;border-left:7rpx solid #ef6559}.item-head{display:flex;align-items:flex-start;gap:15rpx}.alarm{width:52rpx;height:52rpx;flex:none;border-radius:17rpx;background:#ffebe8;color:#e34e43;display:flex;align-items:center;justify-content:center;font-size:28rpx;font-weight:900}.head-main{flex:1;min-width:0}.warning-title,.warning-time{display:block}.warning-title{font-size:25rpx;font-weight:850;line-height:1.55}.warning-time{margin-top:6rpx;color:#93a3a8;font-size:19rpx}.status{flex:none;padding:7rpx 12rpx;border-radius:14rpx;background:#fff0ed;color:#dc5147;font-size:18rpx}.status.confirmed{background:#fff4dd;color:#bd7819}.status.processed{background:#e5f7f1;color:#168567}.info-row{display:flex;justify-content:space-between;gap:25rpx;padding:18rpx 0;border-bottom:1rpx solid #edf2f3;font-size:22rpx}.info-row text:first-child{color:#83969d}.info-row text:last-child{text-align:right}.urgent{color:#df5448!important}.doctor-note{margin-top:17rpx;padding:18rpx;border-radius:18rpx;background:#eef8ff}.doctor-note text{display:block}.doctor-note text:first-child{font-size:20rpx;font-weight:800;color:#287ca2}.doctor-note text:last-child{margin-top:7rpx;font-size:22rpx;line-height:1.6}.report-btn{margin-top:18rpx;background:#f0f8f9;color:#087f84;border-radius:18rpx;font-size:23rpx;font-weight:800}.empty,.state{padding:45rpx 25rpx;text-align:center;color:#84979e}.empty-icon{width:78rpx;height:78rpx;margin:auto;border-radius:26rpx;background:#e5f7f1;color:#168567;display:flex;align-items:center;justify-content:center;font-size:38rpx}.empty-title,.empty-text{display:block}.empty-title{margin-top:14rpx;font-size:29rpx;font-weight:850;color:#284a57}.empty-text{margin-top:9rpx;font-size:22rpx;line-height:1.7}.tips{padding:24rpx;background:#fff8ee}.tips text{display:block}.tips text:first-child{font-size:26rpx;font-weight:850;color:#a96a13}.tips text:last-child{margin-top:8rpx;font-size:22rpx;color:#836741;line-height:1.7}
+.critical-detail{margin:18rpx 0 2rpx;padding:18rpx 20rpx;border-radius:18rpx;background:#fff3f0;color:#b7433b;font-size:22rpx;font-weight:700;line-height:1.65}
 </style>

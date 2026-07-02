@@ -15,6 +15,12 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     Page<Registration> findByPatientIdOrderByCreateTimeDesc(Long patientId, Pageable pageable);
     Page<Registration> findByPatientIdAndStatusOrderByCreateTimeDesc(Long patientId, String status, Pageable pageable);
     List<Registration> findByDoctorIdAndRegistrationDateOrderByCreateTimeAsc(Long doctorId, LocalDate date);
+    Registration findTopByPatientIdAndDoctorIdAndRegistrationDateAndTimeSlotAndStatusNotOrderByCreateTimeDesc(
+            Long patientId,
+            Long doctorId,
+            LocalDate registrationDate,
+            String timeSlot,
+            String status);
     Page<Registration> findByDoctorIdOrderByCreateTimeDesc(Long doctorId, Pageable pageable);
     @Query("""
             select r from Registration r

@@ -36,8 +36,8 @@ public interface AiOtherFeignClient {
                                                    @RequestParam(defaultValue = "10") Integer size);
 
     @PostMapping("/api/follow-up/submit/{id}")
-    Result<Map<String, Object>> submitRecord(@PathVariable("id") Long id,
-                                              @RequestBody Map<String, Object> request);
+    Result<String> submitRecord(@PathVariable("id") Long id,
+                                @RequestBody Map<String, Object> request);
 
     @GetMapping("/api/follow-up/detail/{id}")
     Result<Map<String, Object>> getFollowUpDetail(@PathVariable("id") Long id);

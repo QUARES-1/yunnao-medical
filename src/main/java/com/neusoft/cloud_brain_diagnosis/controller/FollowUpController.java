@@ -59,7 +59,7 @@ public class FollowUpController {
     @PostMapping("/submit/{id}")
     @RequireLogin(RoleEnum.PATIENT)
     @Operation(summary = "提交随访", description = "患者提交随访问卷")
-    public Result<Map<String, Object>> submitRecord(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public Result<String> submitRecord(@PathVariable Long id, @RequestBody Map<String, Object> request) {
         return otherFeignClient.submitRecord(id, request);
     }
 

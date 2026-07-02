@@ -4,13 +4,19 @@ server:
 spring:
   application:
     name: brain-ai-svc
+  main:
+    allow-bean-definition-overriding: true
 
   datasource:
     # 金仓数据库 - 使用独立schema(ai_service)存储AI专属表
-    url: jdbc:kingbase8://LRM:54321/cloud_brain_diagnosis?currentSchema=ai_service&characterEncoding=UTF-8
+    url: jdbc:kingbase8://127.0.0.1:54321/cloud_brain_diagnosis?currentSchema=public&characterEncoding=UTF-8
     username: system
     password: 123456
     driver-class-name: com.kingbase8.Driver
+    hikari:
+      maximum-pool-size: 3
+      minimum-idle: 1
+      connection-timeout: 30000
 
   jpa:
     hibernate:

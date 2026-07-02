@@ -20,7 +20,7 @@
         <div>
           <span class="eyebrow">SSE STREAMING</span>
           <h2>AI库存预测流式预览</h2>
-          <p>模拟 SSE / WebSocket 的逐字输出效果，后续接真实 AI 接口时可直接替换数据源。</p>
+          <p>后端通过 SSE 实时推送 AI 预测内容，页面会逐字展示生成过程。</p>
         </div>
         <el-button size="small" :loading="pharmacyStore.streaming" @click="startStreamReport">{{ pharmacyStore.streamText ? '重新生成' : '开始生成' }}</el-button>
       </div>
@@ -150,6 +150,7 @@ onMounted(loadHistory)
   font-size:18px;
 }
 </style>
+
 
 
 

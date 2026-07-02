@@ -92,24 +92,30 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         String aiResponse = aiApiUtil.callAi(prompt, systemPrompt);
         try {
             JSONObject json = JSONUtil.parseObj(aiResponse);
-            record.setAiAnalysis(json.getStr("analysis", aiResponse));
+            String analysis = json.getStr("analysis", "");
+            if (analysis == null || analysis.isBlank() || "{}".equals(analysis.trim())) {
+                analysis = buildLocalFollowUpAnalysis(answerJson);
+            }
+            record.setAiAnalysis(analysis);
             boolean abnormal = json.getBool("abnormal", false) || containsDangerSignal(answerJson);
             record.setAbnormalFlag(abnormal ? 1 : 0);
             if (abnormal) record.setStatus("abnormal");
         } catch (Exception e) {
-            record.setAiAnalysis(aiResponse);
+            record.setAiAnalysis(buildLocalFollowUpAnalysis(answerJson));
             if (containsDangerSignal(answerJson)) {
                 record.setAbnormalFlag(1);
                 record.setStatus("abnormal");
-                record.setAiAnalysis("检测到异常恢复信号，建议尽快联系医生并安排复诊。");
+                record.setAiAnalysis(buildLocalFollowUpAnalysis(answerJson));
             }
         }
         recordRepository.save(record);
 
         FollowUpPlan plan = planRepository.findById(record.getPlanId()).orElse(null);
         if (plan != null) {
-            plan.setCompletedTimes(plan.getCompletedTimes() + 1);
-            if (plan.getCompletedTimes() >= plan.getTotalTimes()) {
+            int completedTimes = Optional.ofNullable(plan.getCompletedTimes()).orElse(0) + 1;
+            int totalTimes = Optional.ofNullable(plan.getTotalTimes()).orElse(1);
+            plan.setCompletedTimes(completedTimes);
+            if (completedTimes >= totalTimes) {
                 plan.setStatus("completed");
             }
             planRepository.save(plan);
@@ -122,7 +128,49 @@ public class AiFollowUpServiceImpl implements AiFollowUpService {
         String[] keywords = {"症状加重", "持续高热", "高热", "胸痛", "胸闷", "呼吸困难",
                 "意识不清", "大量出血", "伤口红肿", "伤口流脓", "剧烈疼痛", "反复呕吐",
                 "自行停药", "39℃", "40℃"};
-        return Arrays.stream(keywords).anyMatch(value::contains);
+        return Arrays.stream(keywords).anyMatch(value::contains) || hasFever(value);
+    }
+
+    private boolean hasFever(String text) {
+        try {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern
+                    .compile("\"temperature\"\\s*:\\s*\"?([0-9]+(?:\\.[0-9]+)?)")
+                    .matcher(text);
+            if (matcher.find()) {
+                return Double.parseDouble(matcher.group(1)) >= 38.0;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
+    }
+
+    private String buildLocalFollowUpAnalysis(String answerJson) {
+        String value = Optional.ofNullable(answerJson).orElse("");
+        boolean danger = containsDangerSignal(value);
+        String recovery = extractAnswer(value, "recovery", "未填写");
+        String temperature = extractAnswer(value, "temperature", "未填写");
+        String symptoms = extractAnswer(value, "symptoms", "未填写");
+        String medicine = extractAnswer(value, "medicine", "未填写");
+        String wound = extractAnswer(value, "wound", "未填写");
+
+        if (danger) {
+            return "AI分析：本次随访提示存在需要关注的恢复信号。当前体温为 " + temperature
+                    + "℃，症状描述为“" + symptoms + "”，服药情况为“" + medicine
+                    + "”，伤口情况为“" + wound + "”。建议尽快联系医生或到院复诊，尤其需要关注发热、胸痛、呼吸困难、症状加重或自行停药等情况。";
+        }
+        return "AI分析：本次随访显示整体恢复情况为“" + recovery + "”，当前体温 " + temperature
+                + "℃，症状描述为“" + symptoms + "”，服药情况为“" + medicine
+                + "”。目前未识别到明显高风险信号，请继续按医嘱休息、服药和观察；如症状加重或出现发热、胸闷、呼吸困难，请及时复诊。";
+    }
+
+    private String extractAnswer(String json, String key, String fallback) {
+        try {
+            JSONObject object = JSONUtil.parseObj(json);
+            String value = object.getStr(key, "");
+            return value == null || value.isBlank() ? fallback : value;
+        } catch (Exception ignored) {
+            return fallback;
+        }
     }
 
     @Override

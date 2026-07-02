@@ -10,7 +10,7 @@
       <view class="sheet-head">
         <view>
           <text class="eyebrow">REPORT INTERPRETATION</text>
-          <text class="title">{{ reportName }}报告解读</text>
+          <text class="title">{{ displayReportName }}报告解读</text>
           <text class="number">检查编号：EX{{ String(report.examinationId || examinationId).padStart(6, '0') }}</text>
         </view>
         <text class="status">AI已解读</text>
@@ -106,6 +106,11 @@ const abnormalIndicators = computed<AbnormalIndicator[]>(() => {
   } catch {
     return []
   }
+})
+
+const displayReportName = computed(() => {
+  const itemName = (report.value as any)?.itemName
+  return itemName || reportName.value
 })
 
 const abnormalFallback = computed(() => {

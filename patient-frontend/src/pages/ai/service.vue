@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
-import { askAiChat } from '@/api/patient'
+import { streamSse } from '@/utils/sse'
 import { showError } from '@/utils/request'
 const question = ref('')
 const answer = ref('')
@@ -23,8 +23,29 @@ async function ask(q: string) {
   if (!q.trim()) return uni.showToast({ title: '请输入问题', icon: 'none' })
   question.value = q
   loading.value = true
-  try { const res = await askAiChat({ question: q, sessionId: `patient-service-${Date.now()}` }); answer.value = res.answer; related.value = res.relatedQuestions || [] }
-  catch (e) { showError(e); answer.value = '你可以先在首页进入挂号记录查看预约，也可以到药房窗口凭预约编号取药。若问题紧急，请及时联系医院导诊台。' }
+  answer.value = ''
+  related.value = []
+  try {
+    await streamSse({
+      url: '/api/ai/chat/stream',
+      method: 'POST',
+      auth: false,
+      data: { question: q, sessionId: `patient-service-${Date.now()}` },
+      handlers: {
+        onDelta: chunk => { answer.value += chunk },
+        onDone: data => {
+          try {
+            const meta = JSON.parse(data || '{}')
+            related.value = meta.relatedQuestions || []
+          } catch {
+            related.value = []
+          }
+        },
+        onError: message => { throw new Error(message || 'AI回复生成失败') }
+      }
+    })
+  }
+  catch (e) { showError(e); answer.value = '网络连接失败，请检查后端服务。你也可以先在首页进入挂号记录查看预约，或到药房窗口凭预约编号取药。' }
   finally { loading.value = false }
 }
 </script>

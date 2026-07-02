@@ -67,7 +67,7 @@
             <artifactId>kingbase8-jdbc</artifactId>
             <version>9.0.0</version>
             <scope>system</scope>
-            <systemPath>D:\kingbase\KESRealPro\V009R001C010\Interface\jdbc\kingbase8-9.0.0.jar</systemPath>
+            <systemPath>D:\Kingbase\ES\V9\KESRealPro\V009R001C010\Interface\jdbc\kingbase8-9.0.0.jar</systemPath>
         </dependency>
 
         <!-- 金仓 Hibernate 方言包 -->
@@ -76,7 +76,7 @@
             <artifactId>hibernate-dialect</artifactId>
             <version>6.2</version>
             <scope>system</scope>
-            <systemPath>D:\kingbase\KESRealPro\V009R001C010\Interface\hibernate\hibernate-6.2.dialect.jar</systemPath>
+            <systemPath>D:\Kingbase\ES\V9\KESRealPro\V009R001C010\Interface\hibernate\hibernate-6.2.dialect.jar</systemPath>
         </dependency>
 
         <!-- Lombok -->

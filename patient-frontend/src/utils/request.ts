@@ -16,11 +16,18 @@ export function request<T>(options: {
 }): Promise<T> {
   return new Promise((resolve, reject) => {
     const token = uni.getStorageSync('patient_token') as string
+    const header: Record<string, string> = {}
+    if (token && options.auth !== false) {
+      header.Authorization = `Bearer ${token}`
+    }
+    if ((options.method || 'GET') !== 'GET') {
+      header['Content-Type'] = 'application/json;charset=utf-8'
+    }
     uni.request({
       url: `${API_BASE_URL}${options.url}`,
       method: options.method || 'GET',
       data: options.data,
-      header: token && options.auth !== false ? { Authorization: `Bearer ${token}` } : {},
+      header,
       success: (response) => {
         const data = response.data as ApiResult<T>
         if (data.code === 200) return resolve(data.data)

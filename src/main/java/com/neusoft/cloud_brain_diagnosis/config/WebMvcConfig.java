@@ -40,6 +40,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/api/triage/consult",
                         "/api/triage/detail/**",
                         "/api/ai/chat",
+                        "/api/ai/chat/stream",
                         "/api/examination/ai/interpret-patient/**",
                         "/api/follow-up/detail/**",
                         // AI 微服务回调的内部接口

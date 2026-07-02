@@ -1,5 +1,6 @@
 package com.neusoft.cloud_brain_diagnosis.config;
 
+import com.neusoft.cloud_brain_diagnosis.common.context.UserContext;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,6 +38,12 @@ public class FeignAuthConfig {
             // 传递用户上下文（供 AI 微服务直接使用）
             String userId = request.getHeader("X-User-Id");
             String role = request.getHeader("X-User-Role");
+            if (userId == null && UserContext.getUserId() != null) {
+                userId = String.valueOf(UserContext.getUserId());
+            }
+            if (role == null && UserContext.getRole() != null) {
+                role = UserContext.getRole();
+            }
             if (userId != null) template.header("X-User-Id", userId);
             if (role != null) template.header("X-User-Role", role);
         };

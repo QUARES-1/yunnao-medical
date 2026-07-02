@@ -1,4 +1,4 @@
-﻿server:
+server:
   port: 8080
 
 spring:
@@ -7,10 +7,14 @@ spring:
 
   datasource:
     # 金仓数据库配置
-    url: jdbc:kingbase8://LRM:54321/cloud_brain_diagnosis?characterEncoding=UTF-8
+    url: jdbc:kingbase8://127.0.0.1:54321/cloud_brain_diagnosis?characterEncoding=UTF-8
     username: system
     password: 123456
     driver-class-name: com.kingbase8.Driver
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+      connection-timeout: 30000
 
   # JPA配置
   jpa:

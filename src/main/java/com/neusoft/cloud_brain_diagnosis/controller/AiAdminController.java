@@ -8,7 +8,6 @@ import com.neusoft.cloud_brain_diagnosis.common.annotation.RequireLogin;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.result.Result;
 import com.neusoft.cloud_brain_diagnosis.entity.OperationAiReport;
-import com.neusoft.cloud_brain_diagnosis.feign.AiAdminFeignClient;
 import com.neusoft.cloud_brain_diagnosis.repository.AiChatRecordRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.AiKnowledgeBaseRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.CriticalValueWarningRepository;
@@ -17,6 +16,7 @@ import com.neusoft.cloud_brain_diagnosis.repository.FollowUpPlanRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.MedicationGuideRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.OperationAiReportRepository;
 import com.neusoft.cloud_brain_diagnosis.repository.QualityCheckRecordRepository;
+import com.neusoft.cloud_brain_diagnosis.service.ai.AiQualityService;
 import com.neusoft.cloud_brain_diagnosis.repository.TriageRecordRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,7 +38,7 @@ import java.util.Map;
 @Tag(name = "AI管理端", description = "AI运营分析、医疗质检、问答日志")
 public class AiAdminController {
 
-    private final AiAdminFeignClient adminFeignClient;
+    private final AiQualityService aiQualityService;
     private final AiChatRecordRepository aiChatRecordRepository;
     private final TriageRecordRepository triageRecordRepository;
     private final QualityCheckRecordRepository qualityCheckRecordRepository;
@@ -66,7 +66,9 @@ public class AiAdminController {
     @GetMapping("/operation-report/{id}")
     @Operation(summary = "运营报告详情", description = "查看运营分析报告详情")
     public Result<Map<String, Object>> getReportDetail(@PathVariable Long id) {
-        return adminFeignClient.getReportDetail(id);
+        OperationAiReport report = operationAiReportRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("运营报告不存在"));
+        return Result.success(toReportMap(report));
     }
 
     /**
@@ -309,7 +311,22 @@ public class AiAdminController {
     @PostMapping("/quality-check/start")
     @Operation(summary = "发起AI质检", description = "发起一次AI医疗质量质检")
     public Result<Map<String, Object>> startQualityCheck(@RequestBody Map<String, Object> request) {
-        return adminFeignClient.startQualityCheck(request);
+        String checkType = toStringValue(request.get("checkType"));
+        if (checkType == null || checkType.isBlank()) {
+            checkType = toStringValue(request.get("type"));
+        }
+        if (checkType == null || checkType.isBlank()) {
+            checkType = "病历质检";
+        }
+
+        Integer sampleSize = toIntegerValue(request.get("sampleSize"));
+        if (sampleSize == null) {
+            sampleSize = toIntegerValue(request.get("size"));
+        }
+        if (sampleSize == null || sampleSize <= 0) {
+            sampleSize = 10;
+        }
+        return Result.success(aiQualityService.startQualityCheck(checkType, sampleSize));
     }
 
     /**
@@ -320,7 +337,7 @@ public class AiAdminController {
     public Result<Map<String, Object>> getCheckList(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return adminFeignClient.getCheckList(page, size);
+        return Result.success(toPageMap(aiQualityService.getCheckList(page, size)));
     }
 
     /**
@@ -328,8 +345,8 @@ public class AiAdminController {
      */
     @GetMapping("/quality-check/{id}")
     @Operation(summary = "质检详情", description = "质检记录详情")
-    public Result<Map<String, Object>> getCheckDetail(@PathVariable Long id) {
-        return adminFeignClient.getCheckDetail(id);
+    public Result<Object> getCheckDetail(@PathVariable Long id) {
+        return Result.success((Object) aiQualityService.getCheckDetail(id));
     }
 
     /**
@@ -341,7 +358,7 @@ public class AiAdminController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return adminFeignClient.getCheckDetails(id, page, size);
+        return Result.success(toPageMap(aiQualityService.getCheckDetails(id, page, size)));
     }
 
     /**
@@ -350,7 +367,34 @@ public class AiAdminController {
     @GetMapping("/quality-check/doctor-stats")
     @Operation(summary = "医生质检统计", description = "各医生质检统计")
     public Result<Map<String, Object>> getDoctorStats() {
-        return adminFeignClient.getDoctorStats();
+        return Result.success(aiQualityService.getDoctorStats());
+    }
+
+    private Map<String, Object> toPageMap(org.springframework.data.domain.Page<?> pageData) {
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("content", pageData.getContent());
+        data.put("records", pageData.getContent());
+        data.put("totalElements", pageData.getTotalElements());
+        data.put("total", pageData.getTotalElements());
+        data.put("totalPages", pageData.getTotalPages());
+        data.put("number", pageData.getNumber());
+        data.put("page", pageData.getNumber() + 1);
+        data.put("size", pageData.getSize());
+        return data;
+    }
+
+    private String toStringValue(Object value) {
+        return value == null ? null : String.valueOf(value);
+    }
+
+    private Integer toIntegerValue(Object value) {
+        if (value == null || String.valueOf(value).isBlank()) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        return Integer.valueOf(String.valueOf(value));
     }
 
     // ========== 问答日志 ==========
@@ -374,3 +418,5 @@ public class AiAdminController {
         return Result.success(data);
     }
 }
+
+

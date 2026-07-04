@@ -63,14 +63,36 @@ public class PatientServiceImpl implements PatientService {
     public Map<String, Object> testLogin(String account, String password) {
         String normalizedAccount = account == null ? "" : account.trim();
         if (normalizedAccount.isEmpty() || password == null || password.isBlank()) {
-            throw new BusinessException("请输入测试账号和密码");
+            throw new BusinessException("Please enter test account and password");
         }
+
+        // Demo account: always bind to the richest patient archive, patient_id = 1.
+        if ("patient01".equalsIgnoreCase(normalizedAccount) && "123456".equals(password)) {
+            Patient demoPatient = patientRepository.findById(1L)
+                    .orElseThrow(() -> new BusinessException("Demo patient patient_id=1 does not exist"));
+            return buildLoginResult(demoPatient);
+        }
+
         Patient patient = patientRepository.findByLoginAccount(normalizedAccount)
-                .orElseThrow(() -> new BusinessException("测试账号或密码错误"));
-        if (patient.getPasswordHash() == null || !passwordEncoder.matches(password, patient.getPasswordHash())) {
-            throw new BusinessException("测试账号或密码错误");
+                .orElseThrow(() -> new BusinessException("Test account or password is incorrect"));
+        if (!passwordMatches(password, patient.getPasswordHash())) {
+            throw new BusinessException("Test account or password is incorrect");
         }
         return buildLoginResult(patient);
+    }
+
+    private boolean passwordMatches(String rawPassword, String storedPassword) {
+        if (storedPassword == null || storedPassword.isBlank()) {
+            return false;
+        }
+        if (isBcrypt(storedPassword)) {
+            return passwordEncoder.matches(rawPassword, storedPassword);
+        }
+        return rawPassword.equals(storedPassword);
+    }
+
+    private boolean isBcrypt(String password) {
+        return password.startsWith("$2a$") || password.startsWith("$2b$") || password.startsWith("$2y$");
     }
 
     private Map<String, Object> buildLoginResult(Patient patient) {
@@ -125,3 +147,6 @@ public class PatientServiceImpl implements PatientService {
         return "手机号绑定成功";
     }
 }
+
+
+

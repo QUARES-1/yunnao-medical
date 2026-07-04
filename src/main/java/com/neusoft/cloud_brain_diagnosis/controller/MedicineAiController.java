@@ -6,14 +6,17 @@ import cn.hutool.json.JSONUtil;
 import com.neusoft.cloud_brain_diagnosis.common.annotation.RequireLogin;
 import com.neusoft.cloud_brain_diagnosis.common.enums.RoleEnum;
 import com.neusoft.cloud_brain_diagnosis.common.result.Result;
-import com.neusoft.cloud_brain_diagnosis.feign.AiStockFeignClient;
+import com.neusoft.cloud_brain_diagnosis.entity.StockForecast;
+import com.neusoft.cloud_brain_diagnosis.service.ai.AiStockService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestController
@@ -22,7 +25,7 @@ import java.util.Map;
 @Tag(name = "AI库存预测", description = "AI药品库存智能预测模块")
 public class MedicineAiController {
 
-    private final AiStockFeignClient stockFeignClient;
+    private final AiStockService stockService;
 
     /**
      * 生成库存预测
@@ -30,8 +33,14 @@ public class MedicineAiController {
     @PostMapping("/stock-forecast/generate")
     @RequireLogin({RoleEnum.PHARMACY, RoleEnum.ADMIN})
     @Operation(summary = "生成库存预测", description = "生成月度/周度库存预测和采购建议")
-    public Result<Map<String, Object>> generateForecast(@RequestBody Map<String, Object> request) {
-        return stockFeignClient.generateForecast(request);
+    public Result<Map<String, Object>> generateForecast(
+            @RequestBody(required = false) Map<String, Object> request,
+            @RequestParam(required = false) String forecastType,
+            @RequestParam(required = false) String forecastPeriod) {
+        Map<String, Object> body = request == null ? Map.of() : request;
+        String type = forecastType != null ? forecastType : String.valueOf(body.getOrDefault("forecastType", "monthly"));
+        String period = forecastPeriod != null ? forecastPeriod : (body.get("forecastPeriod") == null ? null : String.valueOf(body.get("forecastPeriod")));
+        return Result.success(stockService.generateStockForecast(type, period));
     }
 
     /**
@@ -41,7 +50,11 @@ public class MedicineAiController {
     @RequireLogin({RoleEnum.PHARMACY, RoleEnum.ADMIN})
     @Operation(summary = "预测详情", description = "查看库存预测详情")
     public Result<Map<String, Object>> getForecastDetail(@PathVariable Long id) {
-        return stockFeignClient.getForecastDetail(id);
+        StockForecast forecast = stockService.getForecastDetail(id);
+        if (forecast == null) {
+            return Result.error("库存预测记录不存在");
+        }
+        return Result.success(toForecastMap(forecast));
     }
 
     /**
@@ -54,7 +67,7 @@ public class MedicineAiController {
             @RequestParam(required = false) String forecastType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        return stockFeignClient.getForecastList(forecastType, page, size);
+        return Result.success(toPageMap(stockService.getForecastList(forecastType, page, size)));
     }
 
     /**
@@ -63,20 +76,25 @@ public class MedicineAiController {
     @PostMapping(value = "/stock-forecast/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @RequireLogin({RoleEnum.PHARMACY, RoleEnum.ADMIN})
     @Operation(summary = "流式生成库存预测报告", description = "通过 SSE 逐字返回库存预测分析内容")
-    public SseEmitter streamForecast(@RequestBody Map<String, Object> request) {
+    public SseEmitter streamForecast(
+            @RequestBody(required = false) Map<String, Object> request,
+            @RequestParam(required = false) String forecastType,
+            @RequestParam(required = false) String forecastPeriod) {
         SseEmitter emitter = new SseEmitter(120_000L);
         new Thread(() -> {
             try {
+                Map<String, Object> body = request == null ? Map.of() : request;
                 Map<String, Object> data;
-                if (request.get("medicines") != null) {
-                    data = request;
-                    data.put("forecastData", JSONUtil.toJsonStr(request.get("medicines")));
+                if (body.get("medicines") != null) {
+                    data = new LinkedHashMap<>(body);
+                    data.put("forecastData", JSONUtil.toJsonStr(body.get("medicines")));
                 } else {
-                    Result<Map<String, Object>> generated = stockFeignClient.generateForecast(request);
-                    data = generated.getData();
+                    String type = forecastType != null ? forecastType : String.valueOf(body.getOrDefault("forecastType", "monthly"));
+                    String period = forecastPeriod != null ? forecastPeriod : (body.get("forecastPeriod") == null ? null : String.valueOf(body.get("forecastPeriod")));
+                    data = stockService.generateStockForecast(type, period);
                 }
                 if (data == null) {
-                    emitter.send(SseEmitter.event().name("error").data("库存预测生成失败，请确认 8081 AI 服务已启动"));
+                    emitter.send(SseEmitter.event().name("error").data("库存预测生成失败，请检查药品和处方数据"));
                     emitter.complete();
                     return;
                 }
@@ -97,6 +115,35 @@ public class MedicineAiController {
             }
         }, "ai-stock-forecast-stream").start();
         return emitter;
+    }
+
+    private Map<String, Object> toPageMap(Page<StockForecast> page) {
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("content", page.getContent().stream().map(this::toForecastMap).toList());
+        result.put("records", page.getContent().stream().map(this::toForecastMap).toList());
+        result.put("list", page.getContent().stream().map(this::toForecastMap).toList());
+        result.put("total", page.getTotalElements());
+        result.put("page", page.getNumber() + 1);
+        result.put("size", page.getSize());
+        result.put("pages", page.getTotalPages());
+        return result;
+    }
+
+    private Map<String, Object> toForecastMap(StockForecast forecast) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("id", forecast.getId());
+        map.put("forecastType", forecast.getForecastType());
+        map.put("forecastPeriod", forecast.getForecastPeriod());
+        map.put("medicineId", forecast.getMedicineId());
+        map.put("categoryId", forecast.getCategoryId());
+        map.put("forecastData", forecast.getForecastData());
+        map.put("purchaseSuggestions", forecast.getPurchaseSuggestions());
+        map.put("totalForecastAmount", forecast.getTotalForecastAmount());
+        map.put("totalPurchaseAmount", forecast.getTotalPurchaseAmount());
+        map.put("factors", forecast.getFactors());
+        map.put("rawResponse", forecast.getRawResponse());
+        map.put("createTime", forecast.getCreateTime());
+        return map;
     }
 
     private String buildStreamForecastText(Map<String, Object> data) {

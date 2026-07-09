@@ -38,6 +38,13 @@ src/test/resources/
 
 ### Node ###
 node_modules/
+dist/
+*.tsbuildinfo
 
 ### Coverage ###
 */coverage/
+
+### Logs ###
+*.log
+*.err.log
+*.out.log

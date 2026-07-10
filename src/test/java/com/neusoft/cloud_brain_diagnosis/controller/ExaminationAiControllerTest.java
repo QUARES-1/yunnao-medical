@@ -293,8 +293,8 @@ class ExaminationAiControllerTest {
         String manualText = ReflectionTestUtils.invokeMethod(controller, "buildReviewStreamText", exam, manual, Map.of());
         String rejectText = ReflectionTestUtils.invokeMethod(controller, "buildReviewStreamText", exam, null, Map.of("reviewResult", "reject"));
         String passText = ReflectionTestUtils.invokeMethod(controller, "buildReviewStreamText", null, null, Map.of("reviewResult", "pass"));
-        String bullets = ReflectionTestUtils.invokeMethod(controller, "toBulletLines", "a\nb");
-        String summary = ReflectionTestUtils.invokeMethod(controller, "summarizeJsonText", "[{\"name\":\"A\"}]", "empty");
+        String bullets = ReflectionTestUtils.invokeMethod(controller, "toBulletLines", List.of("a", "b"));
+        List<Map<String, Object>> summary = ReflectionTestUtils.invokeMethod(controller, "parseReviewItemArray", "[{\"name\":\"A\"}]");
         Long longValue = ReflectionTestUtils.invokeMethod(controller, "toLong", "123");
         Long nullLong = ReflectionTestUtils.invokeMethod(controller, "toLong", "bad");
         String escaped = ReflectionTestUtils.invokeMethod(controller, "jsonEscape", "a\"b");
@@ -303,7 +303,7 @@ class ExaminationAiControllerTest {
         assertNotNull(rejectText);
         assertNotNull(passText);
         assertTrue(bullets.contains("a"));
-        assertTrue(summary.contains("A"));
+        assertEquals("A", summary.get(0).get("name"));
         assertEquals(123L, longValue);
         assertNull(nullLong);
         assertEquals("a\\\"b", escaped);

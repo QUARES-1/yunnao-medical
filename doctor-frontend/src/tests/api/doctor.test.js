@@ -24,7 +24,8 @@ import {
   getExaminationItems, createExamination, cancelExamination,
   getDoctorExaminations, getExaminationsByRegistration, getExaminationDetail,
   getMedicineList, createPrescription, cancelPrescription,
-  getDoctorPrescriptions, getPrescriptionsByRegistration, getPrescriptionDetail
+  getDoctorPrescriptions, getPrescriptionsByRegistration, getPrescriptionDetail,
+  aiGenerateRecord, aiCheckPrescription, aiGenerateRecordStream
 } from '@/api/doctor'
 
 describe('Doctor API', () => {
@@ -271,6 +272,51 @@ describe('Doctor API', () => {
       expect(mockGet).toHaveBeenCalled()
       expect(mockGet.mock.calls[0][0]).toBe('/api/prescription/detail/6')
       expect(result.data).toEqual(detail)
+    })
+  })
+
+  describe('AI functions', () => {
+    it('should call aiGenerateRecord with correct endpoint', async () => {
+      mockPost.mockResolvedValue({ code: 200, msg: '生成成功', data: { chiefComplaint: '头痛' } })
+      const data = { patientId: 1, description: '头痛3天' }
+      const result = await aiGenerateRecord(data)
+      expect(mockPost).toHaveBeenCalledWith('/api/medical-record/ai/generate', data)
+      expect(result.data.chiefComplaint).toBe('头痛')
+    })
+
+    it('should call aiCheckPrescription with correct endpoint', async () => {
+      mockPost.mockResolvedValue({ code: 200, data: { reviewResult: 'pass', reviewScore: 95 } })
+      const data = { prescriptionId: 3, drugs: [] }
+      const result = await aiCheckPrescription(data)
+      expect(mockPost).toHaveBeenCalledWith('/api/prescription/ai/check', data)
+      expect(result.data.reviewResult).toBe('pass')
+    })
+
+    it('aiGenerateRecordStream should call fetch with token', async () => {
+      localStorage.setItem('token', 'doctor-token-xyz')
+      const encoder = new TextEncoder()
+      let index = 0
+      const chunks = [
+        encoder.encode('event: field\ndata: chiefComplaint\n\n'),
+        encoder.encode('event: char\ndata: 头痛\n\n'),
+        encoder.encode('event: complete\ndata: done\n\n')
+      ]
+      vi.stubGlobal('fetch', vi.fn(async () => ({
+        ok: true,
+        body: {
+          getReader: () => ({
+            read: async () => index < chunks.length ? { done: false, value: chunks[index++] } : { done: true }
+          })
+        }
+      })))
+      const data = { registrationId: 5 }
+      const response = await aiGenerateRecordStream(data)
+      expect(fetch).toHaveBeenCalled()
+      const call = fetch.mock.calls[0]
+      expect(call[0]).toBe('http://localhost:8080/api/medical-record/ai/generate-stream')
+      expect(call[1].method).toBe('POST')
+      expect(call[1].headers.token).toBe('doctor-token-xyz')
+      expect(JSON.parse(call[1].body)).toEqual(data)
     })
   })
 })

@@ -143,7 +143,7 @@ class AiAdminControllerTest {
         report.setId(1L);
         report.setSummary("Summary");
 
-        when(operationService.getReportDetail(1L)).thenReturn(report);
+        when(operationAiReportRepository.findById(1L)).thenReturn(java.util.Optional.of(report));
 
         mockMvc.perform(get("/api/admin/ai/operation-report/1")
                         .header("Authorization", "Bearer admin-token"))
@@ -388,7 +388,7 @@ class AiAdminControllerTest {
         when(followUpRepo.count()).thenReturn(9L);
 
         AiAdminController controller = new AiAdminController(
-                adminFeignClient, chatRepo, triageRepo, qualityRepo, knowledgeRepo, reportRepo,
+                qualityService, chatRepo, triageRepo, qualityRepo, knowledgeRepo, reportRepo,
                 interpretationRepo, medicationRepo, warningRepo, followUpRepo);
 
         Map<String, Object> overview = ReflectionTestUtils.invokeMethod(controller, "buildLocalOverview");
@@ -416,7 +416,7 @@ class AiAdminControllerTest {
             return report;
         });
         AiAdminController controller = new AiAdminController(
-                adminFeignClient, chatRepo, triageRepo, qualityRepo, knowledgeRepo, reportRepo,
+                qualityService, chatRepo, triageRepo, qualityRepo, knowledgeRepo, reportRepo,
                 interpretationRepo, medicationRepo, warningRepo, followUpRepo);
 
         Result<Map<String, Object>> result = controller.generateReport(Map.of("reportType", "monthly"));
@@ -430,7 +430,7 @@ class AiAdminControllerTest {
     @Test
     void formatHelpers_ShouldHandleJsonBlankAndInvalidInput() {
         AiAdminController controller = new AiAdminController(
-                adminFeignClient,
+                qualityService,
                 mock(AiChatRecordRepository.class),
                 mock(TriageRecordRepository.class),
                 mock(QualityCheckRecordRepository.class),

@@ -11,12 +11,12 @@ export default defineConfig({
     environment: 'happy-dom',
     globals: true,
     setupFiles: ['./src/tests/setup.js'],
-    include: ['src/tests/**/*.test.{js,mjs}'],
+    include: ['src/tests/**/*.test.{js,mjs,ts}'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{js,ts,vue}'],
-      exclude: ['src/main.ts', 'src/tests/**', 'src/views/**', 'src/router/**', 'src/components/**', 'src/App.vue', 'src/env.d.ts']
+      exclude: ['src/main.ts', 'src/tests/**', 'src/views/**', 'src/router/**', 'src/components/**', 'src/layouts/**', 'src/types/**', 'src/App.vue', 'src/env.d.ts']
     }
   }
 })

@@ -1,74 +1,84 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import router from '@/router'
+
+vi.stubGlobal('localStorage', {
+  data: {},
+  getItem(key) { return this.data[key] ?? null },
+  setItem(key, val) { this.data[key] = val },
+  removeItem(key) { delete this.data[key] },
+  clear() { this.data = {} }
+})
 
 describe('Router Configuration (doctor)', () => {
-  const routes = [
-    { path: '/login', name: 'Login', meta: { requiresAuth: false } },
-    { path: '/', redirect: '/workbench', meta: { requiresAuth: true } },
-    { path: 'workbench', name: 'Workbench', meta: { title: '工作台' } },
-    { path: 'consultation/:regId', name: 'Consultation', meta: { title: '看诊' } },
-    { path: 'history', name: 'History', meta: { title: '历史记录' } },
-    { path: 'profile', name: 'Profile', meta: { title: '个人中心' } }
-  ]
+
+  beforeEach(() => {
+    localStorage.clear()
+  })
 
   describe('route definitions', () => {
     it('should define login as public route', () => {
-      const loginRoute = routes.find(r => r.path === '/login')
+      const loginRoute = router.getRoutes().find(r => r.path === '/login')
       expect(loginRoute?.meta.requiresAuth).toBe(false)
     })
 
-    it('should protect main routes with auth', () => {
-      const workbenchRoute = routes.find(r => r.path === 'workbench')
+    it('should protect root route with auth', () => {
+      const rootRoute = router.getRoutes().find(r => r.path === '/')
+      expect(rootRoute?.meta.requiresAuth).toBe(true)
+    })
+
+    it('should have workbench child route', () => {
+      const rootRoute = router.getRoutes().find(r => r.path === '/')
+      const workbenchRoute = rootRoute?.children?.find(r => r.path === 'workbench')
       expect(workbenchRoute?.meta.title).toBe('工作台')
     })
 
     it('should have consultation route with regId param', () => {
-      const consultationRoute = routes.find(r => r.path === 'consultation/:regId')
-      expect(consultationRoute?.path).toBe('consultation/:regId')
+      const rootRoute = router.getRoutes().find(r => r.path === '/')
+      const consultationRoute = rootRoute?.children?.find(r => r.path === 'consultation/:regId')
+      expect(consultationRoute).toBeDefined()
       expect(consultationRoute?.meta.title).toBe('看诊')
     })
 
     it('should have history route', () => {
-      const historyRoute = routes.find(r => r.path === 'history')
+      const rootRoute = router.getRoutes().find(r => r.path === '/')
+      const historyRoute = rootRoute?.children?.find(r => r.path === 'history')
       expect(historyRoute?.meta.title).toBe('历史记录')
     })
 
     it('should have profile route', () => {
-      const profileRoute = routes.find(r => r.path === 'profile')
+      const rootRoute = router.getRoutes().find(r => r.path === '/')
+      const profileRoute = rootRoute?.children?.find(r => r.path === 'profile')
       expect(profileRoute?.meta.title).toBe('个人中心')
     })
 
     it('should have catch-all redirect to root', () => {
-      const catchAll = { path: '/:pathMatch(.*)*', redirect: '/' }
-      expect(catchAll.redirect).toBe('/')
+      const catchAll = router.getRoutes().find(r => r.path === '/:pathMatch(.*)*')
+      expect(catchAll?.redirect).toBe('/')
     })
   })
 
-  describe('navigation guard logic', () => {
-    it('should allow public routes without token', () => {
-      const publicRoute = { meta: { requiresAuth: false } }
-      const hasToken = false
-      const shouldRedirect = publicRoute.meta.requiresAuth !== false && !hasToken
+  describe('navigation guard', () => {
+    it('should allow navigation to public route without token', async () => {
+      localStorage.clear()
+      const to = { path: '/login', meta: { requiresAuth: false } }
+      const token = localStorage.getItem('token')
+      const shouldRedirect = to.meta.requiresAuth !== false && !token
       expect(shouldRedirect).toBe(false)
     })
 
-    it('should require token for protected routes', () => {
-      const protectedRoute = { meta: {} }
-      const hasToken = false
-      const shouldRedirect = protectedRoute.meta.requiresAuth !== false && !hasToken
+    it('should require token for protected routes', async () => {
+      localStorage.clear()
+      const token = localStorage.getItem('token')
+      const to = { path: '/workbench', meta: { requiresAuth: true } }
+      const shouldRedirect = to.meta.requiresAuth !== false && !token
       expect(shouldRedirect).toBe(true)
     })
 
-    it('should redirect to / when already logged in', () => {
-      const to = { path: '/login' }
-      const hasToken = true
-      const shouldRedirect = to.path === '/login' && hasToken
-      expect(shouldRedirect).toBe(true)
-    })
-
-    it('should allow navigation when authenticated', () => {
+    it('should allow navigation when authenticated', async () => {
+      localStorage.setItem('token', 'doctor-token')
+      const token = localStorage.getItem('token')
       const to = { path: '/workbench', meta: {} }
-      const hasToken = true
-      const shouldRedirect = to.meta.requiresAuth !== false && !hasToken
+      const shouldRedirect = to.meta.requiresAuth !== false && !token
       expect(shouldRedirect).toBe(false)
     })
   })

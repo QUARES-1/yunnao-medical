@@ -290,28 +290,28 @@ class PatientServiceTest {
     void testLogin_ShouldThrow_WhenAccountIsNull() {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin(null, "password123"));
-        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+        assertTrue(ex.getMessage().contains("Please enter test account and password"));
     }
 
     @Test
     void testLogin_ShouldThrow_WhenAccountIsBlank() {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("   ", "password123"));
-        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+        assertTrue(ex.getMessage().contains("Please enter test account and password"));
     }
 
     @Test
     void testLogin_ShouldThrow_WhenPasswordIsNull() {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("account", null));
-        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+        assertTrue(ex.getMessage().contains("Please enter test account and password"));
     }
 
     @Test
     void testLogin_ShouldThrow_WhenPasswordIsBlank() {
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("account", "   "));
-        assertTrue(ex.getMessage().contains("请输入测试账号和密码"));
+        assertTrue(ex.getMessage().contains("Please enter test account and password"));
     }
 
     @Test
@@ -320,7 +320,7 @@ class PatientServiceTest {
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("unknown", "password"));
-        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+        assertTrue(ex.getMessage().contains("Test account or password is incorrect"));
     }
 
     @Test
@@ -333,7 +333,7 @@ class PatientServiceTest {
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("account", "wrongpassword"));
-        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+        assertTrue(ex.getMessage().contains("Test account or password is incorrect"));
     }
 
     @Test
@@ -346,7 +346,7 @@ class PatientServiceTest {
 
         BusinessException ex = assertThrows(BusinessException.class,
                 () -> patientService.testLogin("account", "anypassword"));
-        assertTrue(ex.getMessage().contains("测试账号或密码错误"));
+        assertTrue(ex.getMessage().contains("Test account or password is incorrect"));
     }
 
     // ========== wxLogin() - Edge Cases ==========

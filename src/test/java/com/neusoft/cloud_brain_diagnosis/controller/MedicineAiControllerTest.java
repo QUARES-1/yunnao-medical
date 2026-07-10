@@ -134,7 +134,7 @@ class MedicineAiControllerTest {
 
     @Test
     void buildStreamForecastText_ShouldSummarizeForecastRows() {
-        MedicineAiController controller = new MedicineAiController(stockFeignClient);
+        MedicineAiController controller = new MedicineAiController(stockService);
         Map<String, Object> data = Map.of(
                 "forecastPeriod", "2026-07",
                 "forecastData", """
@@ -155,7 +155,7 @@ class MedicineAiControllerTest {
 
     @Test
     void buildStreamForecastText_ShouldHandleInvalidForecastJson() {
-        MedicineAiController controller = new MedicineAiController(stockFeignClient);
+        MedicineAiController controller = new MedicineAiController(stockService);
         Map<String, Object> data = Map.of("forecastData", "not-json");
 
         String text = ReflectionTestUtils.invokeMethod(controller, "buildStreamForecastText", data);
@@ -166,31 +166,31 @@ class MedicineAiControllerTest {
 
     @Test
     void streamForecast_ShouldReturnEmitter_WhenMedicinesAlreadyProvided() {
-        MedicineAiController controller = new MedicineAiController(stockFeignClient);
+        MedicineAiController controller = new MedicineAiController(stockService);
 
         SseEmitter emitter = controller.streamForecast(Map.of(
                 "forecastPeriod", "2026-07",
                 "medicines", List.of(Map.of("name", "A", "suggestPurchase", 1))
-        ));
+        ), null, null);
 
         assertNotNull(emitter);
     }
 
     @Test
     void streamForecast_ShouldReturnEmitter_WhenGeneratedDataIsNull() {
-        MedicineAiController controller = new MedicineAiController(stockFeignClient);
-        when(stockFeignClient.generateForecast(anyMap())).thenReturn(Result.success(null));
+        MedicineAiController controller = new MedicineAiController(stockService);
+        when(stockService.generateStockForecast(anyString(), any())).thenReturn(null);
 
-        SseEmitter emitter = controller.streamForecast(Map.of("forecastType", "monthly"));
+        SseEmitter emitter = controller.streamForecast(Map.of("forecastType", "monthly"), null, null);
 
         assertNotNull(emitter);
     }
 
     @Test
     void streamForecast_ShouldReturnEmitter_WhenFeignThrows() {
-        MedicineAiController controller = new MedicineAiController(stockFeignClient);
-        when(stockFeignClient.generateForecast(anyMap())).thenThrow(new RuntimeException("service down"));
+        MedicineAiController controller = new MedicineAiController(stockService);
+        when(stockService.generateStockForecast(anyString(), any())).thenThrow(new RuntimeException("service down"));
 
-        assertDoesNotThrow(() -> controller.streamForecast(Map.of("forecastType", "monthly")));
+        assertDoesNotThrow(() -> controller.streamForecast(Map.of("forecastType", "monthly"), null, null));
     }
 }

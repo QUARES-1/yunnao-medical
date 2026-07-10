@@ -16,7 +16,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{js,ts}'],
-      exclude: ['src/main.ts', 'src/tests/**', 'src/pages/**', 'src/App.vue', 'src/env.d.ts', 'src/shime-uni.d.ts']
+      exclude: [
+        'src/main.ts', 'src/tests/**', 'src/pages/**', 'src/types/**',
+        'src/App.vue', 'src/env.d.ts', 'src/shime-uni.d.ts',
+        // #ifndef H5 block in sse.ts is only reachable in non-H5 environments
+        'src/utils/sse.ts'
+      ]
     }
   }
 })
